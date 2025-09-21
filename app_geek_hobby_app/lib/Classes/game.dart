@@ -1,6 +1,6 @@
-import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
-import 'package:app_geek_hobby_app/Enums/genres/game_genre.dart';
-import 'package:app_geek_hobby_app/Enums/gameAge.dart';
+import '/Users/samrobertson/Development/projects/Flutter_GeekHobbyApp/app_geek_hobby_app/lib/Enums/Platforms/game_platform.dart';
+import '/Users/samrobertson/Development/projects/Flutter_GeekHobbyApp/app_geek_hobby_app/lib/Enums/AgeRatings/game_age.dart';
+import '/Users/samrobertson/Development/projects/Flutter_GeekHobbyApp/app_geek_hobby_app/lib/Enums/Genres/game_genre.dart';
 import 'item.dart';
 
 class Game extends Item {

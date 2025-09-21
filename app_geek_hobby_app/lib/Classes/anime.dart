@@ -1,4 +1,4 @@
-import 'package:app_geek_hobby_app/Classes/item.dart';
+import 'item.dart';
 
 class Anime extends Item{
   final bool isMovie;
