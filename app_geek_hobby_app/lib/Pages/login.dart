@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -12,6 +13,40 @@ class LoginPage extends StatelessWidget {
     void createUser() {
       final email = emailController.text.trim();
       final password = passwordController.text;
+      if (email.isEmpty || password.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Input'),
+            content: const Text('Email and password cannot be empty.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      } else {
+      final userBox = Hive.box('users');
+      final emailExists = userBox.values.any((user) => user.email == email);
+      if (emailExists) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Email Already Registered'),
+            content: const Text('The email you entered is already registered. Please use a different email.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
 
       bool isEmailValid = email.contains('@');
       bool isPasswordValid = password.length >= 6;
@@ -36,6 +71,7 @@ class LoginPage extends StatelessWidget {
                     email: email,
                     password: password,
                   );
+                  Hive.box('users').add(user);
                   Navigator.of(context).pop();
                   showDialog(
                     context: context,
@@ -71,10 +107,80 @@ class LoginPage extends StatelessWidget {
           ),
         );
       }
+      }
     }
 
     void signInUser() {
       // Implement sign-in logic here
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+      if (email.isEmpty || password.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Input'),
+            content: const Text('Email and password cannot be empty.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+      final userBox = Hive.box('users');
+      final user = userBox.values.firstWhere(
+        (user) => user.email == email && user.password == password,
+        orElse: () => null,
+      );
+        if (user == null) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('User Not Found'),
+        content: const Text('No account found for this email.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+
+  if (user.password == password) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign In Successful'),
+        content: Text('Welcome, ${user.username}!'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Incorrect Password'),
+        content: const Text('The password you entered is incorrect.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
     }
 
     return Scaffold(
