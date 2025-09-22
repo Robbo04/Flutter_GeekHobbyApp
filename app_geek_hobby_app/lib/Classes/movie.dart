@@ -1,6 +1,6 @@
 import 'item.dart';
-import '/Users/samrobertson/Development/projects/Flutter_GeekHobbyApp/app_geek_hobby_app/lib/Enums/AgeRatings/movie_age.dart';
-import '/Users/samrobertson/Development/projects/Flutter_GeekHobbyApp/app_geek_hobby_app/lib/Enums/genres/video_genre.dart';
+import 'package:app_geek_hobby_app/Enums/AgeRatings/movie_age.dart';
+import 'package:app_geek_hobby_app/Enums/Genres/video_genre.dart';
 
 class Movie extends Item {
   final List<VideoGenre> genres;
