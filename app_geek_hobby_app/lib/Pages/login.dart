@@ -4,7 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  final VoidCallback onLoginSuccess;
+  const LoginPage({super.key, required this.onLoginSuccess});
 
   @override
   Widget build(BuildContext context) {
