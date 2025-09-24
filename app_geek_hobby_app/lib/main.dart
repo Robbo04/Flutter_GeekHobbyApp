@@ -2,9 +2,12 @@ import 'package:app_geek_hobby_app/Pages/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:app_geek_hobby_app/Classes/user.dart';
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  Hive.registerAdapter(UserAdapter());
   await Hive.openBox('users'); // Open the box here
   runApp(const MyApp());
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
