@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
+class SearchPage extends StatelessWidget {
+  const SearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore'),
+        title: const Text('Search'),
       ),
       body: const Center(
-        child: Text('Explore Page Content Here'),
+        child: Text('Search Page Content Here'),
       ),
     );
   }
