@@ -1,6 +1,6 @@
 import 'item.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/show_age.dart';
-import 'package:app_geek_hobby_app/Enums/genres/video_genre.dart';
+import 'package:app_geek_hobby_app/Enums/Genres/video_genre.dart';
 
 class Show extends Item {
   final List<VideoGenre> genres;

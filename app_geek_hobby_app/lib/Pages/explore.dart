@@ -1,21 +1,15 @@
 import 'package:app_geek_hobby_app/Classes/item.dart';
 import 'package:app_geek_hobby_app/Classes/movie.dart';
-import 'package:app_geek_hobby_app/Enums/genres/video_genre.dart';
+import 'package:app_geek_hobby_app/Enums/Genres/video_genre.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/movie_age.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Data/list_data.dart';
 
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Movie> moviesListTest = [
-      Movie(name: 'MovieName', studio: 'StudioName', yearReleased: 2004, genres: [VideoGenre.action, VideoGenre.adventure], director: 'DirectorName', duration: 120, ageRating: MovieAgeRating.pg, imdbRating: 7.5,),
-      Movie(name: 'AnotherMovie', studio: 'AnotherStudio', yearReleased: 2010, genres: [VideoGenre.comedy, VideoGenre.drama], director: 'AnotherDirector', duration: 90, ageRating: MovieAgeRating.fifteen, imdbRating: 6.8,),
-      Movie(name: 'ThirdMovie', studio: 'ThirdStudio', yearReleased: 2015, genres: [VideoGenre.horror, VideoGenre.thriller], director: 'ThirdDirector', duration: 100, ageRating: MovieAgeRating.eighteen, imdbRating: 8.0,),
-      Movie(name: 'FourthMovie', studio: 'FourthStudio', yearReleased: 2020, genres: [VideoGenre.sciFi, VideoGenre.fantasy], director: 'FourthDirector', duration: 110, ageRating: MovieAgeRating.pg, imdbRating: 7.2,),
-    ]; // Replace with actual data source
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore'),
@@ -44,7 +38,7 @@ class ExplorePage extends StatelessWidget {
             height: 180,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: moviesListTest.length,
+              itemCount: moviesListTest.items.length,
               itemBuilder: (context, index) {
                 return Container(
                   width: 140,
@@ -66,7 +60,7 @@ class ExplorePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        moviesListTest[index].name,
+                        moviesListTest.items[index].name,
                         style: const TextStyle(fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
