@@ -1,7 +1,3 @@
-import 'package:app_geek_hobby_app/Classes/item.dart';
-import 'package:app_geek_hobby_app/Classes/movie.dart';
-import 'package:app_geek_hobby_app/Enums/Genres/video_genre.dart';
-import 'package:app_geek_hobby_app/Enums/AgeRatings/movie_age.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Data/list_data.dart';
 
@@ -41,13 +37,13 @@ class ExplorePage extends StatelessWidget {
               itemCount: moviesListTest.items.length,
               itemBuilder: (context, index) {
                 return Container(
-                  width: 140,
+                  width: 75,
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     children: [
                       Container(
                         height: 120,
-                        width: 120,
+                        width: 90,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(12),
