@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:app_geek_hobby_app/Pages/explore.dart';
 
 
 class LoginPage extends StatelessWidget {
@@ -84,8 +83,8 @@ class LoginPage extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () {
+                            onLoginSuccess();
                             Navigator.of(context).pop();
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ExplorePage()));
                           },
                           child: const Text('OK'),
                         ),
@@ -167,8 +166,8 @@ class LoginPage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
+              onLoginSuccess();
               Navigator.of(context).pop();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ExplorePage()));
             },
             child: const Text('OK'),
           ),

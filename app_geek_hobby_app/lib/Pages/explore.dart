@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:app_geek_hobby_app/Classes/Widgets/navigation_bar.dart';
 
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});

@@ -30,10 +30,14 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 184, 55, 182),
+        unselectedItemColor: Colors.black,
+        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
           BottomNavigationBarItem(icon: Icon(Icons.swipe), label: 'Suggestions'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Social'),
           BottomNavigationBarItem(icon: Icon(Icons.collections), label: 'Collections'),
