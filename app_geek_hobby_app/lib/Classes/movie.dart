@@ -1,11 +1,11 @@
 import 'item.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/movie_age.dart';
-import 'package:app_geek_hobby_app/Enums/Genres/video_genre.dart';
+import 'package:app_geek_hobby_app/Enums/genres/video_genre.dart';
 
 class Movie extends Item {
   final List<VideoGenre> genres;
   final String director;
-  final String duration; // Duration in minutes
+  final int duration; // Duration in minutes
   final MovieAgeRating ageRating; // Age rating
   final double imdbRating; // IMDb or RT rating out of 10
 
