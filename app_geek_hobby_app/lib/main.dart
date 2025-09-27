@@ -1,3 +1,4 @@
+import 'package:app_geek_hobby_app/Classes/Widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:app_geek_hobby_app/authentication_gate.dart';
@@ -39,7 +40,10 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: AuthenticationGate(),
+      home: MainTabScaffold(),
+
+      //DEFAULT PAGE to start.
+      //home: AuthenticationGate(),
     );
   }
 }
