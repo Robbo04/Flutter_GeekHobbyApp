@@ -8,6 +8,7 @@ class SuggestionsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Suggestions'),
+        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: const Center(
         child: Text('Suggestions Page Content Here'),

@@ -8,6 +8,7 @@ class SocialPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Social'),
+        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: const Center(
         child: Text('Social Page Content Here'),

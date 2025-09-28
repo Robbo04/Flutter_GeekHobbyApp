@@ -10,6 +10,7 @@ class ExplorePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore'),
+        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
