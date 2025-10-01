@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Pages/item_detail.dart';
+
 class ItemCarousel extends StatelessWidget {
   final String title;
   final List items;
@@ -27,27 +29,37 @@ class ItemCarousel extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return Container(
-                width: 75,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  children: [
-                    Container(
-                      height: 120,
-                      width: 90,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(12),
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ItemDetailPage(item: items[index]),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 75,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 120,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.image, size: 60, color: Colors.grey),
                       ),
-                      child: const Icon(Icons.image, size: 60, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      getName(items[index]),
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        getName(items[index]),
+                        style: const TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -57,3 +69,4 @@ class ItemCarousel extends StatelessWidget {
     );
   }
 }
+

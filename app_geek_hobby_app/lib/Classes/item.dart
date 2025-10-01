@@ -22,4 +22,5 @@ class Item
   void toggleWishlist() {
     wishlist = !wishlist;
   }
+  
  } 

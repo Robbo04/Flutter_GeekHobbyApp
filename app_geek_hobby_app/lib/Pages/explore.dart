@@ -1,4 +1,5 @@
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
+import 'package:app_geek_hobby_app/Data/collection_list_data.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Data/list_data.dart';
 
@@ -47,6 +48,12 @@ class ExplorePage extends StatelessWidget {
             getName: (item) => item.name,
           ),
           const SizedBox(height: 10),
+          ItemCarousel(
+            title: 'Anime',
+            items: animeListTest.items,
+            getName: (item) => item.name,
+          ),
+          const SizedBox(height: 20),
           const Center(
             child: Text('Explore Page Content Here'),
           ),

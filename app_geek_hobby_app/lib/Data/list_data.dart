@@ -5,6 +5,7 @@ import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
 import 'package:app_geek_hobby_app/Classes/movie.dart';
 import 'package:app_geek_hobby_app/Classes/show.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
 
 import 'package:app_geek_hobby_app/Enums/AgeRatings/movie_age.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/show_age.dart';
@@ -47,3 +48,15 @@ final ItemList gameListsTest = ItemList(
       Game(name: 'Game 4', studio: 'Studio 4', yearReleased: 2023, genres: [GameGenre.strategy], platforms: [], ageRating: GameAge.pegi7, metacriticRating: 80),
     ],
   )..allowedTypes.add(Game);
+
+
+final ItemList animeListTest = ItemList(
+  name: 'Anime',
+  items: [
+    Anime(name: 'Anime 1', studio: 'Studio 1', yearReleased: 2020, isMovie: true, runtime: 120, seasons: 0, episodes: 0),
+    Anime(name: 'Anime 2', studio: 'Studio 2', yearReleased: 2021, isMovie: false, runtime: 24, seasons: 1, episodes: 12),
+    Anime(name: 'Anime 3', studio: 'Studio 3', yearReleased: 2022, isMovie: false, runtime: 25, seasons: 2, episodes: 24),
+    Anime(name: 'Anime 4', studio: 'Studio 4', yearReleased: 2023, isMovie: true, runtime: 90, seasons: 0, episodes: 0),  
+    // Sample Anime items
+  ],
+)..allowedTypes.add(Anime);
