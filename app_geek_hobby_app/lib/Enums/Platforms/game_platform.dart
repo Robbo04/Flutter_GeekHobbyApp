@@ -12,8 +12,12 @@ extension GamePlatformExtension on GamePlatform {
   static GamePlatform fromRawg(String slug) {
     switch (slug) {
       case 'pc':
+      case 'linux':
+      case 'macos':
+      case 'web':
         return GamePlatform.pc;
 
+      case 'ps-vita':
       case 'playstation':
       case 'playstation2':
       case 'playstation3':
@@ -22,7 +26,8 @@ extension GamePlatformExtension on GamePlatform {
         return GamePlatform.playstation;
 
       case 'xbox':
-      case 'xbox-360':
+      case 'xbox-old':
+      case 'xbox360':
       case 'xbox-one':
       case 'xbox-series-x':
       case 'xbox-series-s':
@@ -39,6 +44,7 @@ extension GamePlatformExtension on GamePlatform {
       case 'android':
       case 'mobile':
         return GamePlatform.mobile;
+
       case 'oculus-rift':
       case 'htc-vive':
       case 'playstation-vr':
@@ -47,6 +53,7 @@ extension GamePlatformExtension on GamePlatform {
       case 'vr':
         return GamePlatform.vr;
       default:
+        print('Unknown platform slug: $slug');
         return GamePlatform.other;
     }
   }

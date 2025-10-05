@@ -73,6 +73,7 @@ extension GameGenreExtension on GameGenre {
       case 'educational':
         return GameGenre.educational;
       default:
+        print('Unknown genre slug: $slug');
         return GameGenre.other;
     }
   }
