@@ -36,10 +36,8 @@ class Game extends Item {
               .toList() ??
           [],
       platforms: (data['platforms'] as List<dynamic>?)
-              ?.map((p) => GamePlatform.values.firstWhere(
-                  (e) => e.name.toLowerCase() == (p['platform']['slug'] ?? ''),
-                  orElse: () => GamePlatform.other))
-              .toList() ??
+        ?.map((p) => GamePlatformExtension.fromRawg(p['platform']['slug']))
+        .toList() ??
           [],
       ageRating: GameAge.pegi3, // RAWG doesn't always provide age, set default or parse if available
       metacriticRating: data['metacritic'] ?? 0,

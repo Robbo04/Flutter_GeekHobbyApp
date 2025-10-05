@@ -22,4 +22,15 @@ class RawgService {
       throw Exception('Failed to load games');
     }
   }
+
+  Future<Map<String, dynamic>?> fetchGameDetails(int id) async {
+    final url = Uri.parse('$_baseUrl/games/$id?key=$_apiKey');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to load game details');
+    }
+  }
 }
