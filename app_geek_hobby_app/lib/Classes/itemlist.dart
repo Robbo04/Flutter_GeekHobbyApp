@@ -1,7 +1,3 @@
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Classes/show.dart';
-import 'package:app_geek_hobby_app/Classes/movie.dart';
 import 'item.dart';
 
 class ItemList 

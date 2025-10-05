@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
-
 class Item
  {
   String name;
   String studio;
-  Image coverImage;
+  String? imageUrl;
   bool owned = false;
   bool wishlist = false;
   int yearReleased;
@@ -14,7 +12,8 @@ class Item
     required this.name, 
     required this.studio, 
     required this.yearReleased, 
-    this.coverImage = const Image(image: AssetImage('assets/placeholder.png')),});
+    this.imageUrl,
+  });
 
   void toggleOwned() {
     owned = !owned;

@@ -18,6 +18,15 @@ class GameDisplay extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+              if (game.imageUrl != null)
+                Center(
+                  child: Image.network(
+                    game.imageUrl!,
+                    height: 200,
+                  ),
+                ),
+              const SizedBox(height: 16),
               Text(
                 game.name,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
