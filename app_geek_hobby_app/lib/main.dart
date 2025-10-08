@@ -4,6 +4,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:app_geek_hobby_app/authentication_gate.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
 
+import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
+import 'package:app_geek_hobby_app/Enums/AgeRatings/game_age.dart';
+import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
+
+import 'package:app_geek_hobby_app/Classes/item.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> initializeApis() async {
@@ -14,8 +21,22 @@ Future<void> initializeApis() async {
 
 Future<void> initializeHive() async {
   await Hive.initFlutter();
+
+  // Register adapters
   Hive.registerAdapter(UserAdapter());
-  await Hive.openBox('users');
+
+  Hive.registerAdapter(GameAdapter());
+  Hive.registerAdapter(GamePlatformAdapter());
+  Hive.registerAdapter(GameAgeAdapter());
+  Hive.registerAdapter(GameGenreAdapter());
+  Hive.registerAdapter(ItemAdapter());
+
+  // Open necessary boxes
+  await Hive.openBox<User>('users');
+  await Hive.openBox<Game>('rawg_games');
+  await Hive.openBox<Item>('items');
+  await Hive.openBox<List>('rawg_search_results');
+  await Hive.openBox<Game>('rawg_game_details');
 }
 
 void main() async {

@@ -1,10 +1,22 @@
+import 'package:hive/hive.dart';
+
+part 'game_platform.g.dart';
+
+@HiveType(typeId: 23)
 enum GamePlatform {
+  @HiveField(0)
   pc,
+  @HiveField(1)
   playstation,
+  @HiveField(2) 
   xbox,
+  @HiveField(3)
   nintendo,
+  @HiveField(4)
   mobile,
+  @HiveField(5)
   vr,
+  @HiveField(6)
   other
 }
 

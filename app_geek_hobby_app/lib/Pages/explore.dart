@@ -19,12 +19,7 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   void initState() {
     super.initState();
-    _gamesFuture = _fetchGames();
-  }
-
-  Future<List<Game>> _fetchGames() async {
-    final rawgGames = await _rawgService.fetchGames();
-    return rawgGames.map((data) => Game.fromRawg(data)).toList();
+    _gamesFuture = _rawgService.fetchGames();
   }
 
   @override
@@ -37,33 +32,36 @@ class _ExplorePageState extends State<ExplorePage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SizedBox(
-            width: 250,
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+          // Search bar (if you want to keep it)
+          TextField(
+            decoration: InputDecoration(
+              hintText: 'Search...',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
             ),
           ),
           const SizedBox(height: 14),
+
+          // Movies carousel
           ItemCarousel(
             title: 'Movies',
             items: moviesListTest.items,
             getName: (item) => item.name,
           ),
           const SizedBox(height: 14),
+
+          // Shows carousel
           ItemCarousel(
             title: 'Shows',
             items: showsListTest.items,
             getName: (item) => item.name,
           ),
           const SizedBox(height: 14),
-          // Games from RAWG
+
+          // Games from RAWG (FutureBuilder)
           FutureBuilder<List<Game>>(
             future: _gamesFuture,
             builder: (context, snapshot) {
@@ -78,17 +76,20 @@ class _ExplorePageState extends State<ExplorePage> {
               return ItemCarousel(
                 title: 'Games (RAWG)',
                 items: games,
-                getName: (item) => item.name,
+                getName: (item) => (item as Game).name,
               );
             },
           ),
           const SizedBox(height: 14),
+
+          // Anime carousel
           ItemCarousel(
             title: 'Anime',
             items: animeListTest.items,
             getName: (item) => item.name,
           ),
           const SizedBox(height: 20),
+
           const Center(
             child: Text('Explore Page Content Here'),
           ),

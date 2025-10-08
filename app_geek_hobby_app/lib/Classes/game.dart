@@ -2,13 +2,22 @@ import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/game_age.dart';
 import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
 import 'item.dart';
+import 'package:hive/hive.dart';
 
+part 'game.g.dart';
+
+@HiveType(typeId: 2)
 class Game extends Item {
+  @HiveField(7)
   final int id;
+  @HiveField(8)
   final List<GameGenre> genres;
+  @HiveField(9)
   final List<GamePlatform> platforms;
+  @HiveField(10)
   final GameAge ageRating;
-  final int metacriticRating; // Metacritic rating out of 100
+  @HiveField(11)
+  final int metacriticRating; // Metacritic rating out of 100\
 
   Game({
     required this.id,
