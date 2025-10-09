@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:app_geek_hobby_app/Pages/item_detail.dart';
-import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'item_carousel_card.dart';
 
 class ItemCarousel extends StatelessWidget {
   final String title;
@@ -30,62 +29,15 @@ class ItemCarousel extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ItemDetailPage(item: items[index]),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 90,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 140,
-                        width: 90,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Container(
-                          height: 160,
-                          width: 90,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(12),
-                            image: items[index] is Game && items[index].imageUrl != null && items[index].imageUrl.isNotEmpty
-                                ? DecorationImage(
-                                    image: NetworkImage(items[index].imageUrl),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                        ),
-                        child: (items[index] is! Game || items[index].imageUrl == null || items[index].imageUrl.isEmpty)
-                            ? const Icon(Icons.image, size: 60, color: Colors.grey)
-                            : null,
-                      ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        getName(items[index]),
-                        style: const TextStyle(fontSize: 14),
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
+              return ItemCarouselCard(
+                item: items[index],
+                getName: getName,
               );
             },
           ),
         ),
       ],
-    );
+    );      
   }
 }
 

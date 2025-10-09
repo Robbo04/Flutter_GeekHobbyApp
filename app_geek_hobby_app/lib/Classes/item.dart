@@ -32,5 +32,11 @@ class Item {
   void toggleWishlist() {
     wishlist = !wishlist;
   }
+  void setUserRating(int rating) {
+    if (rating < 0 || rating > 100) {
+      throw ArgumentError('Rating must be between 0 and 10');
+    }
+    userRating = rating;
+  }
   
  } 
