@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part 'item.g.dart';
 
 @HiveType(typeId: 1)
-class Item {
+class Item extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
@@ -11,9 +11,9 @@ class Item {
   @HiveField(2)
   String? imageUrl;
   @HiveField(3)
-  bool owned = false;
+  bool owned;
   @HiveField(4) 
-  bool wishlist = false;
+  bool wishlist;
   @HiveField(5)
   int yearReleased;
   @HiveField(6)
@@ -24,6 +24,8 @@ class Item {
     required this.studio, 
     required this.yearReleased, 
     this.imageUrl,
+    this.owned = false,
+    this.wishlist = false,
   });
 
   void toggleOwned() {

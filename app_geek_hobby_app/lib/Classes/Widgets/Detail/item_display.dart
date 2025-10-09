@@ -4,12 +4,20 @@ class ItemDisplay extends StatelessWidget {
   final String title;
   final List<Widget> details;
   final String? imageUrl;
+  final bool owned;
+  final bool wishlisted;
+  final ValueChanged<bool> onOwnedChanged;
+  final ValueChanged<bool> onWishlistChanged;
 
   const ItemDisplay({
     super.key,
     required this.title,
     required this.details,
     this.imageUrl,
+    required this.owned,
+    required this.wishlisted,
+    required this.onOwnedChanged,
+    required this.onWishlistChanged,
   });
 
   @override
@@ -29,6 +37,36 @@ class ItemDisplay extends StatelessWidget {
               ),
             const SizedBox(height: 16),
             ...details,
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: SwitchListTile(
+                    title: const Text('Owned'),
+                    value: owned,
+                    onChanged: (val) {
+                      if (!owned) {
+                        onOwnedChanged(val);
+                        if (wishlisted) {
+                          onWishlistChanged(false);
+                        }
+                      } else {
+                        onOwnedChanged(val);
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: SwitchListTile(
+                    title: const Text('Wishlist'),
+                    value: wishlisted,
+                    onChanged: owned
+                        ? null // Disable if owned
+                        : (val) => onWishlistChanged(val),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
