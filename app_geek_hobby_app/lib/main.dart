@@ -37,6 +37,7 @@ Future<void> initializeHive() async {
   await Hive.openBox<Item>('items');
   await Hive.openBox<List>('rawg_search_results');
   await Hive.openBox<Game>('rawg_game_details');
+  
 }
 
 void main() async {

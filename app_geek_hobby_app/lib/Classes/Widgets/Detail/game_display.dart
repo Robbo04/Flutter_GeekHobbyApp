@@ -14,12 +14,14 @@ class GameDisplay extends StatefulWidget {
 class _GameDisplayState extends State<GameDisplay> {
   late bool owned;
   late bool wishlisted;
+  late int userRating;
 
   @override
   void initState() {
     super.initState();
     owned = widget.game.owned;
     wishlisted = widget.game.wishlist;
+    userRating = widget.game.userRating;
   }
 
   void updateOwned(bool value) async {
@@ -40,6 +42,13 @@ class _GameDisplayState extends State<GameDisplay> {
     await widget.game.save();
   }
 
+  void updateUserRating(int rating) async {
+    setState(() {
+      widget.game.userRating = rating;
+    });
+    await widget.game.save();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ItemDisplay(
@@ -50,16 +59,16 @@ class _GameDisplayState extends State<GameDisplay> {
         const SizedBox(height: 16),
         Text(widget.game.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.game.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
-        Text("User Rating: ${widget.game.userRating}", style: const TextStyle(fontSize: 16)),
         Text("Age Rating: ${widget.game.ageRating}", style: const TextStyle(fontSize: 16)),
         Text("Genres: ${widget.game.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
         Text("Platforms: ${widget.game.platforms.map((p) => p.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
-        Text("Metacritic Rating: ${widget.game.metacriticRating}/100", style: const TextStyle(fontSize: 16)),
       ],
       owned: owned,
       wishlisted: wishlisted,
       onOwnedChanged: updateOwned,
       onWishlistChanged: updateWishlist,
+      userRating: userRating,
+      onUserRatingChanged: updateUserRating,
     );
   }
 }

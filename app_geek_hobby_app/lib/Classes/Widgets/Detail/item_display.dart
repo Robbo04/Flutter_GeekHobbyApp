@@ -1,3 +1,4 @@
+import 'package:app_geek_hobby_app/Classes/Widgets/user_rating_bar.dart';
 import 'package:flutter/material.dart';
 
 class ItemDisplay extends StatelessWidget {
@@ -8,6 +9,8 @@ class ItemDisplay extends StatelessWidget {
   final bool wishlisted;
   final ValueChanged<bool> onOwnedChanged;
   final ValueChanged<bool> onWishlistChanged;
+  final int userRating;
+  final ValueChanged<int> onUserRatingChanged;
 
   const ItemDisplay({
     super.key,
@@ -18,7 +21,12 @@ class ItemDisplay extends StatelessWidget {
     required this.wishlisted,
     required this.onOwnedChanged,
     required this.onWishlistChanged,
+    required this.userRating,
+    required this.onUserRatingChanged,
   });
+
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +44,7 @@ class ItemDisplay extends StatelessWidget {
                 child: Image.network(imageUrl!, height: 200),
               ),
             const SizedBox(height: 16),
-            ...details,
-            const SizedBox(height: 24),
+            // --- Add the toggles here ---
             Row(
               children: [
                 Expanded(
@@ -67,6 +74,14 @@ class ItemDisplay extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            ...details,
+            Divider(height: 32, color: Colors.grey[400]),
+            UserRatingSlider(
+              initialRating: userRating,
+              onChanged: onUserRatingChanged,
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

@@ -1,65 +1,75 @@
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 
-class AnimeDisplay extends StatelessWidget {
+class AnimeDisplay extends StatefulWidget {
   final Anime anime;
 
   const AnimeDisplay({super.key, required this.anime});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Anime details"), // Assuming 'item' has a 'name' property
-        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                anime.name,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+  State<AnimeDisplay> createState() => _AnimeDisplayState();
+}
 
-            const SizedBox(height: 16),
-            Text(
-              anime.studio,
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              anime.yearReleased.toString(),
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              anime.isMovie ? 'Movie: ${anime.runtime.toString()} minutes' : 'Series: ${anime.seasons.toString()} seasons, ${anime.episodes.toString()} episodes',
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              anime.owned ? 'Owned' : 'Not Owned',
-              style: const TextStyle(fontSize: 16, color: Colors.green),
-            ),
-            Text(
-              anime.wishlist ? 'Wishlisted' : 'Not Wishlisted',
-              style: const TextStyle(fontSize: 16, color: Colors.blue),
-            ),
-            Text(
-              "User Rating: ${anime.userRating.toString()}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              "Director: ${anime.seasons.toString()}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              "IMDB Rating: ${anime.userRating.toString()}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            // Add more item details here as needed
-          ],
-        ),
-      ),
+class _AnimeDisplayState extends State<AnimeDisplay> {
+  late bool owned;
+  late bool wishlisted;
+  late int userRating;
+
+  @override
+  void initState() {
+    super.initState();
+    owned = widget.anime.owned;
+    wishlisted = widget.anime.wishlist;
+    userRating = widget.anime.userRating;
+  }
+
+  void updateOwned(bool value) async {
+    setState(() {
+      owned = value;
+      if (owned) wishlisted = false;
+      widget.anime.owned = owned;
+      widget.anime.wishlist = wishlisted;
+    });
+    await widget.anime.save();
+  }
+
+  void updateWishlist(bool value) async {
+    setState(() {
+      wishlisted = value;
+      widget.anime.wishlist = wishlisted;
+    });
+    await widget.anime.save();
+  }
+
+  void updateUserRating(int rating) async {
+    setState(() {
+      userRating = rating;
+      widget.anime.userRating = rating;
+    });
+    await widget.anime.save();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ItemDisplay(
+      title: "Anime details",
+      imageUrl: widget.anime.imageUrl,
+      details: [
+        Text(widget.anime.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 16),
+        Text(widget.anime.studio, style: const TextStyle(fontSize: 16)),
+        Text(widget.anime.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
+        Text("Runtime: ${widget.anime.runtime} minutes", style: const TextStyle(fontSize: 16)),
+        Text("Seasons: ${widget.anime.seasons}", style: const TextStyle(fontSize: 16)),
+        Text("Episodes: ${widget.anime.episodes}", style: const TextStyle(fontSize: 16)),
+      ],
+      owned: owned,
+      wishlisted: wishlisted,
+      onOwnedChanged: updateOwned,
+      onWishlistChanged: updateWishlist,
+      userRating: userRating,
+      onUserRatingChanged: updateUserRating,
     );
   }
 }
