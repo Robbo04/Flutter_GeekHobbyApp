@@ -45,33 +45,28 @@ class ItemDisplay extends StatelessWidget {
               ),
             const SizedBox(height: 16),
             // --- Add the toggles here ---
-            Row(
+            Column(
               children: [
-                Expanded(
-                  child: SwitchListTile(
-                    title: const Text('Owned'),
-                    value: owned,
-                    onChanged: (val) {
-                      if (!owned) {
-                        onOwnedChanged(val);
-                        if (wishlisted) {
-                          onWishlistChanged(false);
-                        }
-                      } else {
-                        onOwnedChanged(val);
+                SwitchListTile(
+                  title: const Text('Owned'),
+                  value: owned,
+                  onChanged: (val) {
+                    if (!owned) {
+                      onOwnedChanged(val);
+                      if (wishlisted) {
+                        onWishlistChanged(false);
                       }
-                    },
-                  ),
+                    } else {
+                      onOwnedChanged(val);
+                    }
+                  },
                 ),
-                Expanded(
-                  child: SwitchListTile(
-                    title: const Text('Wishlist'),
+                if (!owned)
+                  SwitchListTile(
+                    title: const Text('Wishlisted'),
                     value: wishlisted,
-                    onChanged: owned
-                        ? null // Disable if owned
-                        : (val) => onWishlistChanged(val),
-                  ),
-                ),
+                    onChanged: onWishlistChanged,
+                  ),  
               ],
             ),
             const SizedBox(height: 16),

@@ -18,6 +18,8 @@ class Game extends Item {
   final GameAge ageRating;
   @HiveField(11)
   final int metacriticRating; // Metacritic rating out of 100\
+  @HiveField(12)
+  bool completed = false; // Whether the game has been completed
 
   Game({
     required this.id,

@@ -15,6 +15,7 @@ class _GameDisplayState extends State<GameDisplay> {
   late bool owned;
   late bool wishlisted;
   late int userRating;
+  late bool completed;
 
   @override
   void initState() {
@@ -22,6 +23,7 @@ class _GameDisplayState extends State<GameDisplay> {
     owned = widget.game.owned;
     wishlisted = widget.game.wishlist;
     userRating = widget.game.userRating;
+    completed = widget.game.completed;
   }
 
   void updateOwned(bool value) async {
@@ -49,6 +51,14 @@ class _GameDisplayState extends State<GameDisplay> {
     await widget.game.save();
   }
 
+  void updateCompleted(bool value) async {
+    setState(() {
+      completed = value;
+      widget.game.completed = value;
+    });
+    await widget.game.save();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ItemDisplay(
@@ -62,6 +72,13 @@ class _GameDisplayState extends State<GameDisplay> {
         Text("Age Rating: ${widget.game.ageRating}", style: const TextStyle(fontSize: 16)),
         Text("Genres: ${widget.game.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
         Text("Platforms: ${widget.game.platforms.map((p) => p.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
+        if (owned) ...[
+          SwitchListTile(
+            title: const Text('Completed'),
+            value: completed,
+            onChanged: updateCompleted,
+          ),
+        ],
       ],
       owned: owned,
       wishlisted: wishlisted,

@@ -40,3 +40,18 @@ ItemList watchedAnimeListTest = ItemList(
   name: 'Watched Anime',
   items: [],
 )..allowedTypes.add(Anime);
+
+ItemList game_owned_collection = ItemList(
+  name: 'Games Owned',
+  items: [],
+)..allowedTypes.add(Game);
+
+ItemList game_backlog_collection = ItemList(
+  name: 'Games Backlog',
+  items: [],
+)..allowedTypes.add(Game);
+
+ItemList game_completed_collection = ItemList(
+  name: 'Games Completed',
+  items: [],
+)..allowedTypes.add(Game);
