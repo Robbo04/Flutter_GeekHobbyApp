@@ -1,7 +1,6 @@
 import 'package:app_geek_hobby_app/Classes/Widgets/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:app_geek_hobby_app/authentication_gate.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
 
 import 'package:app_geek_hobby_app/Classes/game.dart';
@@ -36,8 +35,14 @@ Future<void> initializeHive() async {
   await Hive.openBox<Game>('rawg_games');
   await Hive.openBox<Item>('items');
   await Hive.openBox<List>('rawg_search_results');
-  await Hive.openBox<Game>('rawg_game_details');
-  
+  await Hive.openBox<GameDetails>('rawg_game_details');
+
+  //Collection boxes
+  await Hive.openBox<int>('games_wishlist_collection_id');
+  await Hive.openBox<int>('games_owned_collection_id');
+  await Hive.openBox<int>('games_backlog_collection_id');
+  await Hive.openBox<int>('games_completed_collection_id');
+
 }
 
 void main() async {

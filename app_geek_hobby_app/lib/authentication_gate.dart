@@ -15,7 +15,6 @@ class _AuthenticationGateState extends State<AuthenticationGate> {
   void onLoginSuccess() {
     setState(() {
       isLoggedIn = true;
-      print("User logged in, isLoggedIn set to true");
     });
   }
 
