@@ -60,7 +60,7 @@ class RawgService {
   // Fetch game details with persistent cache
   Future<Game> fetchGameDetails(int id) async {
     final cached = _gamesBox.get(id);
-    if (cached != null) return cached;
+    if (cached != null && cached.isDetailed) return cached;
 
     final url = Uri.parse('$_baseUrl/games/$id?key=$_apiKey');
     final response = await http.get(url);

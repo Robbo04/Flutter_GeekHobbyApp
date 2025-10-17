@@ -32,7 +32,17 @@ Future<void> initializeHive() async {
 
   // Open necessary boxes
   await Hive.openBox<User>('users');
+
+  try {
+    await Hive.openBox<Game>('rawg_games');
+  } catch (e, st) {
+    print('Error opening rawg_games box: $e\n$st');
+    await Hive.deleteBoxFromDisk('rawg_games');
+    await Hive.openBox<Game>('rawg_games');
+  }
   await Hive.openBox<Game>('rawg_games');
+  
+  
   await Hive.openBox<Item>('items');
   await Hive.openBox<List>('rawg_search_results');
   await Hive.openBox<GameDetails>('rawg_game_details');

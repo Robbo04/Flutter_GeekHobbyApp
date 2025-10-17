@@ -20,6 +20,10 @@ class Game extends Item {
   final int metacriticRating; // Metacritic rating out of 100\
   @HiveField(12)
   bool completed = false; // Whether the game has been completed
+  @HiveField(13)
+  String websiteUrl = ''; // Official website URL
+  @HiveField(14)
+  bool isDetailed = false; // Whether full details have been fetched
 
   Game({
     required this.id,
@@ -31,6 +35,7 @@ class Game extends Item {
     required this.platforms,
     required this.ageRating,
     required this.metacriticRating,
+    required this.websiteUrl,
   });
 
   factory Game.fromRawg(Map<String, dynamic> data) {
@@ -57,6 +62,7 @@ class Game extends Item {
       ageRating: GameAge.pegi3, // RAWG doesn't always provide age, set default or parse if available
       metacriticRating: data['metacritic'] ?? 0,
       imageUrl: data['background_image'] ?? '',
+      websiteUrl: data['website'] ?? '',
     );
   }
 }
@@ -91,6 +97,7 @@ class GameDetails extends Game {
           platforms: platforms,
           ageRating: ageRating,
           metacriticRating: metacriticRating,
+          websiteUrl: websiteUrl,
         );
 
 }

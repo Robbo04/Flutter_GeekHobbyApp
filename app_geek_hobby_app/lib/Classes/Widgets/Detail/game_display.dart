@@ -38,14 +38,29 @@ class _GameDisplayState extends State<GameDisplay> {
 
   final ownedBox = Hive.box<int>('games_owned_collection_id');
   final wishlistBox = Hive.box<int>('games_wishlist_collection_id');
+  final backlogBox = Hive.box<int>('games_backlog_collection_id');
+  final completedBox = Hive.box<int>('games_completed_collection_id');
+
+  final id = widget.game.id;
 
   // Add to owned collection
   if (owned) {
-    ownedBox.put(widget.game.id, widget.game.id);
+    await ownedBox.put(widget.game.id, widget.game.id);
     // Remove from wishlist if present
-    wishlistBox.delete(widget.game.id);
+    await wishlistBox.delete(widget.game.id);
+    if (widget.game.completed == true) {
+      // completed games belong in completed, not backlog
+      await completedBox.put(id, id);
+      await backlogBox.delete(id);
+    } else {
+      // owned and not completed => backlog
+      await backlogBox.put(id, id);
+      await completedBox.delete(id);
+    }
   } else {
-    ownedBox.delete(widget.game.id);
+    await ownedBox.delete(widget.game.id);
+    await backlogBox.delete(id);
+    await completedBox.delete(id);
   }
 }
 
@@ -60,9 +75,9 @@ void updateWishlist(bool value) async {
 
   // Add to wishlist collection
   if (wishlisted) {
-    wishlistBox.put(widget.game.id, widget.game.id);
+    await wishlistBox.put(widget.game.id, widget.game.id);
   } else {
-    wishlistBox.delete(widget.game.id);
+    await wishlistBox.delete(widget.game.id);
   }
 }
 
@@ -74,11 +89,20 @@ void updateCompleted(bool value) async {
   await widget.game.save();
 
   final completedBox = Hive.box<int>('games_completed_collection_id');
+  final backlogBox = Hive.box<int>('games_backlog_collection_id');
+  final id = widget.game.id;
 
   if (completed) {
-    completedBox.put(widget.game.id, widget.game.id);
+    await completedBox.put(widget.game.id, widget.game.id);
+    await backlogBox.delete(id);
   } else {
-    completedBox.delete(widget.game.id);
+    await completedBox.delete(widget.game.id);
+    if (owned) {
+      await backlogBox.put(id, id);
+    }
+    else {
+      await backlogBox.delete(id);
+    }
   }
 }
 

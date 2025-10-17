@@ -26,6 +26,7 @@ class GameAdapter extends TypeAdapter<Game> {
       platforms: (fields[9] as List).cast<GamePlatform>(),
       ageRating: fields[10] as GameAge,
       metacriticRating: fields[11] as int,
+      websiteUrl: fields[13] as String,
     )
       ..owned = fields[3] as bool
       ..wishlist = fields[4] as bool

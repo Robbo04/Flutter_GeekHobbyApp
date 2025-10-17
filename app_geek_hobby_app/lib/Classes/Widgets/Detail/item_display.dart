@@ -72,6 +72,7 @@ class ItemDisplay extends StatelessWidget {
             const SizedBox(height: 16),
             ...details,
             Divider(height: 32, color: Colors.grey[400]),
+            if (owned)
             UserRatingSlider(
               initialRating: userRating,
               onChanged: onUserRatingChanged,

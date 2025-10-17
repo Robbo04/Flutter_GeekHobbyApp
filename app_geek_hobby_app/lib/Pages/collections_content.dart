@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/item.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart'; // If you want to use Game-specific fields
+import 'package:app_geek_hobby_app/Classes/movie.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/Classes/show.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/movie_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/show_display.dart';
+import 'package:app_geek_hobby_app/Pages/item_detail.dart';
 
 class CollectionsContentPage extends StatefulWidget {
   final List<int> itemIds;
@@ -63,8 +71,33 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
           final item = items[index];
           return GestureDetector(
             onTap: () {
-              // Optionally navigate to detail page
-              // Navigator.push(context, MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)));
+              // Navigate to the correct detail page based on the item's runtime type
+              if (item is Game) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => GameDisplay(game: item)),
+                );
+              } else if (item is Movie) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => MovieDisplay(movie: item)),
+                );
+              } else if (item is Anime) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AnimeDisplay(anime: item)),
+                );
+              } else if (item is Show) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ShowDisplay(show: item)),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
+                );
+              }
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),

@@ -1,6 +1,8 @@
 import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:app_geek_hobby_app/Pages/item_detail.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Services/rawg_service.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
 
 class ItemCarouselCard extends StatelessWidget {
   final dynamic item;
@@ -15,7 +17,26 @@ class ItemCarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
+      onTap: () async{
+        if (item is Game) {
+          final navigator = Navigator.of(context);
+          final messenger = ScaffoldMessenger.of(context);
+
+          showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+          try {
+            final detailed = await RawgService().fetchGameDetails(item.id);
+            
+            if (!navigator.mounted) return;
+            navigator.pop(); // remove loader
+            navigator.push(MaterialPageRoute(builder: (_) => GameDisplay(game: detailed)));
+          } catch (e) {
+            if (navigator.mounted) navigator.pop();
+            messenger.showSnackBar(
+              SnackBar(content: Text('Error loading details: $e')),
+            );
+          }
+          return;
+        }
         Navigator.push(
           context,
           MaterialPageRoute(
