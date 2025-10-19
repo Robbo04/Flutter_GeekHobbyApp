@@ -36,15 +36,14 @@ final ItemList showsListTest = ItemList(
   ],
 )..allowedTypes.add(Show);
 
-// final ItemList gameListsTest = ItemList(
-//     name: 'Games',
-//     items: [
-//       Game(name: 'Game 1', studio: 'Studio 1', yearReleased: 2020, genres: [GameGenre.action], platforms: [], ageRating: GameAge.pegi12, metacriticRating: 85),
-//       Game(name: 'Game 2', studio: 'Studio 2', yearReleased: 2021, genres: [GameGenre.adventure], platforms: [], ageRating: GameAge.pegi16, metacriticRating: 90),
-//       Game(name: 'Game 3', studio: 'Studio 3', yearReleased: 2022, genres: [GameGenre.rpg], platforms: [], ageRating: GameAge.pegi18, metacriticRating: 95),
-//       Game(name: 'Game 4', studio: 'Studio 4', yearReleased: 2023, genres: [GameGenre.strategy], platforms: [], ageRating: GameAge.pegi7, metacriticRating: 80),
-//     ],
-//   )..allowedTypes.add(Game);
+final ItemList gameListsTest = ItemList(
+    name: 'Games',
+    items: [
+      Movie(name: 'Game 1', studio: 'Studio 1', yearReleased: 2020, genres: [VideoGenre.action], director: 'Director 1', duration: 120, ageRating: MovieAgeRating.pg, imdbRating: 7.5),
+      Movie(name: 'Game 2', studio: 'Studio 2', yearReleased: 2021, genres: [VideoGenre.comedy], director: 'Director 2', duration: 90, ageRating: MovieAgeRating.fifteen, imdbRating: 6.8),
+      Movie(name: 'Game 3', studio: 'Studio 3', yearReleased: 2022, genres: [VideoGenre.drama], director: 'Director 3', duration: 100, ageRating: MovieAgeRating.eighteen, imdbRating: 8.0),  
+    ],
+  )..allowedTypes.add(Movie);
 
 
 final ItemList animeListTest = ItemList(

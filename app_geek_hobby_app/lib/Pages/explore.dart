@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Data/list_data.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Pages/search.dart'; // added
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -20,28 +21,30 @@ class _ExplorePageState extends State<ExplorePage> {
     super.initState();
     _gamesFuture = _rawgService.fetchGames();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore'),
         backgroundColor: const Color.fromARGB(255, 219, 167, 227),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            iconSize: 38.0, // increased size
+            tooltip: 'Search',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SearchPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Search bar (if you want to keep it)
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-            ),
-          ),
+          const SizedBox(height: 6), // optional spacing in place of the removed search bar
           const SizedBox(height: 14),
 
           // Movies carousel
