@@ -13,7 +13,7 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  final RawgService _rawgService = RawgService();
+  final RawgService _rawgService = RawgService.instance;
   late Future<List<Game>> _gamesFuture;
 
   @override

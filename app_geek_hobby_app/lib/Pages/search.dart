@@ -13,7 +13,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final RawgService _rawgService = RawgService();
+  final RawgService _rawgService = RawgService.instance;
   final TextEditingController _controller = TextEditingController();
   Future<List<Game>>? _searchFuture;
   String _lastQuery = '';

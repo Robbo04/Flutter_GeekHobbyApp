@@ -24,7 +24,7 @@ class ItemCarouselCard extends StatelessWidget {
 
           showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
           try {
-            final detailed = await RawgService().fetchGameDetails(item.id);
+            final detailed = await RawgService.instance.fetchGameDetails(item.id);
             
             if (!navigator.mounted) return;
             navigator.pop(); // remove loader
