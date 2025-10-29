@@ -45,10 +45,18 @@ Future<void> initializeHive() async {
     await Hive.openBox<Game>('rawg_games');
   }
 
+  try {
+    await Hive.openBox<int>('rawg_cache_meta');
+  } catch (e, st) {
+    print('Error opening rawg_cache_meta box: $e\n$st');
+    await Hive.deleteBoxFromDisk('rawg_cache_meta');
+    await Hive.openBox<int>('rawg_cache_meta');
+  }
+
   await Hive.openBox<Item>('items');
   await Hive.openBox<List>('rawg_search_results');
   // If you actually have a GameDetails type, keep this; otherwise remove
-  // await Hive.openBox<GameDetails>('rawg_game_details');
+  await Hive.openBox<GameDetails>('rawg_game_details');
 
   // Collection boxes
   await Hive.openBox<int>('games_wishlist_collection_id');

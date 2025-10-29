@@ -15,11 +15,13 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePageState extends State<ExplorePage> {
   final RawgService _rawgService = RawgService.instance;
   late Future<List<Game>> _gamesFuture;
+  late Future<List<Game>> _trendingGamesFuture;
 
   @override
   void initState() {
     super.initState();
     _gamesFuture = _rawgService.fetchGames();
+    _trendingGamesFuture = _rawgService.fetchTrending(minMetacritic: 0, minRatingsCount: 0);
   }
   @override
   Widget build(BuildContext context) {
@@ -83,6 +85,25 @@ class _ExplorePageState extends State<ExplorePage> {
             },
           ),
           const SizedBox(height: 14),
+
+          FutureBuilder<List<Game>>(
+            future: _trendingGamesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No trending games found.'));
+              }
+              final trendingGames = snapshot.data!;
+              return ItemCarousel(
+                title: 'Trending Games',
+                items: trendingGames,
+                getName: (item) => (item as Game).name,
+              );
+            },
+          ),
 
           // Anime carousel
           ItemCarousel(

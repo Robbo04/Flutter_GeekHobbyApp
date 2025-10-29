@@ -27,7 +27,10 @@ class GameAdapter extends TypeAdapter<Game> {
       ageRating: fields[10] as GameAge,
       metacriticRating: fields[11] as int,
       websiteUrl: fields[13] as String,
+      ratingCount: fields[15] as int,
     )
+      ..completed = fields[12] as bool
+      ..isDetailed = fields[14] as bool
       ..owned = fields[3] as bool
       ..wishlist = fields[4] as bool
       ..userRating = fields[6] as int;
@@ -36,7 +39,7 @@ class GameAdapter extends TypeAdapter<Game> {
   @override
   void write(BinaryWriter writer, Game obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(16)
       ..writeByte(7)
       ..write(obj.id)
       ..writeByte(8)
@@ -47,6 +50,14 @@ class GameAdapter extends TypeAdapter<Game> {
       ..write(obj.ageRating)
       ..writeByte(11)
       ..write(obj.metacriticRating)
+      ..writeByte(12)
+      ..write(obj.completed)
+      ..writeByte(13)
+      ..write(obj.websiteUrl)
+      ..writeByte(14)
+      ..write(obj.isDetailed)
+      ..writeByte(15)
+      ..write(obj.ratingCount)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)

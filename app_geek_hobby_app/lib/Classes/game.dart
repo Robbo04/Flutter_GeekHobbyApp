@@ -24,6 +24,8 @@ class Game extends Item {
   String websiteUrl = ''; // Official website URL
   @HiveField(14)
   bool isDetailed = false; // Whether full details have been fetched
+  @HiveField(15)
+  int ratingCount; // Number of user ratings
 
   Game({
     required this.id,
@@ -36,6 +38,7 @@ class Game extends Item {
     required this.ageRating,
     required this.metacriticRating,
     required this.websiteUrl,
+    required this.ratingCount,
   });
 
   factory Game.fromRawg(Map<String, dynamic> data) {
@@ -60,7 +63,8 @@ class Game extends Item {
         .toList() ??
           [],
       ageRating: GameAge.pegi3, // RAWG doesn't always provide age, set default or parse if available
-      metacriticRating: data['metacritic'] ?? 0,
+      metacriticRating: data['metacritic'] != null ? data['metacritic'] as int : -1,
+      ratingCount: data['ratings_count'] ?? 0,
       imageUrl: data['background_image'] ?? '',
       websiteUrl: data['website'] ?? '',
     );
@@ -98,6 +102,7 @@ class GameDetails extends Game {
           ageRating: ageRating,
           metacriticRating: metacriticRating,
           websiteUrl: websiteUrl,
+          ratingCount: 0,
         );
 
 }

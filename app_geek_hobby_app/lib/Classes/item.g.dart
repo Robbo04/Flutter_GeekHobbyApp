@@ -21,10 +21,9 @@ class ItemAdapter extends TypeAdapter<Item> {
       studio: fields[1] as String,
       yearReleased: fields[5] as int,
       imageUrl: fields[2] as String?,
-    )
-      ..owned = fields[3] as bool
-      ..wishlist = fields[4] as bool
-      ..userRating = fields[6] as int;
+      owned: fields[3] as bool,
+      wishlist: fields[4] as bool,
+    )..userRating = fields[6] as int;
   }
 
   @override
