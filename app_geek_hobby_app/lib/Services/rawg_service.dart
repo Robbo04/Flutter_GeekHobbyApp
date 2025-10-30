@@ -292,6 +292,34 @@ class RawgService {
 
     return ordered;
   }
+
+  Future<void> refreshAllCachedGames({
+  int batchSize = 5,
+  Duration delay = const Duration(milliseconds: 500),
+}) async {
+  final ids = _gamesBox.keys.cast<int>().toList();
+  for (var i = 0; i < ids.length; i += batchSize) {
+    final batch = ids.sublist(i, (i + batchSize).clamp(0, ids.length));
+    final futures = batch.map((id) async {
+      try {
+        final uri = Uri.https(_host, '$_basePath/games/$id', {'key': apiKey});
+        final response = await httpClient.get(uri);
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final game = Game.fromRawg(data);
+          // preserve any local-only fields you care about? currently this overwrites
+          // the stored object with the latest parsed Game.
+          await _gamesBox.put(game.id, game);
+        }
+      } catch (_) {
+        // ignore per-id failures, continue with others
+      }
+    }).toList();
+
+    await Future.wait(futures);
+    await Future.delayed(delay);
+  }
+}
 }
 
 

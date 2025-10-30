@@ -43,6 +43,17 @@ class _ExplorePageState extends State<ExplorePage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.replay),
+        onPressed: () async {
+          final messenger = ScaffoldMessenger.of(context);
+          messenger.showSnackBar(const SnackBar(content: Text('Refreshing cached games...')));
+          await RawgService.instance.refreshAllCachedGames(batchSize: 3, delay: Duration(milliseconds: 300));
+          messenger.showSnackBar(const SnackBar(content: Text('Refresh complete')));
+          setState(() {}); // if needed to rebuild UI
+        },
+      ),
+
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
