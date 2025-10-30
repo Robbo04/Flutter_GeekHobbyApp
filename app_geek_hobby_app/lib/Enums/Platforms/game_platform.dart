@@ -31,10 +31,12 @@ extension GamePlatformExtension on GamePlatform {
 
       case 'ps-vita':
       case 'playstation':
+      case 'playstation1':
       case 'playstation2':
       case 'playstation3':
       case 'playstation4':
       case 'playstation5':
+      case 'psp':
         return GamePlatform.playstation;
 
       case 'xbox':
@@ -50,6 +52,17 @@ extension GamePlatformExtension on GamePlatform {
       case 'nintendo-ds':
       case 'nintendo-wii':
       case 'nintendo-wii-u':
+      case 'nintendo-switch-lite':
+      case 'game-boy-color':
+      case 'wii':
+      case 'wii-u':
+      case 'gamecube':
+      case 'nes':
+      case 'snes':
+      case 'nintendo-64':
+      case 'super-nintendo':
+      case 'game-boy-advance':
+      case 'game-boy':
         return GamePlatform.nintendo;
 
       case 'ios':
