@@ -3,6 +3,7 @@ import 'package:app_geek_hobby_app/Classes/Widgets/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:hive/hive.dart';
+import 'package:app_geek_hobby_app/Services/collections_service.dart';
 
 class SuggestionsPage extends StatefulWidget {
   const SuggestionsPage({super.key});
@@ -86,16 +87,19 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   }
 
   // Shared remove handler used by swipes and buttons
-  void _removeTop(bool liked) {
+  // Added optional `showSnack` so callers can show a custom snackbar and avoid duplication.
+  void _removeTop(bool liked, {bool showSnack = true}) {
     if (_items.isEmpty) return;
     final removed = _items.removeAt(0);
     setState(() {
       _cardOffset = Offset.zero;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(liked ? 'Liked ${removed.name}' : 'Skipped ${removed.name}')),
-    );
+    if (showSnack) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(liked ? 'Liked ${removed.name}' : 'Skipped ${removed.name}')),
+      );
+    }
 
     // If we're getting low on items, prefetch the next page
     if (_items.length <= _prefetchThreshold && _hasMore) {
@@ -104,8 +108,24 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   }
 
   // Button handlers that reuse _removeTop
-  void _onLikePressed() {
-    _removeTop(true);
+  Future<void> _onLikePressed() async {
+    if (_items.isEmpty) return;
+    final g = _items.first;
+
+    try {
+      await CollectionsService.instance.addToWishlist(g);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added "${g.name}" to wishlist')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add to wishlist: $e')));
+      }
+      return;
+    }
+
+    // Remove top item and suppress default "Liked" snackbar
+    _removeTop(true, showSnack: false);
   }
 
   void _onSkipPressed() {
@@ -194,6 +214,34 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     );
   }
 
+  // Called when the user swipes the card to the right (add to wishlist)
+  Future<void> _onSwipedRight() async {
+    if (_items.isEmpty) return;
+    final g = _items.first;
+
+    try {
+      // Add to wishlist via the centralized service
+      await CollectionsService.instance.addToWishlist(g);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added "${g.name}" to wishlist')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add to wishlist: $e')));
+      }
+      // Even on failure we proceed to remove the item to match swipe UX,
+      // change this if you'd rather keep the card on failure.
+    }
+
+    // Remove top item and suppress default "Liked" snackbar (we already showed a custom one)
+    _removeTop(true, showSnack: false);
+  }
+
+  // Called when the user swipes the card to the left (skip)
+  void _onSwipedLeft() {
+    _removeTop(false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,8 +312,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                               width: boxWidth,
                               height: boxHeight,
                               onDrag: (off) => setState(() => _cardOffset = off),
-                              onSwipeRight: () => _removeTop(true),
-                              onSwipeLeft: () => _removeTop(false),
+                              onSwipeRight: () => _onSwipedRight(),
+                              onSwipeLeft: () => _onSwipedLeft(),
                               child: _buildCard(_items.first, boxWidth, boxHeight),
                             ),
                           ),

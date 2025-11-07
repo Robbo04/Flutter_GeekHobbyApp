@@ -2,6 +2,7 @@ import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 import 'package:hive/hive.dart';
+import 'package:app_geek_hobby_app/Services/collections_service.dart';
 
 class GameDisplay extends StatefulWidget {
   final Game game;
@@ -65,19 +66,26 @@ class _GameDisplayState extends State<GameDisplay> {
 }
 
 void updateWishlist(bool value) async {
+  // immediate UI update
   setState(() {
     wishlisted = value;
     widget.game.wishlist = wishlisted;
   });
-  await widget.game.save();
 
-  final wishlistBox = Hive.box<int>('games_wishlist_collection_id');
-
-  // Add to wishlist collection
-  if (wishlisted) {
-    await wishlistBox.put(widget.game.id, widget.game.id);
-  } else {
-    await wishlistBox.delete(widget.game.id);
+  try {
+    if (value) {
+      await CollectionsService.instance.addToWishlist(widget.game);
+    } else {
+      await CollectionsService.instance.removeFromWishlist(widget.game);
+    }
+  } catch (e, st) {
+    // revert UI on failure
+    debugPrint('CollectionsService wishlist error: $e\n$st');
+    setState(() {
+      wishlisted = !value;
+      widget.game.wishlist = wishlisted;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update wishlist: $e')));
   }
 }
 
