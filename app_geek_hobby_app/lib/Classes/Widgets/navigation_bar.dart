@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/Pages/collections.dart';
 import 'package:app_geek_hobby_app/Pages/explore.dart';
+import 'package:app_geek_hobby_app/Pages/settings.dart';
 import 'package:app_geek_hobby_app/Pages/social.dart';
 import 'package:app_geek_hobby_app/Pages/suggestions.dart';
 import 'package:app_geek_hobby_app/Pages/spin_wheel.dart';
@@ -19,6 +20,7 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
     SocialPage(),
     SpinWheelPage(),
     CollectionsPage(),
+    SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -44,6 +46,7 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Social'),
           BottomNavigationBarItem(icon: Icon(Icons.casino), label: 'Wheel Spin'),
           BottomNavigationBarItem(icon: Icon(Icons.collections), label: 'Collections'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );
