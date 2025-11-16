@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ColorPalette {
   Color primaryColor;
-  Color primaryVariant;
+  Color primaryVariantColor;
   Color secondaryColor;
   Color backgroundColor;
   Color surfaceColor;
@@ -10,7 +10,7 @@ class ColorPalette {
 
   ColorPalette({
     required this.primaryColor,
-    required this.primaryVariant,
+    required this.primaryVariantColor,
     required this.secondaryColor,
     required this.backgroundColor,
     required this.surfaceColor,
@@ -20,7 +20,7 @@ class ColorPalette {
   // Example: default palette
   static ColorPalette defaultPalette = ColorPalette(
     primaryColor: Color(0xFF6200EE),
-    primaryVariant: Color(0xFF3700B3),
+    primaryVariantColor: Color(0xFF3700B3),
     secondaryColor: Color(0xFF03DAC6),
     backgroundColor: Color(0xFFF5F5F5),
     surfaceColor: Color(0xFFFFFFFF),

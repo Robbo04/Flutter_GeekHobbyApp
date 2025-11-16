@@ -49,6 +49,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
 
     try {
       final fetched = await _rawg.fetchGames(page: _page, pageSize: _pageSize);
+      print('Fetched ${fetched.length} games from RAWG: ${fetched.map((g) => g.id).toList()}');
       // Filter out games already in any collection and deduplicate against _items
       final existingIds = _items.map((g) => g.id).toSet();
       final newGames = <Game>[];
@@ -57,29 +58,31 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         if (_isInAnyCollection(g.id)) continue;
         newGames.add(g);
       }
+      print('New games after filtering: ${newGames.map((g) => g.id).toList()}');
 
       // If the RAWG page returned less-than-pageSize, we've reached the end.
       if (fetched.length < _pageSize) _hasMore = false;
 
       if (newGames.isNotEmpty) {
         setState(() => _items.addAll(newGames));
+        print('Added new games to _items. Total now: ${_items.length}');
       } else {
         // If all returned items were filtered out but the RAWG page wasn't final, try next page once
         if (fetched.isNotEmpty && _hasMore) {
           _page++;
+          print('All games filtered out, fetching next page...');
           await _fetchNextPage();
         } else {
-          // nothing new to add
+          print('No new games to add and no more pages.');
         }
       }
 
       _page++;
     } catch (e) {
-      // swallow errors gracefully; show a small snackbar to inform user
+      print('Error fetching suggestions: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error fetching suggestions: $e')));
       }
-      // stop trying further pages to avoid repeated errors
       _hasMore = false;
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -248,160 +251,178 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       appBar: AppBar(title: const Text('Suggestions')),
       body: _items.isEmpty
           ? Center(
-              child: _isLoading ? const CircularProgressIndicator() : const Text('No suggestions available'),
-            )
-          : LayoutBuilder(builder: (context, constraints) {
-              // top area takes ~60% of height
-              final topAreaHeight = constraints.maxHeight * 0.60;
-
-              // Compute a responsive width based on available width:
-              // - use a fraction of the width so it scales on large screens
-              // - clamp to keep reasonable min/max sizes
-              final rawWidth = constraints.maxWidth * 0.60;
-              final boxWidth = (rawWidth.clamp(200.0, 420.0)) as double;
-
-              // Preferred aspect ratio for card: height = width * 1.6 (like 250x400)
-              final preferredHeight = boxWidth * 1.6;
-
-              // Ensure the box height fits within the top area (leave a little padding)
-              final boxHeight = (preferredHeight <= topAreaHeight * 0.92)
-                  ? preferredHeight
-                  : (topAreaHeight * 0.92);
-
-              // Centering offsets for the card within the top area
-              final centerTop = (topAreaHeight - boxHeight) / 2;
-              final centerLeft = (constraints.maxWidth - boxWidth) / 2;
-
-              // Compute scalable font sizes based on boxWidth (clamped to reasonable range)
-              final double titleFont = (boxWidth * 0.08).clamp(14.0, 34.0);
-              final double subtitleFont = (boxWidth * 0.045).clamp(11.0, 18.0);
-
-              // Icon sizing for bottom action bar
-              final double actionIconSize = (boxWidth * 0.12).clamp(20.0, 36.0);
-
-              return Column(
-                children: [
-                  // TOP AREA (60%): single card centered
-                  SizedBox(
-                    height: topAreaHeight,
-                    width: constraints.maxWidth,
-                    child: Stack(
-                      clipBehavior: Clip.none,
+              child: _isLoading
+                  ? const CircularProgressIndicator()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // background color feedback for drag direction
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 120),
-                              color: _cardOffset.dx < 0
-                                  ? const Color.fromARGB(255, 206, 29, 29).withOpacity((_cardOffset.dx.abs() / 200).clamp(0.0, 1.0))
-                                  : _cardOffset.dx > 0
-                                      ? const Color.fromARGB(255, 60, 244, 54).withOpacity((_cardOffset.dx.abs() / 200).clamp(0.0, 1.0))
-                                      : Colors.transparent,
-                            ),
-                          ),
+                        const Text('No suggestions available'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _hasMore = true;
+                            });
+                            _fetchNextPage();
+                          },
+                          child: const Text('Fetch More Suggestions'),
                         ),
-
-                        // TOP interactive card only - centered (no visible card underneath)
-                        if (_items.isNotEmpty)
-                          Positioned(
-                            top: centerTop,
-                            left: centerLeft,
-                            child: SwipeCard(
-                              key: ValueKey(_items.first.id), // important: tie state to item id
-                              width: boxWidth,
-                              height: boxHeight,
-                              onDrag: (off) => setState(() => _cardOffset = off),
-                              onSwipeRight: () => _onSwipedRight(),
-                              onSwipeLeft: () => _onSwipedLeft(),
-                              child: _buildCard(_items.first, boxWidth, boxHeight),
-                            ),
-                          ),
                       ],
                     ),
-                  ),
+            )
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                // top area takes ~60% of height
+                final topAreaHeight = constraints.maxHeight * 0.60;
 
-                  // BOTTOM AREA (remaining space) - can hold metadata / controls
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                // Compute a responsive width based on available width:
+                // - use a fraction of the width so it scales on large screens
+                // - clamp to keep reasonable min/max sizes
+                final rawWidth = constraints.maxWidth * 0.60;
+                final boxWidth = (rawWidth.clamp(200.0, 420.0)) as double;
+
+                // Preferred aspect ratio for card: height = width * 1.6 (like 250x400)
+                final preferredHeight = boxWidth * 1.6;
+
+                // Ensure the box height fits within the top area (leave a little padding)
+                final boxHeight = (preferredHeight <= topAreaHeight * 0.92)
+                    ? preferredHeight
+                    : (topAreaHeight * 0.92);
+
+                // Centering offsets for the card within the top area
+                final centerTop = (topAreaHeight - boxHeight) / 2;
+                final centerLeft = (constraints.maxWidth - boxWidth) / 2;
+
+                // Compute scalable font sizes based on boxWidth (clamped to reasonable range)
+                final double titleFont = (boxWidth * 0.08).clamp(14.0, 34.0);
+                final double subtitleFont = (boxWidth * 0.045).clamp(11.0, 18.0);
+
+                // Icon sizing for bottom action bar
+                final double actionIconSize = (boxWidth * 0.12).clamp(20.0, 36.0);
+
+                return Column(
+                  children: [
+                    // TOP AREA (60%): single card centered
+                    SizedBox(
+                      height: topAreaHeight,
+                      width: constraints.maxWidth,
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          // Title + platforms (scaled)
-                          if (_items.isNotEmpty)
-                            Text(
-                              _items.first.name,
-                              style: TextStyle(fontSize: titleFont, fontWeight: FontWeight.w700),
-                              textAlign: TextAlign.center,
-                            ),
-                          const SizedBox(height: 8),
-                          if (_items.isNotEmpty)
-                            Text(
-                              'Platforms: ${_items.first.platforms.map((p) => p.toString().split('.').last).join(', ')}',
-                              style: TextStyle(fontSize: subtitleFont, color: Colors.black54),
-                              textAlign: TextAlign.center,
-                            ),
-                          const SizedBox(height: 12),
-
-                          // Action buttons row: Like, Skip, Owned
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Skip (left swipe equivalent)
-                                CircleAvatar(
-                                  radius: actionIconSize * 0.9,
-                                  backgroundColor: Colors.grey[200],
-                                  child: IconButton(
-                                    icon: Icon(Icons.close, color: Colors.red, size: actionIconSize),
-                                    onPressed: _onSkipPressed,
-                                    tooltip: 'Skip',
-                                  ),
-                                ),
-                                SizedBox(width: boxWidth * 0.08),
-                                // Owned
-                                CircleAvatar(
-                                  radius: actionIconSize * 1.1,
-                                  backgroundColor: Colors.grey[200],
-                                  child: IconButton(
-                                    icon: Icon(Icons.inventory_2, color: Colors.green, size: actionIconSize * 1.05),
-                                    onPressed: _markAsOwnedAndRemove,
-                                    tooltip: 'I already own this',
-                                  ),
-                                ),
-                                SizedBox(width: boxWidth * 0.08),
-                                // Like (right swipe equivalent)
-                                CircleAvatar(
-                                  radius: actionIconSize * 0.9,
-                                  backgroundColor: Colors.grey[200],
-                                  child: IconButton(
-                                    icon: Icon(Icons.favorite, color: Colors.pink, size: actionIconSize),
-                                    onPressed: _onLikePressed,
-                                    tooltip: 'Like',
-                                  ),
-                                ),
-                              ],
+                          // background color feedback for drag direction
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 120),
+                                color: _cardOffset.dx < 0
+                                    ? const Color.fromARGB(255, 206, 29, 29).withOpacity((_cardOffset.dx.abs() / 200).clamp(0.0, 1.0))
+                                    : _cardOffset.dx > 0
+                                        ? const Color.fromARGB(255, 60, 244, 54).withOpacity((_cardOffset.dx.abs() / 200).clamp(0.0, 1.0))
+                                        : Colors.transparent,
+                              ),
                             ),
                           ),
 
-                          const SizedBox(height: 12),
-                          const Text('Swipe left to skip, swipe right to keep.'),
-                          const SizedBox(height: 12),
-                          if (_isLoading) const Padding(
-                            padding: EdgeInsets.only(top: 12),
-                            child: CircularProgressIndicator(),
-                          ),
+                          // TOP interactive card only - centered (no visible card underneath)
+                          if (_items.isNotEmpty)
+                            Positioned(
+                              top: centerTop,
+                              left: centerLeft,
+                              child: SwipeCard(
+                                key: ValueKey(_items.first.id), // important: tie state to item id
+                                width: boxWidth,
+                                height: boxHeight,
+                                onDrag: (off) => setState(() => _cardOffset = off),
+                                onSwipeRight: () => _onSwipedRight(),
+                                onSwipeLeft: () => _onSwipedLeft(),
+                                child: _buildCard(_items.first, boxWidth, boxHeight),
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
-                ],
-              );
-            }),
+                    // BOTTOM AREA (remaining space) - can hold metadata / controls
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Title + platforms (scaled)
+                            if (_items.isNotEmpty)
+                              Text(
+                                _items.first.name,
+                                style: TextStyle(fontSize: titleFont, fontWeight: FontWeight.w700),
+                                textAlign: TextAlign.center,
+                              ),
+                            const SizedBox(height: 8),
+                            if (_items.isNotEmpty)
+                              Text(
+                                'Platforms: ${_items.first.platforms.map((p) => p.toString().split('.').last).join(', ')}',
+                                style: TextStyle(fontSize: subtitleFont, color: Colors.black54),
+                                textAlign: TextAlign.center,
+                              ),
+                            const SizedBox(height: 12),
+
+                            // Action buttons row: Like, Skip, Owned
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Skip (left swipe equivalent)
+                                  CircleAvatar(
+                                    radius: actionIconSize * 0.9,
+                                    backgroundColor: Colors.grey[200],
+                                    child: IconButton(
+                                      icon: Icon(Icons.close, color: Colors.red, size: actionIconSize),
+                                      onPressed: _onSkipPressed,
+                                      tooltip: 'Skip',
+                                    ),
+                                  ),
+                                  SizedBox(width: boxWidth * 0.08),
+                                  // Owned
+                                  CircleAvatar(
+                                    radius: actionIconSize * 1.1,
+                                    backgroundColor: Colors.grey[200],
+                                    child: IconButton(
+                                      icon: Icon(Icons.inventory_2, color: Colors.green, size: actionIconSize * 1.05),
+                                      onPressed: _markAsOwnedAndRemove,
+                                      tooltip: 'I already own this',
+                                    ),
+                                  ),
+                                  SizedBox(width: boxWidth * 0.08),
+                                  // Like (right swipe equivalent)
+                                  CircleAvatar(
+                                    radius: actionIconSize * 0.9,
+                                    backgroundColor: Colors.grey[200],
+                                    child: IconButton(
+                                      icon: Icon(Icons.favorite, color: Colors.pink, size: actionIconSize),
+                                      onPressed: _onLikePressed,
+                                      tooltip: 'Like',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+                            const Text('Swipe left to skip, swipe right to keep.'),
+                            const SizedBox(height: 12),
+                            if (_isLoading) const Padding(
+                              padding: EdgeInsets.only(top: 12),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                  ],
+                );
+              }),
     );
   }
 }

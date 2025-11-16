@@ -10,6 +10,7 @@ import 'package:app_geek_hobby_app/Classes/Widgets/Detail/movie_display.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/show_display.dart';
 import 'package:app_geek_hobby_app/Pages/item_detail.dart';
+import 'package:app_geek_hobby_app/Pages/spin_wheel.dart';
 
 class CollectionsContentPage extends StatefulWidget {
   final List<int> itemIds;
@@ -56,6 +57,17 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
             },
             tooltip: 'Toggle grid size',
           ),
+          IconButton(
+            icon: Icon(Icons.casino_rounded),
+            color: Colors.red,
+            tooltip: 'Spin the Wheel',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SpinWheelPage()),
+              );
+            },
+    ),
         ],
       ),
       body: GridView.builder(
