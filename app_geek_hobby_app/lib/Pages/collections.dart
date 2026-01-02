@@ -95,6 +95,44 @@ class CollectionsPage extends StatelessWidget {
             },
           ),
 
+          CollectionButton(
+            collectionList: animewishlistCollection,
+            imageUrl: 'https://via.placeholder.com/150',
+            onTap: () {
+              final wishlistIdsBox = Hive.box<int>('anime_wishlist_collection_id');
+              final List<int> wishlistIds = wishlistIdsBox.values.toList();
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CollectionsContentPage(
+                    itemIds: wishlistIds,
+                    title: 'Anime Wishlist',
+                  ),
+                ),
+              );
+            },
+          ),
+
+          CollectionButton(
+            collectionList: animeWatchedCollection,
+            imageUrl: 'https://via.placeholder.com/150',
+            onTap: () {
+              final watchedIdsBox = Hive.box<int>('anime_watched_collection_id');
+              final List<int> watchedIds = watchedIdsBox.values.toList();
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CollectionsContentPage(
+                    itemIds: watchedIds,
+                    title: 'Anime Watched',
+                  ),
+                ),
+              );
+            },
+          ),
+
         ],
       ),
       

@@ -2,7 +2,9 @@ import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Data/list_data.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Pages/search.dart'; // added
 
 class ExplorePage extends StatefulWidget {
@@ -14,14 +16,17 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   final RawgService _rawgService = RawgService.instance;
+  final AniListService _aniListService = AniListService.instance;
   late Future<List<Game>> _gamesFuture;
   late Future<List<Game>> _trendingGamesFuture;
+  late Future<List<Anime>> _trendingAnimeFuture;
 
   @override
   void initState() {
     super.initState();
     _gamesFuture = _rawgService.fetchGames();
     _trendingGamesFuture = _rawgService.fetchTrending(minMetacritic: 0, minRatingsCount: 0);
+    _trendingAnimeFuture = _aniListService.fetchTrending(perPage: 20);
   }
   @override
   Widget build(BuildContext context) {
@@ -60,22 +65,7 @@ class _ExplorePageState extends State<ExplorePage> {
           const SizedBox(height: 6), // optional spacing in place of the removed search bar
           const SizedBox(height: 14),
 
-          // Movies carousel
-          ItemCarousel(
-            title: 'Movies',
-            items: moviesListTest.items,
-            getName: (item) => item.name,
-          ),
-          const SizedBox(height: 14),
-
-          // Shows carousel
-          ItemCarousel(
-            title: 'Shows',
-            items: showsListTest.items,
-            getName: (item) => item.name,
-          ),
-          const SizedBox(height: 14),
-
+          
           // Games from RAWG (FutureBuilder)
           FutureBuilder<List<Game>>(
             future: _gamesFuture,
@@ -115,14 +105,27 @@ class _ExplorePageState extends State<ExplorePage> {
               );
             },
           ),
+          const SizedBox(height: 14),
 
-          // Anime carousel
-          ItemCarousel(
-            title: 'Anime',
-            items: animeListTest.items,
-            getName: (item) => item.name,
+          // Trending Anime carousel
+          FutureBuilder<List<Anime>>(
+            future: _trendingAnimeFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No trending anime found.'));
+              }
+              final trendingAnime = snapshot.data!;
+              return ItemCarousel(
+                title: 'Trending Anime',
+                items: trendingAnime,
+                getName: (item) => (item as Anime).name,
+              );
+            },
           ),
-          const SizedBox(height: 20),
 
           const Center(
             child: Text('Explore Page Content Here'),

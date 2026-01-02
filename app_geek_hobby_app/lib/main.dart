@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:app_geek_hobby_app/Classes/user.dart';
 
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/game_age.dart';
 import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
@@ -11,15 +12,20 @@ import 'package:app_geek_hobby_app/Classes/item.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:http/http.dart' as http;
 
-Future<RawgService> initializeApis() async {
+Future<RawgService> initializeRawgService() async {
   // Load environment variables from the .env file (only once at startup)
   await dotenv.load();
   final rawgApiKey = dotenv.env['RAWG_API_KEY'] ?? '';
   final rawgService = RawgService(apiKey: rawgApiKey, httpClient: http.Client());
-  // init other APIs if needed and pass keys/clients into their constructors
   return rawgService;
+}
+
+Future<AniListService> initializeAniListService() async {
+  final aniListService = AniListService();
+  return aniListService;
 }
 
 Future<void> initializeHive() async {
@@ -29,6 +35,7 @@ Future<void> initializeHive() async {
   Hive.registerAdapter(UserAdapter());
 
   Hive.registerAdapter(GameAdapter());
+  Hive.registerAdapter(AnimeAdapter());
   Hive.registerAdapter(GamePlatformAdapter());
   Hive.registerAdapter(GameAgeAdapter());
   Hive.registerAdapter(GameGenreAdapter());
@@ -58,20 +65,45 @@ Future<void> initializeHive() async {
   // If you actually have a GameDetails type, keep this; otherwise remove
   await Hive.openBox<GameDetails>('rawg_game_details');
 
-  // Collection boxes
+  // Anime cache boxes
+  try {
+    await Hive.openBox<Anime>('anilist_anime');
+  } catch (e, st) {
+    print('Error opening anilist_anime box: $e\n$st');
+    await Hive.deleteBoxFromDisk('anilist_anime');
+    await Hive.openBox<Anime>('anilist_anime');
+  }
+
+  try {
+    await Hive.openBox<int>('anilist_cache_meta');
+  } catch (e, st) {
+    print('Error opening anilist_cache_meta box: $e\n$st');
+    await Hive.deleteBoxFromDisk('anilist_cache_meta');
+    await Hive.openBox<int>('anilist_cache_meta');
+  }
+
+  await Hive.openBox<List>('anilist_search_results');
+
+  // Collection boxes GAMES
   await Hive.openBox<int>('games_wishlist_collection_id');
   await Hive.openBox<int>('games_owned_collection_id');
   await Hive.openBox<int>('games_backlog_collection_id');
   await Hive.openBox<int>('games_completed_collection_id');
+
+  // Collection boxes ANIME
+  await Hive.openBox<int>('anime_wishlist_collection_id');
+  await Hive.openBox<int>('anime_watched_collection_id');
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final rawgService = await initializeApis();
+  final rawgService = await initializeRawgService();
+  final aniListService = await initializeAniListService();
 
-  // register the singleton instance so existing call sites can use RawgService.instance
+  // Register the singleton instances
   RawgService.instance = rawgService;
+  AniListService.instance = aniListService;
 
   await initializeHive();
 

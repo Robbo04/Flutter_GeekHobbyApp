@@ -54,3 +54,13 @@ ItemList gameCompletedCollection = ItemList(
   name: 'Games Completed',
   items: [],
 )..allowedTypes.add(Game);
+
+ItemList animewishlistCollection = ItemList(
+  name: 'Anime Wishlist',
+  items: [],
+)..allowedTypes.add(Anime);
+
+ItemList animeWatchedCollection = ItemList(
+  name: 'Anime Watched',
+  items: [],
+)..allowedTypes.add(Anime);

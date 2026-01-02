@@ -33,12 +33,21 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch items from the main box using the IDs
+    // Fetch items from the appropriate boxes using the IDs
     final gamesBox = Hive.box<Game>('rawg_games');
-    items = widget.itemIds
-        .map((id) => gamesBox.get(id))
-        .whereType<Item>()
-        .toList();
+    final animeBox = Hive.box<Anime>('anilist_anime');
+    
+    items = widget.itemIds.map((id) {
+      // Try to get from games box first
+      final game = gamesBox.get(id);
+      if (game != null) return game;
+      
+      // Try anime box
+      final anime = animeBox.get(id);
+      if (anime != null) return anime;
+      
+      return null;
+    }).whereType<Item>().toList();
   }
 
   @override

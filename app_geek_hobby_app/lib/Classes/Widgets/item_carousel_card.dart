@@ -1,8 +1,11 @@
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/Classes/item.dart';
 import 'package:app_geek_hobby_app/Pages/item_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
 
 class ItemCarouselCard extends StatelessWidget {
   final dynamic item;
@@ -37,6 +40,17 @@ class ItemCarouselCard extends StatelessWidget {
           }
           return;
         }
+        
+        if (item is Anime) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AnimeDisplay(anime: item),
+            ),
+          );
+          return;
+        }
+        
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -62,14 +76,14 @@ class ItemCarouselCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(12),
-                  image: item is Game && item.imageUrl != null && item.imageUrl.isNotEmpty
+                  image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
                       ? DecorationImage(
                           image: NetworkImage(item.imageUrl),
                           fit: BoxFit.cover,
                         )
                       : null,
                 ),
-                child: (item is! Game || item.imageUrl == null || item.imageUrl.isEmpty)
+                child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
                     ? const Icon(Icons.image, size: 60, color: Colors.grey)
                     : null,
               ),

@@ -11,6 +11,7 @@ class ItemDisplay extends StatelessWidget {
   final ValueChanged<bool> onWishlistChanged;
   final int userRating;
   final ValueChanged<int> onUserRatingChanged;
+  final String? ownedLabel; // Custom label for owned toggle
 
   const ItemDisplay({
     super.key,
@@ -23,6 +24,7 @@ class ItemDisplay extends StatelessWidget {
     required this.onWishlistChanged,
     required this.userRating,
     required this.onUserRatingChanged,
+    this.ownedLabel,
   });
 
 
@@ -48,7 +50,7 @@ class ItemDisplay extends StatelessWidget {
             Column(
               children: [
                 SwitchListTile(
-                  title: const Text('Owned'),
+                  title: Text(ownedLabel ?? 'Owned'),
                   value: owned,
                   onChanged: (val) {
                     if (!owned) {
