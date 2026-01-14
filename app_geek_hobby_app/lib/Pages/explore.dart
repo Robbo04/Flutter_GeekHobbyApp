@@ -128,7 +128,7 @@ class _ExplorePageState extends State<ExplorePage> {
           ),
 
           const Center(
-            child: Text('Explore Page Content Here'),
+            child: Text('\nExplore Page Content Here'),
           ),
         ],
       ),
