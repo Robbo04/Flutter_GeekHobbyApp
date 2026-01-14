@@ -21,14 +21,16 @@ class _SearchPageState extends State<SearchPage> {
   Future<List<Game>>? _searchFuture;
   Future<List<Anime>>? _searchAnimeFuture;
   String _lastQuery = '';
+  bool _searchGames = true;
+  bool _searchAnime = true;
 
   void _doSearch(String query) {
     final q = query.trim();
     if (q.isEmpty) return;
     setState(() {
       _lastQuery = q;
-      _searchFuture = _rawgService.fetchGames(search: q);
-      _searchAnimeFuture = _anilistService.searchAnime(search: q);
+      _searchFuture = _searchGames ? _rawgService.fetchGames(search: q) : null;
+      _searchAnimeFuture = _searchAnime ? _anilistService.searchAnime(search: q) : null;
     });
   }
 
@@ -118,6 +120,41 @@ class _SearchPageState extends State<SearchPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Toggle buttons for search types
+          Row(
+            children: [
+              Expanded(
+                child: FilterChip(
+                  label: const Text('Games'),
+                  selected: _searchGames,
+                  onSelected: (selected) {
+                    setState(() {
+                      _searchGames = selected;
+                      // Clear games results if disabled
+                      if (!selected) _searchFuture = null;
+                    });
+                  },
+                  showCheckmark: true,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilterChip(
+                  label: const Text('Anime'),
+                  selected: _searchAnime,
+                  onSelected: (selected) {
+                    setState(() {
+                      _searchAnime = selected;
+                      // Clear anime results if disabled
+                      if (!selected) _searchAnimeFuture = null;
+                    });
+                  },
+                  showCheckmark: true,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _controller,
             textInputAction: TextInputAction.search,
@@ -153,7 +190,11 @@ class _SearchPageState extends State<SearchPage> {
           const SizedBox(height: 14),
           
           if (_searchFuture == null && _searchAnimeFuture == null)
-            const Center(child: Text('Enter a search term and press Enter to find games and anime.')),
+            Center(
+              child: Text(
+                'Enter a search term and press Enter to find ${_searchGames && _searchAnime ? 'games and anime' : _searchGames ? 'games' : _searchAnime ? 'anime' : 'content'}.',
+              ),
+            ),
         ],
       ),
     );
