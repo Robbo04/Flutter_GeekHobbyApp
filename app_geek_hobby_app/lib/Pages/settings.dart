@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Pages/developer.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -137,6 +138,21 @@ class SettingsPage extends StatelessWidget {
                   label: 'Credits',
                   onTap: () {},
                   trailing: Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+            section(
+              title: 'Developer',
+              children: [
+                buttonRow(
+                  label: 'Developer Tools',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DeveloperPage()),
+                    );
+                  },
+                  trailing: Icon(Icons.developer_mode, color: Colors.orange),
                 ),
               ],
             ),

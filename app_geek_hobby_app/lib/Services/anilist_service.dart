@@ -317,7 +317,13 @@ class AniListService {
   }
 
   /// Fetch anime relations and build a group
-  Future<AnimeGroup?> fetchAnimeRelations(int animeId) async {
+  Future<AnimeGroup?> fetchAnimeRelations(int animeId, {Set<int>? visited}) async {
+    visited ??= <int>{};
+    
+    // Prevent infinite loops
+    if (visited.contains(animeId)) return null;
+    visited.add(animeId);
+
     try {
       final result = await _client.query(
         QueryOptions(
@@ -341,6 +347,7 @@ class AniListService {
       final meaningfulTypes = {'SEQUEL', 'PREQUEL', 'PARENT', 'SIDE_STORY', 'ALTERNATIVE'};
       final relatedAnime = <Anime>[];
       final relationMap = <int, String>{};
+      final relatedIds = <int>[];
 
       for (final edge in relations) {
         final relationType = edge['relationType'] as String?;
@@ -352,6 +359,7 @@ class AniListService {
         final anime = _parseAnime(node);
         relatedAnime.add(anime);
         relationMap[anime.id] = relationType;
+        relatedIds.add(anime.id);
 
         // Cache the anime
         await _animeBox.put(anime.id, anime);
@@ -363,8 +371,21 @@ class AniListService {
       final mainAnime = _animeBox.get(animeId);
       if (mainAnime == null) return null;
 
-      // Build the group
-      return await _buildAnimeGroup(mainAnime, relatedAnime, relationMap);
+      // Build the initial group
+      await _buildAnimeGroup(mainAnime, relatedAnime, relationMap);
+
+      // Recursively fetch relations for related anime to build complete franchise
+      // But limit depth to prevent too many API calls
+      if (visited.length < 10) {
+        for (final relatedId in relatedIds) {
+          if (!visited.contains(relatedId)) {
+            await fetchAnimeRelations(relatedId, visited: visited);
+          }
+        }
+      }
+
+      // Return the final merged group
+      return getAnimeGroup(animeId);
     } catch (e) {
       print('Error fetching anime relations: $e');
       return null;
@@ -378,23 +399,73 @@ class AniListService {
     Map<int, String> relationMap,
   ) async {
     // Collect all anime IDs
-    final allIds = <int>{mainAnime.id, ...relatedAnime.map((a) => a.id)}.toList();
+    final allIds = <int>{mainAnime.id, ...relatedAnime.map((a) => a.id)};
 
-    // Determine group ID (use earliest anime ID as the canonical group ID)
-    final allAnime = [mainAnime, ...relatedAnime];
-    allAnime.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
-    final groupId = allAnime.first.id;
+    // Check if any anime are already in existing groups and merge
+    final existingGroupIds = <int>{};
+    for (final id in allIds) {
+      final existingGroupId = _animeToGroupBox.get(id);
+      if (existingGroupId != null) {
+        existingGroupIds.add(existingGroupId);
+      }
+    }
 
-    // Create the group
+    // If existing groups found, merge all anime into the earliest group
+    int groupId;
+    AnimeGroup? existingGroup;
+    Map<int, String> mergedRelations = Map.from(relationMap);
+
+    if (existingGroupIds.isNotEmpty) {
+      // Use the earliest existing group as the canonical one
+      groupId = existingGroupIds.reduce((a, b) => a < b ? a : b);
+      existingGroup = _groupBox.get(groupId);
+
+      // Add existing group's anime IDs to allIds
+      if (existingGroup != null) {
+        allIds.addAll(existingGroup.animeIds);
+        mergedRelations.addAll(existingGroup.relationTypes);
+      }
+
+      // Merge all OTHER groups into this one
+      for (final oldGroupId in existingGroupIds) {
+        if (oldGroupId == groupId) continue;
+        
+        final oldGroup = _groupBox.get(oldGroupId);
+        if (oldGroup != null) {
+          allIds.addAll(oldGroup.animeIds);
+          mergedRelations.addAll(oldGroup.relationTypes);
+          
+          // Delete old group
+          await _groupBox.delete(oldGroupId);
+        }
+      }
+    } else {
+      // No existing groups, determine new group ID (use earliest anime)
+      final allAnime = [mainAnime, ...relatedAnime];
+      allAnime.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
+      groupId = allAnime.first.id;
+    }
+
+    // Add relation type for mainAnime if not already there
+    if (!mergedRelations.containsKey(mainAnime.id)) {
+      mergedRelations[mainAnime.id] = 'MAIN';
+    }
+
+    // Determine group name and details from earliest anime
+    final groupAnimeList = allIds.map((id) => _animeBox.get(id)).whereType<Anime>().toList();
+    groupAnimeList.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
+    final primaryAnime = groupAnimeList.isNotEmpty ? groupAnimeList.first : mainAnime;
+
+    // Create or update the group
     final group = AnimeGroup(
       groupId: groupId,
-      name: mainAnime.name,
-      animeIds: allIds,
-      imageUrl: mainAnime.imageUrl,
-      yearReleased: allAnime.first.yearReleased,
-      studio: mainAnime.studio,
+      name: existingGroup?.name ?? primaryAnime.name,
+      animeIds: allIds.toList(),
+      imageUrl: existingGroup?.imageUrl ?? primaryAnime.imageUrl,
+      yearReleased: primaryAnime.yearReleased,
+      studio: primaryAnime.studio,
       lastUpdated: DateTime.now(),
-      relationTypes: relationMap,
+      relationTypes: mergedRelations,
     );
 
     // Save the group
@@ -407,6 +478,18 @@ class AniListService {
 
     return group;
   }
+
+  /// Clear all anime groups (useful for testing/debugging)
+  Future<void> clearAllGroups() async {
+    await _groupBox.clear();
+    await _animeToGroupBox.clear();
+    print('Cleared all anime groups');
+  }
+
+  /// Get group box stats
+  int get totalGroups => _groupBox.length;
+  int get totalGroupedAnime => _animeToGroupBox.length;
+  int get totalCachedAnime => _animeBox.length;
 
   /// Get the group for a specific anime, if it exists
   AnimeGroup? getAnimeGroup(int animeId) {
