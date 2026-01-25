@@ -2,6 +2,8 @@ import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 import 'package:app_geek_hobby_app/Services/collections_service.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
+import 'package:app_geek_hobby_app/Pages/anime_group_detail.dart';
 import 'package:hive/hive.dart';
 
 class AnimeDisplay extends StatefulWidget {
@@ -17,6 +19,9 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
   bool watched = false;
   late bool wishlisted;
   late int userRating;
+  final _anilistService = AniListService.instance;
+  bool _isInGroup = false;
+  Map<String, dynamic>? _groupSummary;
 
   @override
   void initState() {
@@ -24,6 +29,18 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
     wishlisted = widget.anime.wishlist;
     userRating = widget.anime.userRating;
     _loadCollectionStatus();
+    _checkGroupStatus();
+  }
+
+  void _checkGroupStatus() {
+    final isInGroup = _anilistService.isInGroup(widget.anime.id);
+    if (isInGroup) {
+      final summary = _anilistService.getGroupSummary(widget.anime.id);
+      setState(() {
+        _isInGroup = true;
+        _groupSummary = summary;
+      });
+    }
   }
 
   void _loadCollectionStatus() async {
@@ -110,6 +127,35 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
       details: [
         Text(widget.anime.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
+        
+        // GROUP INDICATOR BUTTON
+        if (_isInGroup && _groupSummary != null)
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AnimeGroupDetailPage(
+                      animeId: widget.anime.id,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.collections_bookmark),
+              label: Text(
+                'Part of ${_groupSummary!['name']} Collection (${_groupSummary!['itemCount']} items)',
+                style: const TextStyle(fontSize: 12),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 219, 167, 227),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+          ),
+        
         Text(widget.anime.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.anime.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
         Text("Runtime: ${widget.anime.runtime} minutes", style: const TextStyle(fontSize: 16)),

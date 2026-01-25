@@ -5,6 +5,7 @@ import 'package:app_geek_hobby_app/Classes/user.dart';
 
 import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/Classes/anime_group.dart';
 import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/Enums/AgeRatings/game_age.dart';
 import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
@@ -36,6 +37,7 @@ Future<void> initializeHive() async {
 
   Hive.registerAdapter(GameAdapter());
   Hive.registerAdapter(AnimeAdapter());
+  Hive.registerAdapter(AnimeGroupAdapter()); // NEW: Register AnimeGroup adapter
   Hive.registerAdapter(GamePlatformAdapter());
   Hive.registerAdapter(GameAgeAdapter());
   Hive.registerAdapter(GameGenreAdapter());
@@ -83,6 +85,23 @@ Future<void> initializeHive() async {
   }
 
   await Hive.openBox<List>('anilist_search_results');
+
+  // Anime group boxes (NEW)
+  try {
+    await Hive.openBox<AnimeGroup>('anilist_groups');
+  } catch (e, st) {
+    print('Error opening anilist_groups box: $e\n$st');
+    await Hive.deleteBoxFromDisk('anilist_groups');
+    await Hive.openBox<AnimeGroup>('anilist_groups');
+  }
+
+  try {
+    await Hive.openBox<int>('anilist_anime_to_group');
+  } catch (e, st) {
+    print('Error opening anilist_anime_to_group box: $e\n$st');
+    await Hive.deleteBoxFromDisk('anilist_anime_to_group');
+    await Hive.openBox<int>('anilist_anime_to_group');
+  }
 
   // Collection boxes GAMES
   await Hive.openBox<int>('games_wishlist_collection_id');

@@ -4,6 +4,7 @@ import 'package:app_geek_hobby_app/Classes/item.dart';
 import 'package:app_geek_hobby_app/Pages/item_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
 
@@ -63,30 +64,52 @@ class ItemCarouselCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           children: [
-            Container(
-              height: 140,
-              width: 90,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Container(
-                height: 160,
-                width: 90,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(12),
-                  image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(item.imageUrl),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+            Stack(
+              children: [
+                Container(
+                  height: 140,
+                  width: 90,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Container(
+                    height: 160,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                      image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
+                          ? DecorationImage(
+                              image: NetworkImage(item.imageUrl),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
+                        ? const Icon(Icons.image, size: 60, color: Colors.grey)
+                        : null,
+                  ),
                 ),
-                child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
-                    ? const Icon(Icons.image, size: 60, color: Colors.grey)
-                    : null,
-              ),
+                // Group badge for anime
+                if (item is Anime && AniListService.instance.isInGroup(item.id))
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 219, 167, 227),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.collections_bookmark,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
