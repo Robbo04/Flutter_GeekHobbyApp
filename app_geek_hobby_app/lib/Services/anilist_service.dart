@@ -237,6 +237,8 @@ class AniListService {
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(hours: 24),
+    bool enableGrouping = true, // Enable hybrid grouping
+    int groupTop = 5, // Group top N results
   }) async {
     final cacheKey = 'anilist|trending|page=$page|perPage=$perPage';
 
@@ -251,6 +253,10 @@ class AniListService {
             .whereType<Anime>()
             .toList();
         if (cached.length == idList.length) {
+          // If grouping enabled, try to group top results in background
+          if (enableGrouping && page == 1) {
+            _groupTopResults(cached.take(groupTop).toList());
+          }
           return cached;
         }
       }
@@ -286,6 +292,11 @@ class AniListService {
       }
       await _searchBox.put(cacheKey, ids);
       await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+
+      // If grouping enabled and first page, group top results in background
+      if (enableGrouping && page == 1) {
+        _groupTopResults(animeList.take(groupTop).toList());
+      }
 
       return animeList;
     } catch (e) {
