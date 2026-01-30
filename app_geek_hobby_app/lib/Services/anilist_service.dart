@@ -8,19 +8,40 @@ class AniListService {
 
   late final GraphQLClient _client;
 
+  // Request tracking
+  static const int _minuteLimit = 90; // AniList rate limit per minute
+  int _sessionRequests = 0;
+  DateTime? _lastRequestTime;
+  final List<DateTime> _recentRequests = [];
+
   AniListService() {
     final httpLink = HttpLink('https://graphql.anilist.co');
-    _client = GraphQLClient(
-      link: httpLink,
-      cache: GraphQLCache(),
-    );
+    _client = GraphQLClient(link: httpLink, cache: GraphQLCache());
   }
 
   Box<Anime> get _animeBox => Hive.box<Anime>('anilist_anime');
   Box<List> get _searchBox => Hive.box<List>('anilist_search_results');
   Box<int> get _metaBox => Hive.box<int>('anilist_cache_meta');
   Box<AnimeGroup> get _groupBox => Hive.box<AnimeGroup>('anilist_groups');
-  Box<int> get _animeToGroupBox => Hive.box<int>('anilist_anime_to_group'); // Maps anime.id -> group.groupId
+  Box<int> get _animeToGroupBox =>
+      Hive.box<int>('anilist_anime_to_group'); // Maps anime.id -> group.groupId
+  Box<int> get _statsBox => Hive.box<int>('anilist_stats');
+
+  // Public getters for tracking
+  int get sessionRequests => _sessionRequests;
+  int get requestsLastMinute {
+    final oneMinuteAgo = DateTime.now().subtract(const Duration(minutes: 1));
+    _recentRequests.removeWhere((time) => time.isBefore(oneMinuteAgo));
+    return _recentRequests.length;
+  }
+
+  int get minuteLimit => _minuteLimit;
+  DateTime? get lastRequestTime => _lastRequestTime;
+  int get todayRequestsMade {
+    final today =
+        '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}';
+    return _statsBox.get('requests_$today') ?? 0;
+  }
 
   bool _isFresh(String cacheKey, Duration ttl) {
     final ts = _metaBox.get(cacheKey);
@@ -134,7 +155,7 @@ class AniListService {
     String search = '',
     int page = 1,
     int perPage = 20,
-    Duration cacheTTL = const Duration(hours: 24),
+    Duration cacheTTL = const Duration(days: 3),
     bool enableGrouping = true, // Enable hybrid grouping
     int groupTop = 5, // Group top N results
   }) async {
@@ -162,6 +183,7 @@ class AniListService {
 
     // Fetch from API
     try {
+      _trackRequest();
       final result = await _client.query(
         QueryOptions(
           document: gql(_searchQuery),
@@ -236,7 +258,7 @@ class AniListService {
   Future<List<Anime>> fetchTrending({
     int page = 1,
     int perPage = 20,
-    Duration cacheTTL = const Duration(hours: 24),
+    Duration cacheTTL = const Duration(days: 3),
     bool enableGrouping = true, // Enable hybrid grouping
     int groupTop = 5, // Group top N results
   }) async {
@@ -264,13 +286,11 @@ class AniListService {
 
     // Fetch from API
     try {
+      _trackRequest();
       final result = await _client.query(
         QueryOptions(
           document: gql(_trendingQuery),
-          variables: {
-            'page': page,
-            'perPage': perPage,
-          },
+          variables: {'page': page, 'perPage': perPage},
         ),
       );
 
@@ -328,14 +348,18 @@ class AniListService {
   }
 
   /// Fetch anime relations and build a group
-  Future<AnimeGroup?> fetchAnimeRelations(int animeId, {Set<int>? visited}) async {
+  Future<AnimeGroup?> fetchAnimeRelations(
+    int animeId, {
+    Set<int>? visited,
+  }) async {
     visited ??= <int>{};
-    
+
     // Prevent infinite loops
     if (visited.contains(animeId)) return null;
     visited.add(animeId);
 
     try {
+      _trackRequest();
       final result = await _client.query(
         QueryOptions(
           document: gql(_relationsQuery),
@@ -355,14 +379,21 @@ class AniListService {
       if (relations == null || relations.isEmpty) return null;
 
       // Filter for meaningful relations (SEQUEL, PREQUEL, PARENT, SIDE_STORY)
-      final meaningfulTypes = {'SEQUEL', 'PREQUEL', 'PARENT', 'SIDE_STORY', 'ALTERNATIVE'};
+      final meaningfulTypes = {
+        'SEQUEL',
+        'PREQUEL',
+        'PARENT',
+        'SIDE_STORY',
+        'ALTERNATIVE',
+      };
       final relatedAnime = <Anime>[];
       final relationMap = <int, String>{};
       final relatedIds = <int>[];
 
       for (final edge in relations) {
         final relationType = edge['relationType'] as String?;
-        if (relationType == null || !meaningfulTypes.contains(relationType)) continue;
+        if (relationType == null || !meaningfulTypes.contains(relationType))
+          continue;
 
         final node = edge['node'];
         if (node == null) continue;
@@ -440,12 +471,12 @@ class AniListService {
       // Merge all OTHER groups into this one
       for (final oldGroupId in existingGroupIds) {
         if (oldGroupId == groupId) continue;
-        
+
         final oldGroup = _groupBox.get(oldGroupId);
         if (oldGroup != null) {
           allIds.addAll(oldGroup.animeIds);
           mergedRelations.addAll(oldGroup.relationTypes);
-          
+
           // Delete old group
           await _groupBox.delete(oldGroupId);
         }
@@ -463,9 +494,14 @@ class AniListService {
     }
 
     // Determine group name and details from earliest anime
-    final groupAnimeList = allIds.map((id) => _animeBox.get(id)).whereType<Anime>().toList();
+    final groupAnimeList = allIds
+        .map((id) => _animeBox.get(id))
+        .whereType<Anime>()
+        .toList();
     groupAnimeList.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
-    final primaryAnime = groupAnimeList.isNotEmpty ? groupAnimeList.first : mainAnime;
+    final primaryAnime = groupAnimeList.isNotEmpty
+        ? groupAnimeList.first
+        : mainAnime;
 
     // Create or update the group
     final group = AnimeGroup(
@@ -555,21 +591,21 @@ class AniListService {
   Anime _parseAnime(Map<String, dynamic> data) {
     final format = data['format'] as String?;
     final isMovie = format == 'MOVIE';
-    
+
     final id = data['id'] as int;
-    
+
     final title = data['title'] as Map<String, dynamic>?;
     final name = title?['english'] ?? title?['romaji'] ?? 'Unknown';
-    
+
     final studiosData = data['studios']?['nodes'] as List<dynamic>?;
-    final studio = studiosData?.isNotEmpty == true 
-        ? studiosData!.first['name'] 
+    final studio = studiosData?.isNotEmpty == true
+        ? studiosData!.first['name']
         : 'Unknown';
 
     final episodes = data['episodes'] as int? ?? 0;
     final duration = data['duration'] as int? ?? 0;
     final yearReleased = data['seasonYear'] as int? ?? 0;
-    
+
     final coverImage = data['coverImage'] as Map<String, dynamic>?;
     final imageUrl = coverImage?['large'] as String? ?? '';
 
@@ -589,6 +625,23 @@ class AniListService {
     );
   }
 
+  void _trackRequest() {
+    _sessionRequests++;
+    final now = DateTime.now();
+    _lastRequestTime = now;
+    _recentRequests.add(now);
+
+    // Track daily count
+    final today = '${now.year}-${now.month}-${now.day}';
+    final currentCount = _statsBox.get('requests_$today') ?? 0;
+    _statsBox.put('requests_$today', currentCount + 1);
+
+    // Clean up old requests (keep only last minute)
+    final oneMinuteAgo = now.subtract(const Duration(minutes: 1));
+    _recentRequests.removeWhere((time) => time.isBefore(oneMinuteAgo));
+  }
+
   void dispose() {
     // GraphQL client doesn't need explicit disposal
-  }}
+  }
+}

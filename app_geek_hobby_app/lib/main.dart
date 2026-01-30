@@ -66,6 +66,8 @@ Future<void> initializeHive() async {
   await Hive.openBox<List>('rawg_search_results');
   // If you actually have a GameDetails type, keep this; otherwise remove
   await Hive.openBox<GameDetails>('rawg_game_details');
+  await Hive.openBox<int>('rawg_stats'); // Track RAWG API usage
+  await Hive.openBox<int>('anilist_stats'); // Track AniList API usage
 
   // Anime cache boxes
   try {
