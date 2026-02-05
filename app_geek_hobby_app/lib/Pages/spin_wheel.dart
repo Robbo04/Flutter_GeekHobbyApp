@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/anime.dart';
 
 class SpinWheelPage extends StatefulWidget {
   const SpinWheelPage({super.key});
@@ -20,10 +21,12 @@ class _WheelItem {
 class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProviderStateMixin {
   // Available collections (boxName -> friendly label)
   final Map<String, String> _collectionBoxes = {
-    'games_owned_collection_id': 'Owned',
-    'games_wishlist_collection_id': 'Wishlist',
-    'games_backlog_collection_id': 'Backlog',
-    'games_completed_collection_id': 'Completed',
+    'games_owned_collection_id': 'Games - Owned',
+    'games_wishlist_collection_id': 'Games - Wishlist',
+    'games_backlog_collection_id': 'Games - Backlog',
+    'games_completed_collection_id': 'Games - Completed',
+    'anime_wishlist_collection_id': 'Anime - Wishlist',
+    'anime_watched_collection_id': 'Anime - Watched',
   };
 
   String _selectedBox = 'games_owned_collection_id';
@@ -67,7 +70,11 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
     super.dispose();
   }
 
-  _WheelItem _createWheelItem(int id, Box<Game>? gamesBox) {
+  bool _isAnimeCollection(String boxName) {
+    return boxName.startsWith('anime_');
+  }
+
+  _WheelItem _createWheelItem(int id, Box<Game>? gamesBox, Box<Anime>? animeBox) {
     if (gamesBox != null && gamesBox.containsKey(id)) {
       final game = gamesBox.get(id);
       return _WheelItem(
@@ -76,7 +83,19 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
         imageUrl: game?.imageUrl?.isNotEmpty == true ? game!.imageUrl : null,
       );
     }
-    return _WheelItem(id: id, name: 'Game $id', imageUrl: null);
+    if (animeBox != null && animeBox.containsKey(id)) {
+      final anime = animeBox.get(id);
+      return _WheelItem(
+        id: id,
+        name: anime?.name ?? 'Anime $id',
+        imageUrl: anime?.imageUrl?.isNotEmpty == true ? anime!.imageUrl : null,
+      );
+    }
+    return _WheelItem(
+      id: id,
+      name: _isAnimeCollection(_selectedBox) ? 'Anime $id' : 'Game $id',
+      imageUrl: null,
+    );
   }
 
   Future<void> _loadCollection() async {
@@ -92,8 +111,15 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
           : await Hive.openBox<int>(_selectedBox);
       final ids = box.keys.cast<int>().toList();
 
-      final Box<Game>? gamesBox = Hive.isBoxOpen('rawg_games') ? Hive.box<Game>('rawg_games') : null;
-      final items = ids.map((id) => _createWheelItem(id, gamesBox)).toList();
+      final isAnime = _isAnimeCollection(_selectedBox);
+      final Box<Game>? gamesBox = !isAnime && Hive.isBoxOpen('rawg_games')
+          ? Hive.box<Game>('rawg_games')
+          : null;
+      final Box<Anime>? animeBox = isAnime && Hive.isBoxOpen('anilist_anime')
+          ? Hive.box<Anime>('anilist_anime')
+          : null;
+
+      final items = ids.map((id) => _createWheelItem(id, gamesBox, animeBox)).toList();
 
       setState(() {
         _items = items;
