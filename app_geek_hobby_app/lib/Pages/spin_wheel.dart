@@ -67,6 +67,18 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
     super.dispose();
   }
 
+  _WheelItem _createWheelItem(int id, Box<Game>? gamesBox) {
+    if (gamesBox != null && gamesBox.containsKey(id)) {
+      final game = gamesBox.get(id);
+      return _WheelItem(
+        id: id,
+        name: game?.name ?? 'Game $id',
+        imageUrl: game?.imageUrl?.isNotEmpty == true ? game!.imageUrl : null,
+      );
+    }
+    return _WheelItem(id: id, name: 'Game $id', imageUrl: null);
+  }
+
   Future<void> _loadCollection() async {
     setState(() {
       _isLoading = true;
@@ -75,41 +87,22 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
     });
 
     try {
-      // Open the selected collection id box (opens if necessary)
-      final box = Hive.isBoxOpen(_selectedBox) ? Hive.box<int>(_selectedBox) : await Hive.openBox<int>(_selectedBox);
+      final box = Hive.isBoxOpen(_selectedBox)
+          ? Hive.box<int>(_selectedBox)
+          : await Hive.openBox<int>(_selectedBox);
       final ids = box.keys.cast<int>().toList();
 
-      // Try to open rawg_games to get cached Game info (if available)
-      List<_WheelItem> items = [];
-      if (ids.isNotEmpty) {
-        if (Hive.isBoxOpen('rawg_games')) {
-          final gamesBox = Hive.box<Game>('rawg_games');
-          for (final id in ids) {
-            if (gamesBox.containsKey(id)) {
-              final g = gamesBox.get(id);
-              items.add(_WheelItem(id: id, name: g?.name ?? 'Game $id', imageUrl: g?.imageUrl?.isNotEmpty == true ? g!.imageUrl : null));
-            } else {
-              items.add(_WheelItem(id: id, name: 'Game $id', imageUrl: null));
-            }
-          }
-        } else {
-          // rawg_games not open: just create placeholders
-          for (final id in ids) {
-            items.add(_WheelItem(id: id, name: 'Game $id', imageUrl: null));
-          }
-        }
-      }
+      final Box<Game>? gamesBox = Hive.isBoxOpen('rawg_games') ? Hive.box<Game>('rawg_games') : null;
+      final items = ids.map((id) => _createWheelItem(id, gamesBox)).toList();
 
       setState(() {
         _items = items;
+        _isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading collection $_selectedBox: $e');
       setState(() {
         _items = [];
-      });
-    } finally {
-      setState(() {
         _isLoading = false;
       });
     }
@@ -188,6 +181,68 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
       _winner = null;
       _winnerIndex = null;
     });
+  }
+
+  Widget _buildWinnerCard(double wheelSize) {
+    if (_winner == null) return const SizedBox.shrink();
+
+    final cardWidth = wheelSize * 0.42;
+    final cardHeight = wheelSize * 0.28;
+    final idFontSize = wheelSize * 0.06;
+    final nameFontSize = wheelSize * 0.045;
+
+    return Center(
+      child: GestureDetector(
+        onTap: _onTapDismissWinner,
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 16,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_winner!.imageUrl != null && _winner!.imageUrl!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      _winner!.imageUrl!,
+                      width: cardWidth,
+                      height: cardHeight,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else
+                  Container(
+                    width: cardWidth,
+                    height: cardHeight,
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: Text(
+                        '#${_winner!.id}',
+                        style: TextStyle(fontSize: idFontSize),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Text(
+                  _winner!.name,
+                  style: TextStyle(
+                    fontSize: nameFontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: _onTapDismissWinner,
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   // Utility draw colors
@@ -321,46 +376,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                 ),
 
                               // Winner modal card (centered) when finished
-                              if (_winner != null)
-                                Center(
-                                  child: GestureDetector(
-                                    onTap: _onTapDismissWinner,
-                                    child: Card(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      elevation: 16,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (_winner!.imageUrl != null && _winner!.imageUrl!.isNotEmpty)
-                                              ClipRRect(
-                                                borderRadius: BorderRadius.circular(8),
-                                                child: Image.network(_winner!.imageUrl!,
-                                                    width: wheelSize * 0.42, height: wheelSize * 0.28, fit: BoxFit.cover),
-                                              )
-                                            else
-                                              Container(
-                                                width: wheelSize * 0.42,
-                                                height: wheelSize * 0.28,
-                                                color: Colors.grey[200],
-                                                child: Center(child: Text('#${_winner!.id}', style: TextStyle(fontSize: wheelSize * 0.06))),
-                                              ),
-                                            const SizedBox(height: 12),
-                                            Text(_winner!.name, style: TextStyle(fontSize: wheelSize * 0.045, fontWeight: FontWeight.bold)),
-                                            const SizedBox(height: 8),
-                                            ElevatedButton(
-                                              onPressed: () {
-                                                _onTapDismissWinner();
-                                              },
-                                              child: const Text('Close'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              _buildWinnerCard(wheelSize),
                             ],
                           ),
                         ),
