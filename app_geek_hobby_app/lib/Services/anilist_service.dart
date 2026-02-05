@@ -3,6 +3,21 @@ import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/anime_group.dart';
 
+class AniListRateLimitException implements Exception {
+  final String message;
+  final int requestsLastMinute;
+  final int minuteLimit;
+  
+  AniListRateLimitException({
+    required this.message,
+    required this.requestsLastMinute,
+    required this.minuteLimit,
+  });
+  
+  @override
+  String toString() => message;
+}
+
 class AniListService {
   static late AniListService instance;
 
@@ -48,6 +63,17 @@ class AniListService {
     if (ts == null) return false;
     final fetched = DateTime.fromMillisecondsSinceEpoch(ts);
     return DateTime.now().difference(fetched) <= ttl;
+  }
+
+  void _checkRateLimit() {
+    final currentRequests = requestsLastMinute;
+    if (currentRequests >= _minuteLimit) {
+      throw AniListRateLimitException(
+        message: 'AniList API rate limit reached ($currentRequests/$_minuteLimit requests per minute). Please wait a moment before trying again.',
+        requestsLastMinute: currentRequests,
+        minuteLimit: _minuteLimit,
+      );
+    }
   }
 
   // GraphQL query for searching anime
@@ -183,6 +209,7 @@ class AniListService {
 
     // Fetch from API
     try {
+      _checkRateLimit();
       _trackRequest();
       final result = await _client.query(
         QueryOptions(
@@ -286,6 +313,7 @@ class AniListService {
 
     // Fetch from API
     try {
+      _checkRateLimit();
       _trackRequest();
       final result = await _client.query(
         QueryOptions(
@@ -359,6 +387,7 @@ class AniListService {
     visited.add(animeId);
 
     try {
+      _checkRateLimit();
       _trackRequest();
       final result = await _client.query(
         QueryOptions(

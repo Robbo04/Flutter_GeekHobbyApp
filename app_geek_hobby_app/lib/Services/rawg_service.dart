@@ -3,6 +3,21 @@ import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
 
+class RawgRateLimitException implements Exception {
+  final String message;
+  final int remainingRequests;
+  final int monthlyLimit;
+  
+  RawgRateLimitException({
+    required this.message,
+    required this.remainingRequests,
+    required this.monthlyLimit,
+  });
+  
+  @override
+  String toString() => message;
+}
+
 class RawgService {
   static const String _host = 'api.rawg.io';
   static const String _basePath = '/api';
@@ -44,6 +59,16 @@ class RawgService {
     if (ts == null) return false;
     final fetched = DateTime.fromMillisecondsSinceEpoch(ts);
     return DateTime.now().difference(fetched) <= ttl;
+  }
+
+  void _checkRateLimit() {
+    if (monthlyRequestsRemaining <= 0) {
+      throw RawgRateLimitException(
+        message: 'RAWG API monthly limit reached ($monthlyLimit requests). Limit resets at the start of next month.',
+        remainingRequests: monthlyRequestsRemaining,
+        monthlyLimit: _monthlyLimit,
+      );
+    }
   }
 
   // Fetch games with persistent cache
@@ -88,7 +113,8 @@ class RawgService {
       params['genres'] = genre; // RAWG uses 'genres' param
     if (ordering.isNotEmpty) params['ordering'] = ordering;
 
-    final uri = Uri.https(_host, '$_basePath/games', params);
+_checkRateLimit();
+      final uri = Uri.https(_host, '$_basePath/games', params);
     final response = await httpClient.get(uri);
     _trackRequest();
 
@@ -114,6 +140,7 @@ class RawgService {
     final cached = _gamesBox.get(id);
     if (cached != null && cached.isDetailed) return cached;
 
+    _checkRateLimit();
     final uri = Uri.https(_host, '$_basePath/games/$id', {'key': apiKey});
     final response = await httpClient.get(uri);
     _trackRequest();
@@ -255,6 +282,7 @@ class RawgService {
     };
     if (genre != null && genre.isNotEmpty) params['genres'] = genre;
 
+    _checkRateLimit();
     final uri = Uri.https(_host, '$_basePath/games', params);
     final response = await httpClient.get(uri);
     _trackRequest();
