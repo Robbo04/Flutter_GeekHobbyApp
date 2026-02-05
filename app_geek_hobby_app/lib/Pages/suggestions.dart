@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Services/collections_service.dart';
 
 class SuggestionsPage extends StatefulWidget {
@@ -15,6 +14,7 @@ class SuggestionsPage extends StatefulWidget {
 class _SuggestionsPageState extends State<SuggestionsPage> {
   final List<Game> _items = [];
   final RawgService _rawg = RawgService.instance;
+  final CollectionsService _collections = CollectionsService.instance;
 
   int _page = 1;
   final int _pageSize = 20;
@@ -30,19 +30,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     _fetchNextPage();
   }
 
-  bool _isInAnyCollection(int id) {
-    try {
-      final owned = Hive.isBoxOpen('games_owned_collection_id') ? Hive.box<int>('games_owned_collection_id').containsKey(id) : false;
-      final wishlist = Hive.isBoxOpen('games_wishlist_collection_id') ? Hive.box<int>('games_wishlist_collection_id').containsKey(id) : false;
-      final backlog = Hive.isBoxOpen('games_backlog_collection_id') ? Hive.box<int>('games_backlog_collection_id').containsKey(id) : false;
-      final completed = Hive.isBoxOpen('games_completed_collection_id') ? Hive.box<int>('games_completed_collection_id').containsKey(id) : false;
-      return owned || wishlist || backlog || completed;
-    } catch (_) {
-      // if anything goes wrong assume not in collection to avoid filtering everything
-      return false;
-    }
-  }
-
   Future<void> _fetchNextPage() async {
     if (_isLoading || !_hasMore) return;
     setState(() => _isLoading = true);
@@ -55,7 +42,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       final newGames = <Game>[];
       for (final g in fetched) {
         if (existingIds.contains(g.id)) continue;
-        if (_isInAnyCollection(g.id)) continue;
+        if (await _collections.isGameInAnyCollection(g.id)) continue;
         newGames.add(g);
       }
       print('New games after filtering: ${newGames.map((g) => g.id).toList()}');
@@ -89,99 +76,63 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     }
   }
 
-  // Shared remove handler used by swipes and buttons
-  // Added optional `showSnack` so callers can show a custom snackbar and avoid duplication.
-  void _removeTop(bool liked, {bool showSnack = true}) {
+  // Shared remove handler
+  void _removeTop() {
     if (_items.isEmpty) return;
-    final removed = _items.removeAt(0);
+    _items.removeAt(0);
     setState(() {
       _cardOffset = Offset.zero;
     });
 
-    if (showSnack) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(liked ? 'Liked ${removed.name}' : 'Skipped ${removed.name}')),
-      );
-    }
-
-    // If we're getting low on items, prefetch the next page
+    // Prefetch next page if running low
     if (_items.length <= _prefetchThreshold && _hasMore) {
       _fetchNextPage();
     }
   }
 
-  // Button handlers that reuse _removeTop
-  Future<void> _onLikePressed() async {
+  void _showSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  // Add to wishlist and remove from suggestions
+  Future<void> _addToWishlistAndRemove() async {
     if (_items.isEmpty) return;
     final g = _items.first;
 
     try {
-      await CollectionsService.instance.addToWishlist(g);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added "${g.name}" to wishlist')));
-      }
+      await _collections.addToWishlist(g);
+      _showSnackBar('Added "${g.name}" to wishlist');
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add to wishlist: $e')));
-      }
+      _showSnackBar('Failed to add to wishlist: $e');
       return;
     }
 
-    // Remove top item and suppress default "Liked" snackbar
-    _removeTop(true, showSnack: false);
+    _removeTop();
   }
 
   void _onSkipPressed() {
-    _removeTop(false);
+    if (_items.isEmpty) return;
+    final name = _items.first.name;
+    _removeTop();
+    _showSnackBar('Skipped $name');
   }
 
-  // Mark a game as owned (persist to the owned collection) and remove it from suggestions.
+  // Mark a game as owned and remove it from suggestions
   Future<void> _markAsOwnedAndRemove() async {
     if (_items.isEmpty) return;
-    final g = _items.removeAt(0);
-    setState(() {
-      _cardOffset = Offset.zero;
-    });
+    final g = _items.first;
 
     try {
-      // Add to owned box and remove from other collection boxes if present.
-      if (Hive.isBoxOpen('games_owned_collection_id')) {
-        await Hive.box<int>('games_owned_collection_id').put(g.id, g.id);
-      } else {
-        // Try to open the box if not open
-        await Hive.openBox<int>('games_owned_collection_id').then((b) => b.put(g.id, g.id));
-      }
-
-      // Remove from wishlist/backlog/completed if present
-      if (Hive.isBoxOpen('games_wishlist_collection_id')) {
-        await Hive.box<int>('games_wishlist_collection_id').delete(g.id);
-      }
-      if (Hive.isBoxOpen('games_backlog_collection_id')) {
-        await Hive.box<int>('games_backlog_collection_id').delete(g.id);
-      }
-      if (Hive.isBoxOpen('games_completed_collection_id')) {
-        await Hive.box<int>('games_completed_collection_id').delete(g.id);
-      }
-
-      // Optionally persist the game object in the rawg_games box if available
-      try {
-        if (Hive.isBoxOpen('rawg_games')) {
-          final gamesBox = Hive.box<Game>('rawg_games');
-          await gamesBox.put(g.id, g);
-        }
-      } catch (_) {
-        // ignore if adapter/box issues
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Marked "${g.name}" as owned and removed from suggestions')));
+      await _collections.addToOwned(g, removeFromOthers: true);
+      _showSnackBar('Marked "${g.name}" as owned');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to mark as owned: $e')));
+      _showSnackBar('Failed to mark as owned: $e');
+      return;
     }
 
-    // If we're getting low on items, prefetch the next page
-    if (_items.length <= _prefetchThreshold && _hasMore) {
-      _fetchNextPage();
-    }
+    _removeTop();
   }
 
   Widget _buildCard(Game game, double width, double height) {
@@ -217,33 +168,10 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     );
   }
 
-  // Called when the user swipes the card to the right (add to wishlist)
-  Future<void> _onSwipedRight() async {
-    if (_items.isEmpty) return;
-    final g = _items.first;
-
-    try {
-      // Add to wishlist via the centralized service
-      await CollectionsService.instance.addToWishlist(g);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added "${g.name}" to wishlist')));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add to wishlist: $e')));
-      }
-      // Even on failure we proceed to remove the item to match swipe UX,
-      // change this if you'd rather keep the card on failure.
-    }
-
-    // Remove top item and suppress default "Liked" snackbar (we already showed a custom one)
-    _removeTop(true, showSnack: false);
-  }
-
-  // Called when the user swipes the card to the left (skip)
-  void _onSwipedLeft() {
-    _removeTop(false);
-  }
+  // Swipe handlers - delegate to button handlers for consistency
+  Future<void> _onSwipedRight() => _addToWishlistAndRemove();
+  
+  void _onSwipedLeft() => _onSkipPressed();
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +207,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                 // - use a fraction of the width so it scales on large screens
                 // - clamp to keep reasonable min/max sizes
                 final rawWidth = constraints.maxWidth * 0.60;
-                final boxWidth = (rawWidth.clamp(200.0, 420.0)) as double;
+                final boxWidth = rawWidth.clamp(200.0, 420.0);
 
                 // Preferred aspect ratio for card: height = width * 1.6 (like 250x400)
                 final preferredHeight = boxWidth * 1.6;
@@ -399,7 +327,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                     backgroundColor: Colors.grey[200],
                                     child: IconButton(
                                       icon: Icon(Icons.favorite, color: Colors.pink, size: actionIconSize),
-                                      onPressed: _onLikePressed,
+                                      onPressed: _addToWishlistAndRemove,
                                       tooltip: 'Like',
                                     ),
                                   ),

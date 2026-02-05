@@ -117,6 +117,21 @@ class CollectionsService {
     }
   }
 
+  /// Check if a game ID exists in any collection
+  Future<bool> isGameInAnyCollection(int id) async {
+    try {
+      final boxes = await Future.wait([
+        _openIdBox('games_owned_collection_id'),
+        _openIdBox('games_wishlist_collection_id'),
+        _openIdBox('games_backlog_collection_id'),
+        _openIdBox('games_completed_collection_id'),
+      ]);
+      return boxes.any((box) => box.containsKey(id));
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Get all game IDs in wishlist
   Future<List<int>> getGameWishlistIds() async {
     final wishlistBox = await _openIdBox('games_wishlist_collection_id');
