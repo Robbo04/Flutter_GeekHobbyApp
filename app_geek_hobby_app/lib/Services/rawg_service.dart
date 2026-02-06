@@ -123,8 +123,16 @@ _checkRateLimit();
       final results = data['results'] as List<dynamic>;
       final gamesList = results.map((e) => Game.fromRawg(e)).toList();
 
-      // Store each game by its ID
+      // Store each game by its ID, preserving existing collection flags
       for (final game in gamesList) {
+        final existing = _gamesBox.get(game.id);
+        if (existing != null) {
+          // Preserve user's collection state
+          game.wishlist = existing.wishlist;
+          game.owned = existing.owned;
+          game.completed = existing.completed;
+          game.userRating = existing.userRating;
+        }
         await _gamesBox.put(game.id, game);
       }
       // Store the list of IDs for this search cache key
@@ -148,6 +156,16 @@ _checkRateLimit();
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final game = Game.fromRawg(data);
+      
+      // Preserve existing collection flags
+      final existing = _gamesBox.get(game.id);
+      if (existing != null) {
+        game.wishlist = existing.wishlist;
+        game.owned = existing.owned;
+        game.completed = existing.completed;
+        game.userRating = existing.userRating;
+      }
+      
       await _gamesBox.put(game.id, game);
       return game;
     } else {

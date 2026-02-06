@@ -233,9 +233,16 @@ class AniListService {
 
       final animeList = mediaList.map((data) => _parseAnime(data)).toList();
 
-      // Cache the results
+      // Cache the results, preserving existing collection flags
       final ids = <int>[];
       for (final anime in animeList) {
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          // Preserve user's collection state
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
         await _animeBox.put(anime.id, anime);
         ids.add(anime.id);
       }
@@ -332,9 +339,16 @@ class AniListService {
 
       final animeList = mediaList.map((data) => _parseAnime(data)).toList();
 
-      // Cache the results
+      // Cache the results, preserving existing collection flags
       final ids = <int>[];
       for (final anime in animeList) {
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          // Preserve user's collection state
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
         await _animeBox.put(anime.id, anime);
         ids.add(anime.id);
       }
@@ -432,7 +446,13 @@ class AniListService {
         relationMap[anime.id] = relationType;
         relatedIds.add(anime.id);
 
-        // Cache the anime
+        // Cache the anime, preserving existing collection flags
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
         await _animeBox.put(anime.id, anime);
       }
 
