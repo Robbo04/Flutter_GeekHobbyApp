@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Pages/developer.dart';
+import 'package:app_geek_hobby_app/Pages/credits.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -136,7 +137,12 @@ class SettingsPage extends StatelessWidget {
                 ),
                 buttonRow(
                   label: 'Credits',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CreditsPage()),
+                    );
+                  },
                   trailing: Icon(Icons.chevron_right),
                 ),
               ],
