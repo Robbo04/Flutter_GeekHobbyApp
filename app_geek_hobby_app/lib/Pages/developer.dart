@@ -1,6 +1,8 @@
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/clear_anime_groups_button.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/api_stats_card.dart';
+import 'package:app_geek_hobby_app/Utils/dialog_helpers.dart';
 import 'package:flutter/material.dart';
 
 class DeveloperPage extends StatelessWidget {
@@ -74,75 +76,19 @@ class DeveloperPage extends StatelessWidget {
               icon: Icons.videogame_asset,
               children: [
                 ElevatedButton.icon(
-                  onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
-
-                    // Show confirmation
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Refresh Game Cache'),
-                        content: const Text(
-                          'This will refresh all cached game data from RAWG API. '
-                          'This may take a few moments.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Refresh'),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (confirmed != true) return;
-
-                    // Show loading
-                    if (!context.mounted) return;
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (_) =>
-                          const Center(child: CircularProgressIndicator()),
-                    );
-
-                    try {
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Refreshing cached games...'),
-                        ),
-                      );
-
-                      await RawgService.instance.refreshAllCachedGames(
-                        batchSize: 3,
-                        delay: const Duration(milliseconds: 300),
-                      );
-
-                      if (!context.mounted) return;
-                      Navigator.pop(context); // Close loading
-
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('✅ Game cache refresh complete!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      Navigator.pop(context); // Close loading
-
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text('❌ Error refreshing cache: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: () => DialogHelpers.executeAsyncAction(
+                    context,
+                    confirmTitle: 'Refresh Game Cache',
+                    confirmContent:
+                        'This will refresh all cached game data from RAWG API. '
+                        'This may take a few moments.',
+                    confirmText: 'Refresh',
+                    successMessage: 'Game cache refresh complete!',
+                    action: () => RawgService.instance.refreshAllCachedGames(
+                      batchSize: 3,
+                      delay: const Duration(milliseconds: 300),
+                    ),
+                  ),
                   icon: const Icon(Icons.replay),
                   label: const Text('Refresh Game Cache'),
                   style: ElevatedButton.styleFrom(
@@ -233,57 +179,31 @@ class ApiStatsWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // RAWG API Stats Card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue[200]!, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ApiStatsCard(
+          title: 'RAWG API (Games)',
+          icon: Icons.videogame_asset,
+          themeColor: Colors.blue[700]!,
+          stats: [
+            StatRow('Monthly Limit:', '${rawgService.monthlyLimit}'),
+            StatRow(
+              'This Month Used:',
+              '${rawgService.monthlyRequestsMade}',
+              valueColor: rawgService.usagePercentage > 80
+                  ? Colors.red[700]
+                  : Colors.grey[700],
+            ),
+            StatRow(
+              'Remaining:',
+              '${rawgService.monthlyRequestsRemaining}',
+              valueColor: rawgService.monthlyRequestsRemaining < 1000
+                  ? Colors.red[700]
+                  : Colors.green[700],
+              isBold: true,
+            ),
+          ],
+          extraWidget: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.videogame_asset,
-                    color: Colors.blue[700],
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'RAWG API (Games)',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[700],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildStatRow(
-                'Monthly Limit:',
-                '${rawgService.monthlyLimit}',
-                Colors.grey[700]!,
-              ),
-              _buildStatRow(
-                'This Month Used:',
-                '${rawgService.monthlyRequestsMade}',
-                rawgService.usagePercentage > 80
-                    ? Colors.red[700]!
-                    : Colors.grey[700]!,
-              ),
-              _buildStatRow(
-                'Remaining:',
-                '${rawgService.monthlyRequestsRemaining}',
-                rawgService.monthlyRequestsRemaining < 1000
-                    ? Colors.red[700]!
-                    : Colors.green[700]!,
-                isBold: true,
-              ),
-              const SizedBox(height: 8),
-              // Progress bar
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
@@ -293,8 +213,8 @@ class ApiStatsWidget extends StatelessWidget {
                     rawgService.usagePercentage > 80
                         ? Colors.red
                         : rawgService.usagePercentage > 50
-                        ? Colors.orange
-                        : Colors.green,
+                            ? Colors.orange
+                            : Colors.green,
                   ),
                   minHeight: 12,
                 ),
@@ -309,83 +229,74 @@ class ApiStatsWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _buildStatRow(
-                'Session Requests:',
-                '${rawgService.sessionRequests}',
-                Colors.grey[600]!,
-              ),
-              if (rawgService.lastRequestTime != null)
-                _buildStatRow(
-                  'Last Request:',
-                  _formatTime(rawgService.lastRequestTime!),
-                  Colors.grey[600]!,
+              ...[
+                StatRow(
+                  'Session Requests:',
+                  '${rawgService.sessionRequests}',
+                  valueColor: Colors.grey[600],
                 ),
+                if (rawgService.lastRequestTime != null)
+                  StatRow(
+                    'Last Request:',
+                    TimeFormatter.formatTimeAgo(rawgService.lastRequestTime!),
+                    valueColor: Colors.grey[600],
+                  ),
+              ].map((s) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          s.label,
+                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        ),
+                        Text(
+                          s.value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: s.isBold ? FontWeight.bold : FontWeight.w600,
+                            color: s.valueColor ?? Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
             ],
           ),
         ),
         const SizedBox(height: 16),
         // AniList API Stats Card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.purple[200]!, width: 2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.collections_bookmark,
-                    color: Colors.purple[700],
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'AniList API (Anime)',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple[700],
-                    ),
-                  ),
-                ],
+        ApiStatsCard(
+          title: 'AniList API (Anime)',
+          icon: Icons.collections_bookmark,
+          themeColor: Colors.purple[700]!,
+          stats: [
+            StatRow('Per-Minute Limit:', '${aniListService.minuteLimit}'),
+            StatRow(
+              'Last Minute:',
+              '${aniListService.requestsLastMinute}/${aniListService.minuteLimit}',
+              valueColor: aniListService.requestsLastMinute > 80
+                  ? Colors.red[700]
+                  : Colors.green[700],
+              isBold: true,
+            ),
+            StatRow(
+              "Today's Requests:",
+              '${aniListService.todayRequestsMade}',
+              valueColor: Colors.grey[600],
+            ),
+            StatRow(
+              'Session Requests:',
+              '${aniListService.sessionRequests}',
+              valueColor: Colors.grey[600],
+            ),
+            if (aniListService.lastRequestTime != null)
+              StatRow(
+                'Last Request:',
+                TimeFormatter.formatTimeAgo(aniListService.lastRequestTime!),
+                valueColor: Colors.grey[600],
               ),
-              const SizedBox(height: 16),
-              _buildStatRow(
-                'Per-Minute Limit:',
-                '${aniListService.minuteLimit}',
-                Colors.grey[700]!,
-              ),
-              _buildStatRow(
-                'Last Minute:',
-                '${aniListService.requestsLastMinute}/${aniListService.minuteLimit}',
-                aniListService.requestsLastMinute > 80
-                    ? Colors.red[700]!
-                    : Colors.green[700]!,
-                isBold: true,
-              ),
-              const SizedBox(height: 12),
-              _buildStatRow(
-                'Today\'s Requests:',
-                '${aniListService.todayRequestsMade}',
-                Colors.grey[600]!,
-              ),
-              _buildStatRow(
-                'Session Requests:',
-                '${aniListService.sessionRequests}',
-                Colors.grey[600]!,
-              ),
-              if (aniListService.lastRequestTime != null)
-                _buildStatRow(
-                  'Last Request:',
-                  _formatTime(aniListService.lastRequestTime!),
-                  Colors.grey[600]!,
-                ),
-            ],
-          ),
+          ],
         ),
         const SizedBox(height: 16),
         Container(
@@ -409,45 +320,5 @@ class ApiStatsWidget extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Widget _buildStatRow(
-    String label,
-    String value,
-    Color valueColor, {
-    bool isBold = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: valueColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-
-    if (diff.inSeconds < 60) {
-      return '${diff.inSeconds}s ago';
-    } else if (diff.inMinutes < 60) {
-      return '${diff.inMinutes}m ago';
-    } else if (diff.inHours < 24) {
-      return '${diff.inHours}h ago';
-    } else {
-      return '${diff.inDays}d ago';
-    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
+import 'package:app_geek_hobby_app/Utils/dialog_helpers.dart';
 import 'package:flutter/material.dart';
 
 /// Debug utility to clear anime groups
@@ -9,64 +10,17 @@ class ClearAnimeGroupsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: () async {
-        // Show confirmation dialog
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Clear Anime Groups'),
-            content: const Text(
-              'This will clear all anime group data. Groups will be rebuilt '
-              'automatically the next time you search.\n\n'
-              'Use this if you notice anime split into multiple groups.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Clear Groups'),
-              ),
-            ],
-          ),
-        );
-
-        if (confirmed != true) return;
-
-        // Show loading
-        if (!context.mounted) return;
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => const Center(child: CircularProgressIndicator()),
-        );
-
-        try {
-          await AniListService.instance.clearAllGroups();
-
-          if (!context.mounted) return;
-          Navigator.pop(context); // Close loading
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Anime groups cleared! They will rebuild on next search.'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } catch (e) {
-          if (!context.mounted) return;
-          Navigator.pop(context); // Close loading
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('❌ Error clearing groups: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
+      onPressed: () => DialogHelpers.executeAsyncAction(
+        context,
+        confirmTitle: 'Clear Anime Groups',
+        confirmContent:
+            'This will clear all anime group data. Groups will be rebuilt '
+            'automatically the next time you search.\n\n'
+            'Use this if you notice anime split into multiple groups.',
+        confirmText: 'Clear Groups',
+        successMessage: 'Anime groups cleared! They will rebuild on next search.',
+        action: () => AniListService.instance.clearAllGroups(),
+      ),
       icon: const Icon(Icons.refresh),
       label: const Text('Clear Anime Groups'),
       style: ElevatedButton.styleFrom(
