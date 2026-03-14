@@ -6,22 +6,22 @@
 class ExploreCarousels {
   // Each carousel configuration
   static const List<CarouselCategory> gameCarousels = [
-    CarouselCategory(title: 'Trending Now', type: CarouselType.trending),
-    CarouselCategory(title: 'Most Popular Games', type: CarouselType.mostPlayed),
-    CarouselCategory(title: 'Horror Games', type: CarouselType.tag, value: 'survival-horror'),
-    CarouselCategory(title: 'Free to Play', type: CarouselType.tag, value: 'free-to-play'),
-    CarouselCategory(title: 'Indie Games', type: CarouselType.genre, value: 'indie'),
-    CarouselCategory(title: 'RPG', type: CarouselType.genre, value: 'role-playing-games-rpg'),
-    CarouselCategory(title: 'Action', type: CarouselType.genre, value: 'action'),
+    CarouselCategory(title: '🎮 Trending Now', type: CarouselType.trending),
+    CarouselCategory(title: '🎮 Most Popular Games', type: CarouselType.mostPlayed),
+    CarouselCategory(title: '🎮 Horror Games', type: CarouselType.tag, value: 'survival-horror'),
+    CarouselCategory(title: '🎮 Free to Play', type: CarouselType.tag, value: 'free-to-play'),
+    CarouselCategory(title: '🎮 Indie Games', type: CarouselType.genre, value: 'indie'),
+    CarouselCategory(title: '🎮 RPG', type: CarouselType.genre, value: 'role-playing-games-rpg'),
+    CarouselCategory(title: '🎮 Action', type: CarouselType.genre, value: 'action'),
   ];
 
   static const List<CarouselCategory> animeCarousels = [
-    CarouselCategory(title: 'Trending Anime', type: CarouselType.trending),
-    CarouselCategory(title: 'Most Popular Anime', type: CarouselType.mostPlayed),
-    CarouselCategory(title: 'Action Anime', type: CarouselType.genre, value: 'Action'),
-    CarouselCategory(title: 'Comedy Anime', type: CarouselType.genre, value: 'Comedy'),
-    CarouselCategory(title: 'Romance Anime', type: CarouselType.genre, value: 'Romance'),
-    CarouselCategory(title: 'Sci-Fi Anime', type: CarouselType.genre, value: 'Sci-Fi'),
+    CarouselCategory(title: '📺 Trending Anime', type: CarouselType.trending),
+    CarouselCategory(title: '📺 Most Popular Anime', type: CarouselType.mostPlayed),
+    CarouselCategory(title: '📺 Action Anime', type: CarouselType.genre, value: 'Action'),
+    CarouselCategory(title: '📺 Comedy Anime', type: CarouselType.genre, value: 'Comedy'),
+    CarouselCategory(title: '📺 Romance Anime', type: CarouselType.genre, value: 'Romance'),
+    CarouselCategory(title: '📺 Sci-Fi Anime', type: CarouselType.genre, value: 'Sci-Fi'),
   ];
 }
 

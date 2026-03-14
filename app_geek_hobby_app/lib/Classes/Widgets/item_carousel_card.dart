@@ -66,29 +66,40 @@ class ItemCarouselCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Container(
-                  height: 140,
-                  width: 90,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    height: 160,
+                    height: 140,
                     width: 90,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                      image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
-                          ? DecorationImage(
-                              image: NetworkImage(item.imageUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
+                      border: Border(
+                        left: BorderSide(
+                          color: _getAccentColor(),
+                          width: 4,
+                        ),
+                      ),
                     ),
-                    child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
-                        ? const Icon(Icons.image, size: 60, color: Colors.grey)
-                        : null,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Image
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(item.imageUrl),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
+                              ? const Icon(Icons.image, size: 60, color: Colors.grey)
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 // Group badge for anime
@@ -123,5 +134,15 @@ class ItemCarouselCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Get accent color based on item type
+  Color _getAccentColor() {
+    if (item is Game) {
+      return const Color(0xFF5E72E4); // Blue for games
+    } else if (item is Anime) {
+      return const Color(0xFFFF6B9D); // Pink for anime
+    }
+    return Colors.grey;
   }
 }
