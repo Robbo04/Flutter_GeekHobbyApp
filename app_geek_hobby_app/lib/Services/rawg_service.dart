@@ -420,4 +420,214 @@ _checkRateLimit();
       await Future.delayed(delay);
     }
   }
+
+  /// Fetch most played/popular games (all-time) by sorting by rating count
+  Future<List<Game>> fetchMostPlayed({
+    int page = 1,
+    int pageSize = 20,
+    String? genre,
+    Duration cacheTTL = const Duration(days: 7),
+  }) async {
+    final cacheKey =
+        'mostPlayed|genre=${genre ?? ''}|page=$page|pageSize=$pageSize';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty && _isFresh(cacheKey, cacheTTL)) {
+      final games = idList
+          .map((id) => _gamesBox.get(id))
+          .whereType<Game>()
+          .toList();
+      if (games.length == idList.length) {
+        print('Loaded most played games from cache');
+        return games;
+      }
+    }
+
+    // Fetch from API
+    final Map<String, String> params = {
+      'key': apiKey,
+      'page': page.toString(),
+      'page_size': pageSize.toString(),
+      'ordering': '-rating,-ratings_count', // Sort by rating and rating count
+    };
+    if (genre != null && genre.isNotEmpty) params['genres'] = genre;
+
+    _checkRateLimit();
+    final uri = Uri.https(_host, '$_basePath/games', params);
+    final response = await httpClient.get(uri);
+    _trackRequest();
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = data['results'] as List<dynamic>;
+      final gamesList = results.map((e) => Game.fromRawg(e)).toList();
+
+      // Store each game
+      for (final game in gamesList) {
+        final existing = _gamesBox.get(game.id);
+        if (existing != null) {
+          game.wishlist = existing.wishlist;
+          game.owned = existing.owned;
+          game.completed = existing.completed;
+          game.userRating = existing.userRating;
+        }
+        await _gamesBox.put(game.id, game);
+      }
+      await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+      return gamesList;
+    } else {
+      throw Exception(
+        'Failed to load most played games (status: ${response.statusCode})',
+      );
+    }
+  }
+
+  /// Fetch games by genre (convenience wrapper around fetchGames)
+  Future<List<Game>> fetchByGenre({
+    required String genre,
+    int page = 1,
+    int pageSize = 20,
+    Duration cacheTTL = const Duration(days: 7),
+    int minRatingsCount = 100, // Require at least 100 ratings
+  }) async {
+    // Build cache key with filter params
+    final cacheKey = 'genre=$genre|page=$page|pageSize=$pageSize|minRatings=$minRatingsCount';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty && _isFresh(cacheKey, cacheTTL)) {
+      final games = idList
+          .map((id) => _gamesBox.get(id))
+          .whereType<Game>()
+          .toList();
+      if (games.length == idList.length) {
+        print('Loaded games by genre from cache');
+        return games;
+      }
+    }
+
+    // Fetch from API
+    final Map<String, String> params = {
+      'key': apiKey,
+      'page': page.toString(),
+      'page_size': pageSize.toString(),
+      'genres': genre,
+      'ordering': '-rating,-ratings_count', // Sort by rating and popularity
+    };
+
+    _checkRateLimit();
+    final uri = Uri.https(_host, '$_basePath/games', params);
+    final response = await httpClient.get(uri);
+    _trackRequest();
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = data['results'] as List<dynamic>;
+      
+      // Filter for well-known games
+      final gamesList = results
+          .map((e) => Game.fromRawg(e))
+          .where((g) => g.ratingCount >= minRatingsCount)
+          .toList();
+
+      // Store each game
+      for (final game in gamesList) {
+        final existing = _gamesBox.get(game.id);
+        if (existing != null) {
+          game.wishlist = existing.wishlist;
+          game.owned = existing.owned;
+          game.completed = existing.completed;
+          game.userRating = existing.userRating;
+        }
+        await _gamesBox.put(game.id, game);
+      }
+      await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+      return gamesList;
+    } else {
+      throw Exception(
+        'Failed to load games by genre (status: ${response.statusCode})',
+      );
+    }
+  }
+
+  /// Fetch games by tag
+  Future<List<Game>> fetchByTag({
+    required String tag,
+    int page = 1,
+    int pageSize = 20,
+    Duration cacheTTL = const Duration(days: 7),
+    int minRatingsCount = 100, // Require at least 100 ratings
+  }) async {
+    final cacheKey = 'tag=$tag|page=$page|pageSize=$pageSize|minRatings=$minRatingsCount';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty && _isFresh(cacheKey, cacheTTL)) {
+      final games = idList
+          .map((id) => _gamesBox.get(id))
+          .whereType<Game>()
+          .toList();
+      if (games.length == idList.length) {
+        print('Loaded games by tag from cache');
+        return games;
+      }
+    }
+
+    // Fetch from API
+    final Map<String, String> params = {
+      'key': apiKey,
+      'page': page.toString(),
+      'page_size': pageSize.toString(),
+      'tags': tag, // RAWG uses 'tags' parameter
+      'ordering': '-rating,-ratings_count', // Sort by rating and popularity
+    };
+
+    _checkRateLimit();
+    final uri = Uri.https(_host, '$_basePath/games', params);
+    print('Fetching games by tag: $uri'); // Debug log
+    final response = await httpClient.get(uri);
+    _trackRequest();
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = data['results'] as List<dynamic>;
+      print('Found ${results.length} games for tag "$tag"'); // Debug log
+      
+      // Filter for well-known games
+      final gamesList = results
+          .map((e) => Game.fromRawg(e))
+          .where((g) => g.ratingCount >= minRatingsCount)
+          .toList();
+      
+      print('After filtering: ${gamesList.length} games with $minRatingsCount+ ratings');
+
+      // Store each game
+      for (final game in gamesList) {
+        final existing = _gamesBox.get(game.id);
+        if (existing != null) {
+          game.wishlist = existing.wishlist;
+          game.owned = existing.owned;
+          game.completed = existing.completed;
+          game.userRating = existing.userRating;
+        }
+        await _gamesBox.put(game.id, game);
+      }
+      await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+      return gamesList;
+    } else {
+      throw Exception(
+        'Failed to load games by tag (status: ${response.statusCode})',
+      );
+    }
+  }
 }

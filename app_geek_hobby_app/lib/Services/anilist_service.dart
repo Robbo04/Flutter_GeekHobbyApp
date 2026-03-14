@@ -367,6 +367,199 @@ class AniListService {
     }
   }
 
+  // Get most popular anime (all-time)
+  static const String _popularQuery = '''
+    query(\$page: Int, \$perPage: Int) {
+      Page(page: \$page, perPage: \$perPage) {
+        media(type: ANIME, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          format
+          episodes
+          duration
+          seasonYear
+          coverImage {
+            large
+          }
+          averageScore
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
+        }
+      }
+    }
+  ''';
+
+  Future<List<Anime>> fetchMostPopular({
+    int page = 1,
+    int perPage = 20,
+    Duration cacheTTL = const Duration(days: 7),
+  }) async {
+    final cacheKey = 'anilist|popular|page=$page|perPage=$perPage';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty) {
+      if (_isFresh(cacheKey, cacheTTL)) {
+        final cached = idList
+            .map((id) => _animeBox.get(id))
+            .whereType<Anime>()
+            .toList();
+        if (cached.length == idList.length) {
+          return cached;
+        }
+      }
+    }
+
+    // Fetch from API
+    try {
+      _checkRateLimit();
+      _trackRequest();
+      final result = await _client.query(
+        QueryOptions(
+          document: gql(_popularQuery),
+          variables: {'page': page, 'perPage': perPage},
+        ),
+      );
+
+      if (result.hasException) {
+        print('AniList popular query error: ${result.exception}');
+        return [];
+      }
+
+      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
+      if (mediaList == null) return [];
+
+      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
+
+      // Cache the results
+      final ids = <int>[];
+      for (final anime in animeList) {
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
+        await _animeBox.put(anime.id, anime);
+        ids.add(anime.id);
+      }
+      await _searchBox.put(cacheKey, ids);
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+
+      return animeList;
+    } catch (e) {
+      print('Error fetching popular anime: $e');
+      return [];
+    }
+  }
+
+  // Get anime by genre
+  static const String _genreQuery = '''
+    query(\$genre: String, \$page: Int, \$perPage: Int) {
+      Page(page: \$page, perPage: \$perPage) {
+        media(type: ANIME, genre: \$genre, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          format
+          episodes
+          duration
+          seasonYear
+          coverImage {
+            large
+          }
+          averageScore
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
+        }
+      }
+    }
+  ''';
+
+  Future<List<Anime>> fetchByGenre({
+    required String genre,
+    int page = 1,
+    int perPage = 20,
+    Duration cacheTTL = const Duration(days: 7),
+  }) async {
+    final cacheKey = 'anilist|genre=$genre|page=$page|perPage=$perPage';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty) {
+      if (_isFresh(cacheKey, cacheTTL)) {
+        final cached = idList
+            .map((id) => _animeBox.get(id))
+            .whereType<Anime>()
+            .toList();
+        if (cached.length == idList.length) {
+          return cached;
+        }
+      }
+    }
+
+    // Fetch from API
+    try {
+      _checkRateLimit();
+      _trackRequest();
+      final result = await _client.query(
+        QueryOptions(
+          document: gql(_genreQuery),
+          variables: {
+            'genre': genre,
+            'page': page,
+            'perPage': perPage,
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        print('AniList genre query error: ${result.exception}');
+        return [];
+      }
+
+      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
+      if (mediaList == null) return [];
+
+      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
+
+      // Cache the results
+      final ids = <int>[];
+      for (final anime in animeList) {
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
+        await _animeBox.put(anime.id, anime);
+        ids.add(anime.id);
+      }
+      await _searchBox.put(cacheKey, ids);
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+
+      return animeList;
+    } catch (e) {
+      print('Error fetching anime by genre: $e');
+      return [];
+    }
+  }
+
   // ==================== ANIME GROUP METHODS ====================
 
   /// Group top search results in background (don't wait for completion)
@@ -382,8 +575,9 @@ class AniListService {
         try {
           await fetchAnimeRelations(anime.id);
         } catch (e) {
-          // Silently fail for background grouping
-          print('Background grouping failed for ${anime.name}: $e');
+          // Silently skip anime that can't be grouped (expected for some entries)
+          // Uncomment the line below for debugging if needed:
+          // print('Skipped grouping for ${anime.name} (ID: ${anime.id})');
         }
       }
     });
@@ -411,7 +605,18 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList relations query error: ${result.exception}');
+        // Check if it's a 404 (anime not found) - this is common and not an error
+        final exception = result.exception;
+        if (exception?.linkException is ServerException) {
+          final serverException = exception!.linkException as ServerException;
+          final response = serverException.parsedResponse;
+          if (response?.errors?.any((e) => e.message == 'Not Found.') == true) {
+            // Anime doesn't exist - silently return null
+            return null;
+          }
+        }
+        // Only log unexpected errors
+        print('AniList relations query error for anime $animeId: ${exception?.linkException?.toString() ?? "Unknown error"}');
         return null;
       }
 
