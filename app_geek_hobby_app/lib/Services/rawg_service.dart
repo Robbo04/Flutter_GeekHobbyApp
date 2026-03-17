@@ -486,6 +486,75 @@ _checkRateLimit();
     }
   }
 
+  /// Fetch upcoming/coming soon games
+  Future<List<Game>> fetchComingSoon({
+    int page = 1,
+    int pageSize = 20,
+    Duration cacheTTL = const Duration(hours: 12),
+  }) async {
+    final cacheKey = 'comingSoon|page=$page|pageSize=$pageSize';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty && _isFresh(cacheKey, cacheTTL)) {
+      final games = idList
+          .map((id) => _gamesBox.get(id))
+          .whereType<Game>()
+          .toList();
+      if (games.length == idList.length) {
+        print('Loaded coming soon games from cache');
+        return games;
+      }
+    }
+
+    // Fetch from API - games releasing in the future
+    final today = DateTime.now();
+    final futureDate = today.add(const Duration(days: 365)); // Next year
+    final dateFilter = '${today.toIso8601String().split('T')[0]},${futureDate.toIso8601String().split('T')[0]}';
+
+    final Map<String, String> params = {
+      'key': apiKey,
+      'page': page.toString(),
+      'page_size': pageSize.toString(),
+      'dates': dateFilter,
+      'ordering': 'released', // Sort by release date (earliest first)
+    };
+
+    _checkRateLimit();
+    final uri = Uri.https(_host, '$_basePath/games', params);
+    final response = await httpClient.get(uri);
+    _trackRequest();
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final results = data['results'] as List<dynamic>;
+      final gamesList = results.map((e) => Game.fromRawg(e)).toList();
+
+      // Store each game
+      for (final game in gamesList) {
+        final existing = _gamesBox.get(game.id);
+        if (existing != null) {
+          game.wishlist = existing.wishlist;
+          game.owned = existing.owned;
+          game.completed = existing.completed;
+          game.userRating = existing.userRating;
+        }
+        await _gamesBox.put(game.id, game);
+      }
+      await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+
+      print('Fetched ${gamesList.length} coming soon games');
+      return gamesList;
+    } else {
+      throw Exception(
+        'Failed to load coming soon games (status: ${response.statusCode})',
+      );
+    }
+  }
+
   /// Fetch games by genre (convenience wrapper around fetchGames)
   Future<List<Game>> fetchByGenre({
     required String genre,

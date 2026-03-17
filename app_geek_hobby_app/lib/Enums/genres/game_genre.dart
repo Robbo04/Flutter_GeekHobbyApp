@@ -61,6 +61,7 @@ extension GameGenreExtension on GameGenre {
         return GameGenre.adventure;
       case 'role-playing-games-rpg':
       case 'rpg':
+      case 'RPG':
         return GameGenre.rpg;
       case 'simulation':
         return GameGenre.simulation;

@@ -23,6 +23,8 @@ class _ExplorePageState extends State<ExplorePage> {
     switch (category.type) {
       case CarouselType.trending:
         return _rawgService.fetchTrending(minMetacritic: 0, minRatingsCount: 0);
+      case CarouselType.comingSoon:
+        return _rawgService.fetchComingSoon();
       case CarouselType.mostPlayed:
         return _rawgService.fetchMostPlayed();
       case CarouselType.genre:
@@ -39,6 +41,8 @@ class _ExplorePageState extends State<ExplorePage> {
     switch (category.type) {
       case CarouselType.trending:
         return _aniListService.fetchTrending(perPage: 20);
+      case CarouselType.comingSoon:
+        return _aniListService.fetchComingSoon(perPage: 20);
       case CarouselType.mostPlayed:
         return _aniListService.fetchMostPopular(perPage: 20);
       case CarouselType.genre:

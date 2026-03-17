@@ -461,6 +461,100 @@ class AniListService {
     }
   }
 
+  // Get upcoming/coming soon anime
+  static const String _comingSoonQuery = '''
+    query(\$page: Int, \$perPage: Int) {
+      Page(page: \$page, perPage: \$perPage) {
+        media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
+          id
+          title {
+            romaji
+            english
+          }
+          format
+          episodes
+          duration
+          seasonYear
+          coverImage {
+            large
+          }
+          averageScore
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
+        }
+      }
+    }
+  ''';
+
+  Future<List<Anime>> fetchComingSoon({
+    int page = 1,
+    int perPage = 20,
+    Duration cacheTTL = const Duration(hours: 12),
+  }) async {
+    final cacheKey = 'anilist|comingSoon|page=$page|perPage=$perPage';
+
+    // Check cache first
+    final raw = _searchBox.get(cacheKey);
+    final idList = (raw is List) ? raw.cast<int>() : null;
+
+    if (idList != null && idList.isNotEmpty) {
+      if (_isFresh(cacheKey, cacheTTL)) {
+        final cached = idList
+            .map((id) => _animeBox.get(id))
+            .whereType<Anime>()
+            .toList();
+        if (cached.length == idList.length) {
+          return cached;
+        }
+      }
+    }
+
+    // Fetch from API
+    try {
+      _checkRateLimit();
+      _trackRequest();
+      final result = await _client.query(
+        QueryOptions(
+          document: gql(_comingSoonQuery),
+          variables: {'page': page, 'perPage': perPage},
+        ),
+      );
+
+      if (result.hasException) {
+        print('AniList coming soon query error: ${result.exception}');
+        return [];
+      }
+
+      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
+      if (mediaList == null) return [];
+
+      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
+
+      // Cache the results
+      final ids = <int>[];
+      for (final anime in animeList) {
+        final existing = _animeBox.get(anime.id);
+        if (existing != null) {
+          anime.wishlist = existing.wishlist;
+          anime.owned = existing.owned;
+          anime.userRating = existing.userRating;
+        }
+        await _animeBox.put(anime.id, anime);
+        ids.add(anime.id);
+      }
+      await _searchBox.put(cacheKey, ids);
+      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
+
+      return animeList;
+    } catch (e) {
+      print('Error fetching coming soon anime: $e');
+      return [];
+    }
+  }
+
   // Get anime by genre
   static const String _genreQuery = '''
     query(\$genre: String, \$page: Int, \$perPage: Int) {
