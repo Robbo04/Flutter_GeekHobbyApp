@@ -2,6 +2,7 @@ import 'package:app_geek_hobby_app/Pages/collections_content.dart';
 import 'package:flutter/material.dart';
 
 import 'package:app_geek_hobby_app/Data/collection_list_data.dart';
+import 'package:app_geek_hobby_app/Classes/itemlist.dart';
 import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/Classes/Widgets/collection_button.dart';
@@ -45,77 +46,29 @@ class CollectionsPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        CollectionButton(
-          collectionList: gameOwnedCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final ownedIdsBox = Hive.box<int>('games_owned_collection_id');
-            final List<int> ownedIds = ownedIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: ownedIds,
-                  title: 'Owned Games',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          gameOwnedCollection,
+          'games_owned_collection_id',
+          'Owned Games',
         ),
-        CollectionButton(
-          collectionList: gameWishlistCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final wishlistIdsBox = Hive.box<int>('games_wishlist_collection_id');
-            final List<int> wishlistIds = wishlistIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: wishlistIds,
-                  title: 'Wishlist Games',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          gameWishlistCollection,
+          'games_wishlist_collection_id',
+          'Wishlist Games',
         ),
-        CollectionButton(
-          collectionList: gameBacklogCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final backlogIdsBox = Hive.box<int>('games_backlog_collection_id');
-            final List<int> backlogIds = backlogIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: backlogIds,
-                  title: 'Backlog Games',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          gameBacklogCollection,
+          'games_backlog_collection_id',
+          'Backlog Games',
         ),
-        CollectionButton(
-          collectionList: gameCompletedCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final completedIdsBox = Hive.box<int>('games_completed_collection_id');
-            final List<int> completedIds = completedIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: completedIds,
-                  title: 'Completed Games',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          gameCompletedCollection,
+          'games_completed_collection_id',
+          'Completed Games',
         ),
       ],
     );
@@ -125,43 +78,46 @@ class CollectionsPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        CollectionButton(
-          collectionList: animewishlistCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final wishlistIdsBox = Hive.box<int>('anime_wishlist_collection_id');
-            final List<int> wishlistIds = wishlistIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: wishlistIds,
-                  title: 'Anime Wishlist',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          animewishlistCollection,
+          'anime_wishlist_collection_id',
+          'Anime Wishlist',
         ),
-        CollectionButton(
-          collectionList: animeWatchedCollection,
-          imageUrl: 'https://via.placeholder.com/150',
-          onTap: () {
-            final watchedIdsBox = Hive.box<int>('anime_watched_collection_id');
-            final List<int> watchedIds = watchedIdsBox.values.toList();
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CollectionsContentPage(
-                  itemIds: watchedIds,
-                  title: 'Anime Watched',
-                ),
-              ),
-            );
-          },
+        _buildCollectionButton(
+          context,
+          animeWatchedCollection,
+          'anime_watched_collection_id',
+          'Anime Watched',
         ),
       ],
+    );
+  }
+
+  /// Helper method to build a collection button with navigation
+  Widget _buildCollectionButton(
+    BuildContext context,
+    ItemList collectionList,
+    String hiveBoxName,
+    String title,
+  ) {
+    return CollectionButton(
+      collectionList: collectionList,
+      imageUrl: 'https://via.placeholder.com/150',
+      onTap: () {
+        final box = Hive.box<int>(hiveBoxName);
+        final ids = box.values.toList();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CollectionsContentPage(
+              itemIds: ids,
+              title: title,
+            ),
+          ),
+        );
+      },
     );
   }
 
