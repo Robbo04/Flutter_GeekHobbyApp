@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
@@ -55,7 +56,7 @@ class _SearchPageState extends State<SearchPage> {
         } else if (snapshot.hasError) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: Text('Error: ${snapshot.error}')),
+            child: AppErrorWidget.inline(message: 'Error: ${snapshot.error}'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
@@ -87,7 +88,7 @@ class _SearchPageState extends State<SearchPage> {
         } else if (snapshot.hasError) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: Text('Error: ${snapshot.error}')),
+            child: AppErrorWidget.inline(message: 'Error: ${snapshot.error}'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(

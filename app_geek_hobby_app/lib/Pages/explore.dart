@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Data/curated_lists.dart';
@@ -90,7 +91,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const LoadingWidget();
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return Center(child: Text('No ${category.title.toLowerCase()} found.'));
                     }
@@ -117,7 +118,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const LoadingWidget();
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return Center(child: Text('No ${category.title.toLowerCase()} found.'));
                     }

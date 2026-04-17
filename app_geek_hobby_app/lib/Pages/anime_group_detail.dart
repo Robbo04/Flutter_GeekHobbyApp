@@ -1,6 +1,7 @@
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/anime_group.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:flutter/material.dart';
@@ -121,23 +122,9 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
       body: _isLoading
           ? const LoadingWidget()
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                        const SizedBox(height: 16),
-                        Text(_error!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Go Back'),
-                        ),
-                      ],
-                    ),
-                  ),
+              ? AppErrorWidget.withRetry(
+                  message: _error!,
+                  onRetry: () => Navigator.pop(context),
                 )
               : ListView(
                   children: [
