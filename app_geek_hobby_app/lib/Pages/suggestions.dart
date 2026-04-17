@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
@@ -394,27 +395,21 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                 ? Center(
                     child: _isLoading
                         ? const LoadingWidget.inline()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text('No suggestions available'),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if (_contentType == ContentType.games) {
-                                      _gamesHasMore = true;
-                                    } else {
-                                      _animeHasMore = true;
-                                    }
-                                  });
-                                  _fetchNextPage();
-                                },
-                          child: const Text('Fetch More Suggestions'),
-                        ),
-                      ],
-                    ),
-            )
+                        : EmptyStateWidget.withAction(
+                            message: 'No suggestions available',
+                            actionLabel: 'Fetch More Suggestions',
+                            onAction: () {
+                              setState(() {
+                                if (_contentType == ContentType.games) {
+                                  _gamesHasMore = true;
+                                } else {
+                                  _animeHasMore = true;
+                                }
+                              });
+                              _fetchNextPage();
+                            },
+                          ),
+                  )
           : LayoutBuilder(
               builder: (context, constraints) {
                 // Reserve minimum space for bottom content (~180px)

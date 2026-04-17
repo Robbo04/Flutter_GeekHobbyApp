@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
@@ -61,7 +62,7 @@ class _SearchPageState extends State<SearchPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: Text('No games found for "$_lastQuery".')),
+            child: EmptyStateWidget.inline(message: 'No games found for "$_lastQuery".'),
           );
         }
 
@@ -93,7 +94,7 @@ class _SearchPageState extends State<SearchPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: Text('No anime found for "$_lastQuery".')),
+            child: EmptyStateWidget.inline(message: 'No anime found for "$_lastQuery".'),
           );
         }
 

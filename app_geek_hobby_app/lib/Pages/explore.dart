@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
@@ -93,7 +94,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     } else if (snapshot.hasError) {
                       return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No ${category.title.toLowerCase()} found.'));
+                      return EmptyStateWidget.simple(message: 'No ${category.title.toLowerCase()} found.');
                     }
                     final games = snapshot.data!;
                     return ItemCarousel(
@@ -120,7 +121,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     } else if (snapshot.hasError) {
                       return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No ${category.title.toLowerCase()} found.'));
+                      return EmptyStateWidget.simple(message: 'No ${category.title.toLowerCase()} found.');
                     }
                     final anime = snapshot.data!;
                     return ItemCarousel(
