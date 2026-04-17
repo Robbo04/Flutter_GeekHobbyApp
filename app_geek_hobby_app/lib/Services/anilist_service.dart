@@ -3,6 +3,9 @@ import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/anime_group.dart';
 
+//for debug printing
+import 'package:flutter/foundation.dart';
+
 class AniListRateLimitException implements Exception {
   final String message;
   final int requestsLastMinute;
@@ -224,7 +227,7 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList query error: ${result.exception}');
+        debugPrint('AniList query error: ${result.exception}');
         return [];
       }
 
@@ -256,7 +259,7 @@ class AniListService {
 
       return animeList;
     } catch (e) {
-      print('Error searching anime: $e');
+      debugPrint('Error searching anime: $e');
       return [];
     }
   }
@@ -330,7 +333,7 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList trending query error: ${result.exception}');
+        debugPrint('AniList trending query error: ${result.exception}');
         return [];
       }
 
@@ -362,7 +365,7 @@ class AniListService {
 
       return animeList;
     } catch (e) {
-      print('Error fetching trending anime: $e');
+      debugPrint('Error fetching trending anime: $e');
       return [];
     }
   }
@@ -430,7 +433,7 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList popular query error: ${result.exception}');
+        debugPrint('AniList popular query error: ${result.exception}');
         return [];
       }
 
@@ -456,7 +459,7 @@ class AniListService {
 
       return animeList;
     } catch (e) {
-      print('Error fetching popular anime: $e');
+      debugPrint('Error fetching popular anime: $e');
       return [];
     }
   }
@@ -524,7 +527,7 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList coming soon query error: ${result.exception}');
+        debugPrint('AniList coming soon query error: ${result.exception}');
         return [];
       }
 
@@ -550,7 +553,7 @@ class AniListService {
 
       return animeList;
     } catch (e) {
-      print('Error fetching coming soon anime: $e');
+      debugPrint('Error fetching coming soon anime: $e');
       return [];
     }
   }
@@ -623,7 +626,7 @@ class AniListService {
       );
 
       if (result.hasException) {
-        print('AniList genre query error: ${result.exception}');
+        debugPrint('AniList genre query error: ${result.exception}');
         return [];
       }
 
@@ -649,7 +652,7 @@ class AniListService {
 
       return animeList;
     } catch (e) {
-      print('Error fetching anime by genre: $e');
+      debugPrint('Error fetching anime by genre: $e');
       return [];
     }
   }
@@ -671,7 +674,7 @@ class AniListService {
         } catch (e) {
           // Silently skip anime that can't be grouped (expected for some entries)
           // Uncomment the line below for debugging if needed:
-          // print('Skipped grouping for ${anime.name} (ID: ${anime.id})');
+          // debugPrint('Skipped grouping for ${anime.name} (ID: ${anime.id})');
         }
       }
     });
@@ -710,7 +713,7 @@ class AniListService {
           }
         }
         // Only log unexpected errors
-        print('AniList relations query error for anime $animeId: ${exception?.linkException?.toString() ?? "Unknown error"}');
+        debugPrint('AniList relations query error for anime $animeId: ${exception?.linkException?.toString() ?? "Unknown error"}');
         return null;
       }
 
@@ -777,7 +780,7 @@ class AniListService {
       // Return the final merged group
       return getAnimeGroup(animeId);
     } catch (e) {
-      print('Error fetching anime relations: $e');
+      debugPrint('Error fetching anime relations: $e');
       return null;
     }
   }
@@ -878,7 +881,7 @@ class AniListService {
   Future<void> clearAllGroups() async {
     await _groupBox.clear();
     await _animeToGroupBox.clear();
-    print('Cleared all anime groups');
+    debugPrint('Cleared all anime groups');
   }
 
   /// Get group box stats

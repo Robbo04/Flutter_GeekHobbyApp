@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:flutter/foundation.dart';
 
 class RawgRateLimitException implements Exception {
   final String message;
@@ -97,7 +98,7 @@ class RawgService {
           .toList();
       if (games.length == idList.length) {
         // All results available in cache
-        print('Loaded games from cache for key: $cacheKey');
+        debugPrint('Loaded games from cache for key: $cacheKey');
         return games;
       }
     }
@@ -139,6 +140,7 @@ _checkRateLimit();
       await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
       return gamesList;
     } else {
+      debugPrint('Failed to load games (status: ${response.statusCode})');
       throw Exception('Failed to load games (status: ${response.statusCode})');
     }
   }
@@ -169,6 +171,7 @@ _checkRateLimit();
       await _gamesBox.put(game.id, game);
       return game;
     } else {
+      debugPrint('Failed to load game details (status: ${response.statusCode})');
       throw Exception(
         'Failed to load game details (status: ${response.statusCode})',
       );
@@ -441,7 +444,7 @@ _checkRateLimit();
           .whereType<Game>()
           .toList();
       if (games.length == idList.length) {
-        print('Loaded most played games from cache');
+        debugPrint('Loaded most played games from cache');
         return games;
       }
     }
@@ -504,7 +507,7 @@ _checkRateLimit();
           .whereType<Game>()
           .toList();
       if (games.length == idList.length) {
-        print('Loaded coming soon games from cache');
+        debugPrint('Loaded coming soon games from cache');
         return games;
       }
     }
@@ -546,9 +549,10 @@ _checkRateLimit();
       await _searchBox.put(cacheKey, gamesList.map((g) => g.id).toList());
       await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
 
-      print('Fetched ${gamesList.length} coming soon games');
+      debugPrint('Fetched ${gamesList.length} coming soon games');
       return gamesList;
     } else {
+      debugPrint('Failed to load coming soon games (status: ${response.statusCode})');
       throw Exception(
         'Failed to load coming soon games (status: ${response.statusCode})',
       );
@@ -576,7 +580,7 @@ _checkRateLimit();
           .whereType<Game>()
           .toList();
       if (games.length == idList.length) {
-        print('Loaded games by genre from cache');
+        debugPrint('Loaded games by genre from cache');
         return games;
       }
     }
@@ -646,7 +650,7 @@ _checkRateLimit();
           .whereType<Game>()
           .toList();
       if (games.length == idList.length) {
-        print('Loaded games by tag from cache');
+        debugPrint('Loaded games by tag from cache');
         return games;
       }
     }
@@ -662,14 +666,14 @@ _checkRateLimit();
 
     _checkRateLimit();
     final uri = Uri.https(_host, '$_basePath/games', params);
-    print('Fetching games by tag: $uri'); // Debug log
+    debugPrint('Fetching games by tag: $uri'); // Debug log
     final response = await httpClient.get(uri);
     _trackRequest();
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
-      print('Found ${results.length} games for tag "$tag"'); // Debug log
+      debugPrint('Found ${results.length} games for tag "$tag"'); // Debug log
       
       // Filter for well-known games
       final gamesList = results
@@ -677,7 +681,7 @@ _checkRateLimit();
           .where((g) => g.ratingCount >= minRatingsCount)
           .toList();
       
-      print('After filtering: ${gamesList.length} games with $minRatingsCount+ ratings');
+      debugPrint('After filtering: ${gamesList.length} games with $minRatingsCount+ ratings');
 
       // Store each game
       for (final game in gamesList) {
