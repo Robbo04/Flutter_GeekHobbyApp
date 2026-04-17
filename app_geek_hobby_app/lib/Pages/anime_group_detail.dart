@@ -1,7 +1,8 @@
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/anime_group.dart';
-import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -118,7 +119,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
         backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget()
           : _error != null
               ? Center(
                   child: Padding(

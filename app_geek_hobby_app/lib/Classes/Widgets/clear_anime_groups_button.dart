@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
+
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Utils/dialog_helpers.dart';
-import 'package:flutter/material.dart';
 
 /// Debug utility to clear anime groups
 /// Add this button to your settings page or debug menu
@@ -43,7 +45,7 @@ class AnimeGroupStatsWidget extends StatelessWidget {
       future: _getStats(service),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
+          return const LoadingWidget.inline();
         }
 
         final stats = snapshot.data as Map<String, int>;

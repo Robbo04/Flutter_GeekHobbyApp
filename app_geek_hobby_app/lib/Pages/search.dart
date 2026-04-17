@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
@@ -49,10 +51,7 @@ class _SearchPageState extends State<SearchPage> {
       future: _searchFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            height: 160,
-            child: Center(child: CircularProgressIndicator()),
-          );
+          return const LoadingWidget.withHeight(height: 160);
         } else if (snapshot.hasError) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -84,10 +83,7 @@ class _SearchPageState extends State<SearchPage> {
       future: _searchAnimeFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            height: 160,
-            child: Center(child: CircularProgressIndicator()),
-          );
+          return const LoadingWidget.withHeight(height: 160);
         } else if (snapshot.hasError) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),

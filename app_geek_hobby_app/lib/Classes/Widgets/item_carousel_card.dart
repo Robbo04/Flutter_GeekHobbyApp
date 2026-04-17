@@ -1,12 +1,14 @@
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Classes/item.dart';
-import 'package:app_geek_hobby_app/Pages/item_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:app_geek_hobby_app/Services/rawg_service.dart';
-import 'package:app_geek_hobby_app/Services/anilist_service.dart';
-import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
+
+import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/item.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/anime_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/Detail/game_display.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+import 'package:app_geek_hobby_app/Pages/item_detail.dart';
+import 'package:app_geek_hobby_app/Services/anilist_service.dart';
+import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 
 class ItemCarouselCard extends StatelessWidget {
   final dynamic item;
@@ -26,7 +28,7 @@ class ItemCarouselCard extends StatelessWidget {
           final navigator = Navigator.of(context);
           final messenger = ScaffoldMessenger.of(context);
 
-          showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+          showDialog(context: context, barrierDismissible: false, builder: (_) => const LoadingWidget());
           try {
             final detailed = await RawgService.instance.fetchGameDetails(item.id);
             

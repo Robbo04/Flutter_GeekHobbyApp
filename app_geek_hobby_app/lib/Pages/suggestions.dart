@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
@@ -297,7 +299,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                   if (loadingProgress == null) return child;
                   return Container(
                     color: Colors.grey[300],
-                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: const LoadingWidget.compact(),
                   );
                 },
               )
@@ -391,7 +393,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
             child: (_contentType == ContentType.games ? _gameItems : _animeItems).isEmpty
                 ? Center(
                     child: _isLoading
-                        ? const CircularProgressIndicator()
+                        ? const LoadingWidget.inline()
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -582,7 +584,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                             const SizedBox(height: 8),
                             if (_isLoading) const Padding(
                               padding: EdgeInsets.only(top: 8),
-                              child: CircularProgressIndicator(),
+                              child: LoadingWidget.inline(),
                             ),
                           ],
                         ),

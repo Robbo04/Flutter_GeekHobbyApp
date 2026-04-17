@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+
 /// Reusable dialog utilities for consistent UX across the app
 class DialogHelpers {
   /// Show a confirmation dialog with custom title and content
@@ -35,7 +37,7 @@ class DialogHelpers {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const LoadingWidget(),
     );
   }
 

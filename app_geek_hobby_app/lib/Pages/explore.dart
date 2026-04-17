@@ -1,5 +1,7 @@
-import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:flutter/material.dart';
+
+import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Data/curated_lists.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
@@ -86,7 +88,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   future: _fetchGameCarousel(category),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const LoadingWidget();
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -113,7 +115,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   future: _fetchAnimeCarousel(category),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const LoadingWidget();
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

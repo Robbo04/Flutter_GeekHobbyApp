@@ -1,8 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:app_geek_hobby_app/Classes/game.dart';
+
 import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 
 class SpinWheelPage extends StatefulWidget {
   const SpinWheelPage({super.key});
@@ -285,7 +288,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(title: const Text('Spin the Wheel')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget()
           : Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
