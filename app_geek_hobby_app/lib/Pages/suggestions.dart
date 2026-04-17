@@ -169,7 +169,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     final newAnime = <Anime>[];
     for (final a in fetched) {
       if (existingIds.contains(a.id)) continue;
-      // TODO: Add anime collection checking when implemented
       newAnime.add(a);
     }
     print('New anime after filtering: ${newAnime.map((a) => a.id).toList()}');
@@ -228,7 +227,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         _showSnackBar('Added "${game.name}" to wishlist');
       } else {
         final anime = item as Anime;
-        // TODO: Implement anime wishlist when available
         _showSnackBar('Anime wishlist coming soon! (${anime.name})');
         _removeTop();
         return;

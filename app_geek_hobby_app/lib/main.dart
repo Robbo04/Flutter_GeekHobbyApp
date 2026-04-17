@@ -119,14 +119,15 @@ Future<void> initializeHive() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Hive FIRST so boxes are available
+  await initializeHive();
+
   final rawgService = await initializeRawgService();
   final aniListService = await initializeAniListService();
 
   // Register the singleton instances
   RawgService.instance = rawgService;
   AniListService.instance = aniListService;
-
-  await initializeHive();
 
   runApp(MyApp(rawgService: rawgService));
 }

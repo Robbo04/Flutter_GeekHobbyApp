@@ -1,209 +1,74 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive/hive.dart';
+
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/anime_group.dart';
 
-//for debug printing
-import 'package:flutter/foundation.dart';
+import 'anilist/anilist_api.dart';
+import 'anilist/anilist_cache.dart';
+import 'anilist/anilist_grouping_service.dart';
+import 'anilist/anilist_rate_limiter.dart';
 
-class AniListRateLimitException implements Exception {
-  final String message;
-  final int requestsLastMinute;
-  final int minuteLimit;
-  
-  AniListRateLimitException({
-    required this.message,
-    required this.requestsLastMinute,
-    required this.minuteLimit,
-  });
-  
-  @override
-  String toString() => message;
-}
+export 'anilist/anilist_exceptions.dart';
 
+/// Main service for interacting with AniList API
+/// 
+/// This class coordinates API calls, caching, rate limiting, and anime grouping.
+/// Use `AniListService.instance` to access the singleton.
 class AniListService {
   static late AniListService instance;
 
-  late final GraphQLClient _client;
+  /// Default number of top search results to group automatically
+  static const int defaultGroupTop = 5;
 
-  // Request tracking
-  static const int _minuteLimit = 90; // AniList rate limit per minute
-  int _sessionRequests = 0;
-  DateTime? _lastRequestTime;
-  final List<DateTime> _recentRequests = [];
+  late final AniListCache _cache;
+  late final AniListRateLimiter _rateLimiter;
+  late final AniListAPI _api;
+  late final AniListGroupingService _grouping;
 
   AniListService() {
     final httpLink = HttpLink('https://graphql.anilist.co');
-    _client = GraphQLClient(link: httpLink, cache: GraphQLCache());
+    final client = GraphQLClient(link: httpLink, cache: GraphQLCache());
+    
+    _cache = AniListCache();
+    _rateLimiter = AniListRateLimiter(_cache.statsBox);
+    _api = AniListAPI(client, _rateLimiter);
+    _grouping = AniListGroupingService(_cache, _api);
   }
 
-  Box<Anime> get _animeBox => Hive.box<Anime>('anilist_anime');
-  Box<List> get _searchBox => Hive.box<List>('anilist_search_results');
-  Box<int> get _metaBox => Hive.box<int>('anilist_cache_meta');
-  Box<AnimeGroup> get _groupBox => Hive.box<AnimeGroup>('anilist_groups');
-  Box<int> get _animeToGroupBox =>
-      Hive.box<int>('anilist_anime_to_group'); // Maps anime.id -> group.groupId
-  Box<int> get _statsBox => Hive.box<int>('anilist_stats');
+  // ==================== PUBLIC TRACKING GETTERS ====================
 
-  // Public getters for tracking
-  int get sessionRequests => _sessionRequests;
-  int get requestsLastMinute {
-    final oneMinuteAgo = DateTime.now().subtract(const Duration(minutes: 1));
-    _recentRequests.removeWhere((time) => time.isBefore(oneMinuteAgo));
-    return _recentRequests.length;
-  }
+  int get sessionRequests => _rateLimiter.sessionRequests;
+  int get requestsLastMinute => _rateLimiter.requestsLastMinute;
+  int get minuteLimit => AniListRateLimiter.minuteLimit;
+  DateTime? get lastRequestTime => _rateLimiter.lastRequestTime;
+  int get todayRequestsMade => _rateLimiter.todayRequestsMade;
 
-  int get minuteLimit => _minuteLimit;
-  DateTime? get lastRequestTime => _lastRequestTime;
-  int get todayRequestsMade {
-    final today =
-        '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}';
-    return _statsBox.get('requests_$today') ?? 0;
-  }
+  int get totalGroups => _cache.totalGroups;
+  int get totalGroupedAnime => _cache.totalGroupedAnime;
+  int get totalCachedAnime => _cache.totalCachedAnime;
 
-  bool _isFresh(String cacheKey, Duration ttl) {
-    final ts = _metaBox.get(cacheKey);
-    if (ts == null) return false;
-    final fetched = DateTime.fromMillisecondsSinceEpoch(ts);
-    return DateTime.now().difference(fetched) <= ttl;
-  }
+  // ==================== API METHODS ====================
 
-  void _checkRateLimit() {
-    final currentRequests = requestsLastMinute;
-    if (currentRequests >= _minuteLimit) {
-      throw AniListRateLimitException(
-        message: 'AniList API rate limit reached ($currentRequests/$_minuteLimit requests per minute). Please wait a moment before trying again.',
-        requestsLastMinute: currentRequests,
-        minuteLimit: _minuteLimit,
-      );
-    }
-  }
-
-  // GraphQL query for searching anime
-  static const String _searchQuery = '''
-    query(\$search: String, \$page: Int, \$perPage: Int, \$type: MediaType) {
-      Page(page: \$page, perPage: \$perPage) {
-        pageInfo {
-          total
-          currentPage
-          lastPage
-          hasNextPage
-        }
-        media(search: \$search, type: \$type, sort: POPULARITY_DESC) {
-          id
-          title {
-            romaji
-            english
-          }
-          format
-          episodes
-          duration
-          seasonYear
-          coverImage {
-            large
-          }
-          averageScore
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-        }
-      }
-    }
-  ''';
-
-  // GraphQL query for anime relations
-  static const String _relationsQuery = '''
-    query(\$id: Int) {
-      Media(id: \$id, type: ANIME) {
-        id
-        title {
-          romaji
-          english
-        }
-        relations {
-          edges {
-            relationType
-            node {
-              id
-              title {
-                romaji
-                english
-              }
-              format
-              episodes
-              duration
-              seasonYear
-              coverImage {
-                large
-              }
-              studios(isMain: true) {
-                nodes {
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  ''';
-
-  // GraphQL query for anime details
-  static const String _detailsQuery = '''
-    query(\$id: Int) {
-      Media(id: \$id, type: ANIME) {
-        id
-        title {
-          romaji
-          english
-        }
-        format
-        episodes
-        duration
-        seasonYear
-        coverImage {
-          large
-        }
-        averageScore
-        studios(isMain: true) {
-          nodes {
-            name
-          }
-        }
-        description
-        genres
-        status
-      }
-    }
-  ''';
-
-  // Search anime with caching and hybrid grouping
+  /// Search anime with caching and hybrid grouping
   Future<List<Anime>> searchAnime({
     String search = '',
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(days: 3),
-    bool enableGrouping = true, // Enable hybrid grouping
-    int groupTop = 5, // Group top N results
+    bool enableGrouping = true,
+    int groupTop = defaultGroupTop,
   }) async {
     final cacheKey = 'anilist|search=$search|page=$page|perPage=$perPage';
 
     // Check cache first
-    final raw = _searchBox.get(cacheKey);
-    final idList = (raw is List) ? raw.cast<int>() : null;
-
-    if (idList != null && idList.isNotEmpty) {
-      if (_isFresh(cacheKey, cacheTTL)) {
-        final cached = idList
-            .map((id) => _animeBox.get(id))
-            .whereType<Anime>()
-            .toList();
-        if (cached.length == idList.length) {
+    final cachedIds = _cache.getCachedSearchResults(cacheKey);
+    if (cachedIds != null && cachedIds.isNotEmpty) {
+      if (_cache.isFresh(cacheKey, cacheTTL)) {
+        final cached = _cache.getCachedAnimeList(cachedIds);
+        if (cached.length == cachedIds.length) {
           // If grouping enabled, try to group top results in background
           if (enableGrouping && page == 1) {
-            _groupTopResults(cached.take(groupTop).toList());
+            _grouping.groupTopResults(cached.take(groupTop).toList());
           }
           return cached;
         }
@@ -211,110 +76,43 @@ class AniListService {
     }
 
     // Fetch from API
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_searchQuery),
-          variables: {
-            'search': search,
-            'page': page,
-            'perPage': perPage,
-            'type': 'ANIME',
-          },
-        ),
-      );
+    final animeList = await _api.searchAnime(
+      search: search,
+      page: page,
+      perPage: perPage,
+    );
+    if (animeList.isEmpty) return [];
 
-      if (result.hasException) {
-        debugPrint('AniList query error: ${result.exception}');
-        return [];
-      }
+    // Cache the results
+    final ids = await _cache.cacheAnimeList(animeList);
+    await _cache.cacheSearchResults(cacheKey, ids);
 
-      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
-      if (mediaList == null) return [];
-
-      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
-
-      // Cache the results, preserving existing collection flags
-      final ids = <int>[];
-      for (final anime in animeList) {
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          // Preserve user's collection state
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-        ids.add(anime.id);
-      }
-      await _searchBox.put(cacheKey, ids);
-      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
-
-      // If grouping enabled and first page, group top results in background
-      if (enableGrouping && page == 1) {
-        _groupTopResults(animeList.take(groupTop).toList());
-      }
-
-      return animeList;
-    } catch (e) {
-      debugPrint('Error searching anime: $e');
-      return [];
+    // If grouping enabled and first page, group top results in background
+    if (enableGrouping && page == 1) {
+      _grouping.groupTopResults(animeList.take(groupTop).toList());
     }
+
+    return animeList;
   }
 
-  // Get trending anime
-  static const String _trendingQuery = '''
-    query(\$page: Int, \$perPage: Int) {
-      Page(page: \$page, perPage: \$perPage) {
-        media(type: ANIME, sort: TRENDING_DESC) {
-          id
-          title {
-            romaji
-            english
-          }
-          format
-          episodes
-          duration
-          seasonYear
-          coverImage {
-            large
-          }
-          averageScore
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-        }
-      }
-    }
-  ''';
-
+  /// Get trending anime with caching and optional grouping
   Future<List<Anime>> fetchTrending({
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(days: 3),
-    bool enableGrouping = true, // Enable hybrid grouping
-    int groupTop = 5, // Group top N results
+    bool enableGrouping = true,
+    int groupTop = defaultGroupTop,
   }) async {
     final cacheKey = 'anilist|trending|page=$page|perPage=$perPage';
 
     // Check cache first
-    final raw = _searchBox.get(cacheKey);
-    final idList = (raw is List) ? raw.cast<int>() : null;
-
-    if (idList != null && idList.isNotEmpty) {
-      if (_isFresh(cacheKey, cacheTTL)) {
-        final cached = idList
-            .map((id) => _animeBox.get(id))
-            .whereType<Anime>()
-            .toList();
-        if (cached.length == idList.length) {
-          // If grouping enabled, try to group top results in background
+    final cachedIds = _cache.getCachedSearchResults(cacheKey);
+    if (cachedIds != null && cachedIds.isNotEmpty) {
+      if (_cache.isFresh(cacheKey, cacheTTL)) {
+        final cached = _cache.getCachedAnimeList(cachedIds);
+        if (cached.length == cachedIds.length) {
           if (enableGrouping && page == 1) {
-            _groupTopResults(cached.take(groupTop).toList());
+            _grouping.groupTopResults(cached.take(groupTop).toList());
           }
           return cached;
         }
@@ -322,82 +120,21 @@ class AniListService {
     }
 
     // Fetch from API
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_trendingQuery),
-          variables: {'page': page, 'perPage': perPage},
-        ),
-      );
+    final animeList = await _api.fetchTrending(page: page, perPage: perPage);
+    if (animeList.isEmpty) return [];
 
-      if (result.hasException) {
-        debugPrint('AniList trending query error: ${result.exception}');
-        return [];
-      }
+    // Cache the results
+    final ids = await _cache.cacheAnimeList(animeList);
+    await _cache.cacheSearchResults(cacheKey, ids);
 
-      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
-      if (mediaList == null) return [];
-
-      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
-
-      // Cache the results, preserving existing collection flags
-      final ids = <int>[];
-      for (final anime in animeList) {
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          // Preserve user's collection state
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-        ids.add(anime.id);
-      }
-      await _searchBox.put(cacheKey, ids);
-      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
-
-      // If grouping enabled and first page, group top results in background
-      if (enableGrouping && page == 1) {
-        _groupTopResults(animeList.take(groupTop).toList());
-      }
-
-      return animeList;
-    } catch (e) {
-      debugPrint('Error fetching trending anime: $e');
-      return [];
+    if (enableGrouping && page == 1) {
+      _grouping.groupTopResults(animeList.take(groupTop).toList());
     }
+
+    return animeList;
   }
 
-  // Get most popular anime (all-time)
-  static const String _popularQuery = '''
-    query(\$page: Int, \$perPage: Int) {
-      Page(page: \$page, perPage: \$perPage) {
-        media(type: ANIME, sort: POPULARITY_DESC) {
-          id
-          title {
-            romaji
-            english
-          }
-          format
-          episodes
-          duration
-          seasonYear
-          coverImage {
-            large
-          }
-          averageScore
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-        }
-      }
-    }
-  ''';
-
+  /// Get most popular anime (all-time) with caching
   Future<List<Anime>> fetchMostPopular({
     int page = 1,
     int perPage = 20,
@@ -406,92 +143,28 @@ class AniListService {
     final cacheKey = 'anilist|popular|page=$page|perPage=$perPage';
 
     // Check cache first
-    final raw = _searchBox.get(cacheKey);
-    final idList = (raw is List) ? raw.cast<int>() : null;
-
-    if (idList != null && idList.isNotEmpty) {
-      if (_isFresh(cacheKey, cacheTTL)) {
-        final cached = idList
-            .map((id) => _animeBox.get(id))
-            .whereType<Anime>()
-            .toList();
-        if (cached.length == idList.length) {
+    final cachedIds = _cache.getCachedSearchResults(cacheKey);
+    if (cachedIds != null && cachedIds.isNotEmpty) {
+      if (_cache.isFresh(cacheKey, cacheTTL)) {
+        final cached = _cache.getCachedAnimeList(cachedIds);
+        if (cached.length == cachedIds.length) {
           return cached;
         }
       }
     }
 
     // Fetch from API
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_popularQuery),
-          variables: {'page': page, 'perPage': perPage},
-        ),
-      );
+    final animeList = await _api.fetchMostPopular(page: page, perPage: perPage);
+    if (animeList.isEmpty) return [];
 
-      if (result.hasException) {
-        debugPrint('AniList popular query error: ${result.exception}');
-        return [];
-      }
+    // Cache the results
+    final ids = await _cache.cacheAnimeList(animeList);
+    await _cache.cacheSearchResults(cacheKey, ids);
 
-      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
-      if (mediaList == null) return [];
-
-      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
-
-      // Cache the results
-      final ids = <int>[];
-      for (final anime in animeList) {
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-        ids.add(anime.id);
-      }
-      await _searchBox.put(cacheKey, ids);
-      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
-
-      return animeList;
-    } catch (e) {
-      debugPrint('Error fetching popular anime: $e');
-      return [];
-    }
+    return animeList;
   }
 
-  // Get upcoming/coming soon anime
-  static const String _comingSoonQuery = '''
-    query(\$page: Int, \$perPage: Int) {
-      Page(page: \$page, perPage: \$perPage) {
-        media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
-          id
-          title {
-            romaji
-            english
-          }
-          format
-          episodes
-          duration
-          seasonYear
-          coverImage {
-            large
-          }
-          averageScore
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-        }
-      }
-    }
-  ''';
-
+  /// Get upcoming/coming soon anime with caching
   Future<List<Anime>> fetchComingSoon({
     int page = 1,
     int perPage = 20,
@@ -500,92 +173,28 @@ class AniListService {
     final cacheKey = 'anilist|comingSoon|page=$page|perPage=$perPage';
 
     // Check cache first
-    final raw = _searchBox.get(cacheKey);
-    final idList = (raw is List) ? raw.cast<int>() : null;
-
-    if (idList != null && idList.isNotEmpty) {
-      if (_isFresh(cacheKey, cacheTTL)) {
-        final cached = idList
-            .map((id) => _animeBox.get(id))
-            .whereType<Anime>()
-            .toList();
-        if (cached.length == idList.length) {
+    final cachedIds = _cache.getCachedSearchResults(cacheKey);
+    if (cachedIds != null && cachedIds.isNotEmpty) {
+      if (_cache.isFresh(cacheKey, cacheTTL)) {
+        final cached = _cache.getCachedAnimeList(cachedIds);
+        if (cached.length == cachedIds.length) {
           return cached;
         }
       }
     }
 
     // Fetch from API
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_comingSoonQuery),
-          variables: {'page': page, 'perPage': perPage},
-        ),
-      );
+    final animeList = await _api.fetchComingSoon(page: page, perPage: perPage);
+    if (animeList.isEmpty) return [];
 
-      if (result.hasException) {
-        debugPrint('AniList coming soon query error: ${result.exception}');
-        return [];
-      }
+    // Cache the results
+    final ids = await _cache.cacheAnimeList(animeList);
+    await _cache.cacheSearchResults(cacheKey, ids);
 
-      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
-      if (mediaList == null) return [];
-
-      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
-
-      // Cache the results
-      final ids = <int>[];
-      for (final anime in animeList) {
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-        ids.add(anime.id);
-      }
-      await _searchBox.put(cacheKey, ids);
-      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
-
-      return animeList;
-    } catch (e) {
-      debugPrint('Error fetching coming soon anime: $e');
-      return [];
-    }
+    return animeList;
   }
 
-  // Get anime by genre
-  static const String _genreQuery = '''
-    query(\$genre: String, \$page: Int, \$perPage: Int) {
-      Page(page: \$page, perPage: \$perPage) {
-        media(type: ANIME, genre: \$genre, sort: POPULARITY_DESC) {
-          id
-          title {
-            romaji
-            english
-          }
-          format
-          episodes
-          duration
-          seasonYear
-          coverImage {
-            large
-          }
-          averageScore
-          studios(isMain: true) {
-            nodes {
-              name
-            }
-          }
-        }
-      }
-    }
-  ''';
-
+  /// Get anime by genre with caching
   Future<List<Anime>> fetchByGenre({
     required String genre,
     int page = 1,
@@ -595,402 +204,69 @@ class AniListService {
     final cacheKey = 'anilist|genre=$genre|page=$page|perPage=$perPage';
 
     // Check cache first
-    final raw = _searchBox.get(cacheKey);
-    final idList = (raw is List) ? raw.cast<int>() : null;
-
-    if (idList != null && idList.isNotEmpty) {
-      if (_isFresh(cacheKey, cacheTTL)) {
-        final cached = idList
-            .map((id) => _animeBox.get(id))
-            .whereType<Anime>()
-            .toList();
-        if (cached.length == idList.length) {
+    final cachedIds = _cache.getCachedSearchResults(cacheKey);
+    if (cachedIds != null && cachedIds.isNotEmpty) {
+      if (_cache.isFresh(cacheKey, cacheTTL)) {
+        final cached = _cache.getCachedAnimeList(cachedIds);
+        if (cached.length == cachedIds.length) {
           return cached;
         }
       }
     }
 
     // Fetch from API
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_genreQuery),
-          variables: {
-            'genre': genre,
-            'page': page,
-            'perPage': perPage,
-          },
-        ),
-      );
+    final animeList = await _api.fetchByGenre(
+      genre: genre,
+      page: page,
+      perPage: perPage,
+    );
+    if (animeList.isEmpty) return [];
 
-      if (result.hasException) {
-        debugPrint('AniList genre query error: ${result.exception}');
-        return [];
-      }
+    // Cache the results
+    final ids = await _cache.cacheAnimeList(animeList);
+    await _cache.cacheSearchResults(cacheKey, ids);
 
-      final mediaList = result.data?['Page']?['media'] as List<dynamic>?;
-      if (mediaList == null) return [];
-
-      final animeList = mediaList.map((data) => _parseAnime(data)).toList();
-
-      // Cache the results
-      final ids = <int>[];
-      for (final anime in animeList) {
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-        ids.add(anime.id);
-      }
-      await _searchBox.put(cacheKey, ids);
-      await _metaBox.put(cacheKey, DateTime.now().millisecondsSinceEpoch);
-
-      return animeList;
-    } catch (e) {
-      debugPrint('Error fetching anime by genre: $e');
-      return [];
-    }
+    return animeList;
   }
 
-  // ==================== ANIME GROUP METHODS ====================
-
-  /// Group top search results in background (don't wait for completion)
-  void _groupTopResults(List<Anime> topResults) {
-    // Run asynchronously without awaiting
-    Future.microtask(() async {
-      for (final anime in topResults) {
-        // Skip if already grouped recently
-        final existing = getAnimeGroup(anime.id);
-        if (existing != null && !existing.needsUpdate()) continue;
-
-        // Fetch relations and create group
-        try {
-          await fetchAnimeRelations(anime.id);
-        } catch (e) {
-          // Silently skip anime that can't be grouped (expected for some entries)
-          // Uncomment the line below for debugging if needed:
-          // debugPrint('Skipped grouping for ${anime.name} (ID: ${anime.id})');
-        }
-      }
-    });
-  }
+  // ==================== GROUPING METHODS ====================
 
   /// Fetch anime relations and build a group
-  Future<AnimeGroup?> fetchAnimeRelations(
-    int animeId, {
-    Set<int>? visited,
-  }) async {
-    visited ??= <int>{};
-
-    // Prevent infinite loops
-    if (visited.contains(animeId)) return null;
-    visited.add(animeId);
-
-    try {
-      _checkRateLimit();
-      _trackRequest();
-      final result = await _client.query(
-        QueryOptions(
-          document: gql(_relationsQuery),
-          variables: {'id': animeId},
-        ),
-      );
-
-      if (result.hasException) {
-        // Check if it's a 404 (anime not found) - this is common and not an error
-        final exception = result.exception;
-        if (exception?.linkException is ServerException) {
-          final serverException = exception!.linkException as ServerException;
-          final response = serverException.parsedResponse;
-          if (response?.errors?.any((e) => e.message == 'Not Found.') == true) {
-            // Anime doesn't exist - silently return null
-            return null;
-          }
-        }
-        // Only log unexpected errors
-        debugPrint('AniList relations query error for anime $animeId: ${exception?.linkException?.toString() ?? "Unknown error"}');
-        return null;
-      }
-
-      final media = result.data?['Media'];
-      if (media == null) return null;
-
-      final relations = media['relations']?['edges'] as List<dynamic>?;
-      if (relations == null || relations.isEmpty) return null;
-
-      // Filter for meaningful relations (SEQUEL, PREQUEL, PARENT, SIDE_STORY)
-      final meaningfulTypes = {
-        'SEQUEL',
-        'PREQUEL',
-        'PARENT',
-        'SIDE_STORY',
-        'ALTERNATIVE',
-      };
-      final relatedAnime = <Anime>[];
-      final relationMap = <int, String>{};
-      final relatedIds = <int>[];
-
-      for (final edge in relations) {
-        final relationType = edge['relationType'] as String?;
-        if (relationType == null || !meaningfulTypes.contains(relationType))
-          continue;
-
-        final node = edge['node'];
-        if (node == null) continue;
-
-        final anime = _parseAnime(node);
-        relatedAnime.add(anime);
-        relationMap[anime.id] = relationType;
-        relatedIds.add(anime.id);
-
-        // Cache the anime, preserving existing collection flags
-        final existing = _animeBox.get(anime.id);
-        if (existing != null) {
-          anime.wishlist = existing.wishlist;
-          anime.owned = existing.owned;
-          anime.userRating = existing.userRating;
-        }
-        await _animeBox.put(anime.id, anime);
-      }
-
-      if (relatedAnime.isEmpty) return null;
-
-      // Get the main anime
-      final mainAnime = _animeBox.get(animeId);
-      if (mainAnime == null) return null;
-
-      // Build the initial group
-      await _buildAnimeGroup(mainAnime, relatedAnime, relationMap);
-
-      // Recursively fetch relations for related anime to build complete franchise
-      // But limit depth to prevent too many API calls
-      if (visited.length < 10) {
-        for (final relatedId in relatedIds) {
-          if (!visited.contains(relatedId)) {
-            await fetchAnimeRelations(relatedId, visited: visited);
-          }
-        }
-      }
-
-      // Return the final merged group
-      return getAnimeGroup(animeId);
-    } catch (e) {
-      debugPrint('Error fetching anime relations: $e');
-      return null;
-    }
+  Future<AnimeGroup?> fetchAnimeRelations(int animeId, {Set<int>? visited}) {
+    return _grouping.fetchAnimeRelations(animeId, visited: visited);
   }
-
-  /// Build an AnimeGroup from a main anime and its relations
-  Future<AnimeGroup> _buildAnimeGroup(
-    Anime mainAnime,
-    List<Anime> relatedAnime,
-    Map<int, String> relationMap,
-  ) async {
-    // Collect all anime IDs
-    final allIds = <int>{mainAnime.id, ...relatedAnime.map((a) => a.id)};
-
-    // Check if any anime are already in existing groups and merge
-    final existingGroupIds = <int>{};
-    for (final id in allIds) {
-      final existingGroupId = _animeToGroupBox.get(id);
-      if (existingGroupId != null) {
-        existingGroupIds.add(existingGroupId);
-      }
-    }
-
-    // If existing groups found, merge all anime into the earliest group
-    int groupId;
-    AnimeGroup? existingGroup;
-    Map<int, String> mergedRelations = Map.from(relationMap);
-
-    if (existingGroupIds.isNotEmpty) {
-      // Use the earliest existing group as the canonical one
-      groupId = existingGroupIds.reduce((a, b) => a < b ? a : b);
-      existingGroup = _groupBox.get(groupId);
-
-      // Add existing group's anime IDs to allIds
-      if (existingGroup != null) {
-        allIds.addAll(existingGroup.animeIds);
-        mergedRelations.addAll(existingGroup.relationTypes);
-      }
-
-      // Merge all OTHER groups into this one
-      for (final oldGroupId in existingGroupIds) {
-        if (oldGroupId == groupId) continue;
-
-        final oldGroup = _groupBox.get(oldGroupId);
-        if (oldGroup != null) {
-          allIds.addAll(oldGroup.animeIds);
-          mergedRelations.addAll(oldGroup.relationTypes);
-
-          // Delete old group
-          await _groupBox.delete(oldGroupId);
-        }
-      }
-    } else {
-      // No existing groups, determine new group ID (use earliest anime)
-      final allAnime = [mainAnime, ...relatedAnime];
-      allAnime.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
-      groupId = allAnime.first.id;
-    }
-
-    // Add relation type for mainAnime if not already there
-    if (!mergedRelations.containsKey(mainAnime.id)) {
-      mergedRelations[mainAnime.id] = 'MAIN';
-    }
-
-    // Determine group name and details from earliest anime
-    final groupAnimeList = allIds
-        .map((id) => _animeBox.get(id))
-        .whereType<Anime>()
-        .toList();
-    groupAnimeList.sort((a, b) => a.yearReleased.compareTo(b.yearReleased));
-    final primaryAnime = groupAnimeList.isNotEmpty
-        ? groupAnimeList.first
-        : mainAnime;
-
-    // Create or update the group
-    final group = AnimeGroup(
-      groupId: groupId,
-      name: existingGroup?.name ?? primaryAnime.name,
-      animeIds: allIds.toList(),
-      imageUrl: existingGroup?.imageUrl ?? primaryAnime.imageUrl,
-      yearReleased: primaryAnime.yearReleased,
-      studio: primaryAnime.studio,
-      lastUpdated: DateTime.now(),
-      relationTypes: mergedRelations,
-    );
-
-    // Save the group
-    await _groupBox.put(groupId, group);
-
-    // Map all anime IDs to this group
-    for (final id in allIds) {
-      await _animeToGroupBox.put(id, groupId);
-    }
-
-    return group;
-  }
-
-  /// Clear all anime groups (useful for testing/debugging)
-  Future<void> clearAllGroups() async {
-    await _groupBox.clear();
-    await _animeToGroupBox.clear();
-    debugPrint('Cleared all anime groups');
-  }
-
-  /// Get group box stats
-  int get totalGroups => _groupBox.length;
-  int get totalGroupedAnime => _animeToGroupBox.length;
-  int get totalCachedAnime => _animeBox.length;
 
   /// Get the group for a specific anime, if it exists
   AnimeGroup? getAnimeGroup(int animeId) {
-    final groupId = _animeToGroupBox.get(animeId);
-    if (groupId == null) return null;
-    return _groupBox.get(groupId);
+    return _grouping.getAnimeGroup(animeId);
   }
 
   /// Check if an anime belongs to a group
   bool isInGroup(int animeId) {
-    return _animeToGroupBox.containsKey(animeId);
+    return _grouping.isInGroup(animeId);
   }
 
   /// Get or create a group for an anime
-  Future<AnimeGroup?> getOrFetchAnimeGroup(int animeId) async {
-    // Check if already grouped
-    final existing = getAnimeGroup(animeId);
-    if (existing != null && !existing.needsUpdate()) {
-      return existing;
-    }
-
-    // Fetch and create group
-    return await fetchAnimeRelations(animeId);
+  Future<AnimeGroup?> getOrFetchAnimeGroup(int animeId) {
+    return _grouping.getOrFetchAnimeGroup(animeId);
   }
 
   /// Get all anime in a group, with detailed info
   List<Anime> getGroupAnimeList(int groupId) {
-    final group = _groupBox.get(groupId);
-    if (group == null) return [];
-    return group.getAnimeList(_animeBox);
+    return _grouping.getGroupAnimeList(groupId);
   }
 
   /// Get summary info about an anime's group (for display in lists)
   Map<String, dynamic>? getGroupSummary(int animeId) {
-    final group = getAnimeGroup(animeId);
-    if (group == null) return null;
-
-    final animeList = group.getAnimeList(_animeBox);
-    final totalEpisodes = group.getTotalEpisodes(_animeBox);
-
-    return {
-      'groupId': group.groupId,
-      'name': group.name,
-      'itemCount': animeList.length,
-      'totalEpisodes': totalEpisodes,
-      'imageUrl': group.imageUrl,
-      'isGroup': true,
-    };
+    return _grouping.getGroupSummary(animeId);
   }
 
-  // Parse AniList data to Anime object
-  Anime _parseAnime(Map<String, dynamic> data) {
-    final format = data['format'] as String?;
-    final isMovie = format == 'MOVIE';
-
-    final id = data['id'] as int;
-
-    final title = data['title'] as Map<String, dynamic>?;
-    final name = title?['english'] ?? title?['romaji'] ?? 'Unknown';
-
-    final studiosData = data['studios']?['nodes'] as List<dynamic>?;
-    final studio = studiosData?.isNotEmpty == true
-        ? studiosData!.first['name']
-        : 'Unknown';
-
-    final episodes = data['episodes'] as int? ?? 0;
-    final duration = data['duration'] as int? ?? 0;
-    final yearReleased = data['seasonYear'] as int? ?? 0;
-
-    final coverImage = data['coverImage'] as Map<String, dynamic>?;
-    final imageUrl = coverImage?['large'] as String? ?? '';
-
-    // For TV series, calculate seasons (rough estimate: 12-13 episodes per season)
-    final seasons = !isMovie && episodes > 0 ? (episodes / 12).ceil() : 0;
-
-    return Anime(
-      id: id,
-      name: name,
-      studio: studio,
-      yearReleased: yearReleased,
-      imageUrl: imageUrl,
-      isMovie: isMovie,
-      seasons: seasons,
-      episodes: episodes,
-      runtime: duration,
-    );
+  /// Clear all anime groups (useful for testing/debugging)
+  Future<void> clearAllGroups() {
+    return _grouping.clearAllGroups();
   }
 
-  void _trackRequest() {
-    _sessionRequests++;
-    final now = DateTime.now();
-    _lastRequestTime = now;
-    _recentRequests.add(now);
-
-    // Track daily count
-    final today = '${now.year}-${now.month}-${now.day}';
-    final currentCount = _statsBox.get('requests_$today') ?? 0;
-    _statsBox.put('requests_$today', currentCount + 1);
-
-    // Clean up old requests (keep only last minute)
-    final oneMinuteAgo = now.subtract(const Duration(minutes: 1));
-    _recentRequests.removeWhere((time) => time.isBefore(oneMinuteAgo));
-  }
+  // ==================== CLEANUP ====================
 
   void dispose() {
     // GraphQL client doesn't need explicit disposal
