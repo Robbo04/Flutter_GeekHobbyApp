@@ -4,12 +4,11 @@ import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Data/list_data.dart';
-import 'package:app_geek_hobby_app/Data/collection_list_data.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -56,12 +55,12 @@ class _SearchPageState extends State<SearchPage> {
           return const LoadingWidget.withHeight(height: 160);
         } else if (snapshot.hasError) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: AppSpacing.paddingV12,
             child: AppErrorWidget.inline(message: 'Error: ${snapshot.error}'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: AppSpacing.paddingV12,
             child: EmptyStateWidget.inline(message: 'No games found for "$_lastQuery".'),
           );
         }
@@ -88,12 +87,12 @@ class _SearchPageState extends State<SearchPage> {
           return const LoadingWidget.withHeight(height: 160);
         } else if (snapshot.hasError) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: AppSpacing.paddingV12,
             child: AppErrorWidget.inline(message: 'Error: ${snapshot.error}'),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: AppSpacing.paddingV12,
             child: EmptyStateWidget.inline(message: 'No anime found for "$_lastQuery".'),
           );
         }
@@ -116,7 +115,7 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAll16,
         children: [
           // Toggle buttons for search types
           Row(
@@ -152,7 +151,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          AppSpacing.verticalMd,
           TextField(
             controller: _controller,
             textInputAction: TextInputAction.search,
@@ -173,19 +172,19 @@ class _SearchPageState extends State<SearchPage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: AppSpacing.md),
             ),
             onSubmitted: _doSearch,
           ),
-          const SizedBox(height: 14),
+          AppSpacing.verticalMd,
 
           // Games results (RAWG)
           _buildGamesSection(),
-          const SizedBox(height: 14),
+          AppSpacing.verticalMd,
 
           // Anime results (AniList)
           _buildAnimeSection(),
-          const SizedBox(height: 14),
+          AppSpacing.verticalMd,
           
           if (_searchFuture == null && _searchAnimeFuture == null)
             Center(

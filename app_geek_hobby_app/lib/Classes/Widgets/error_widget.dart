@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
+
 /// Standardized error display widget with consistent styling across the app
 /// 
 /// Usage examples:
@@ -25,7 +27,7 @@ class AppErrorWidget extends StatelessWidget {
     this.iconColor = Colors.red,
     this.iconSize = 64,
     this.centered = true,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = AppSpacing.paddingAll16,
     this.textAlign = TextAlign.center,
   });
 
@@ -37,7 +39,7 @@ class AppErrorWidget extends StatelessWidget {
     this.icon = Icons.error_outline,
     this.iconColor = Colors.red,
     this.iconSize = 64,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = AppSpacing.paddingAll16,
   })  : centered = true,
         textAlign = TextAlign.center;
 
@@ -50,7 +52,7 @@ class AppErrorWidget extends StatelessWidget {
     this.iconSize = 24,
   })  : onRetry = null,
         centered = false,
-        padding = const EdgeInsets.all(8),
+        padding = AppSpacing.paddingAll8,
         textAlign = TextAlign.center;
 
   /// Simple text-only error message
@@ -75,7 +77,7 @@ class AppErrorWidget extends StatelessWidget {
         children: [
           if (iconSize > 0) ...[
             Icon(icon, size: iconSize, color: iconColor),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
           ],
           Text(
             message,
@@ -85,7 +87,7 @@ class AppErrorWidget extends StatelessWidget {
             ),
           ),
           if (onRetry != null) ...[
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
             ElevatedButton(
               onPressed: onRetry,
               child: const Text('Retry'),

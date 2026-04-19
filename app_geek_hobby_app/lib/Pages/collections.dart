@@ -6,6 +6,7 @@ import 'package:app_geek_hobby_app/Classes/itemlist.dart';
 import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/Classes/Widgets/collection_button.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 class CollectionsPage extends StatelessWidget {
   const CollectionsPage({super.key});
@@ -44,7 +45,7 @@ class CollectionsPage extends StatelessWidget {
 
   Widget _buildGamesTab(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.paddingAll16,
       children: [
         _buildCollectionButton(
           context,
@@ -76,7 +77,7 @@ class CollectionsPage extends StatelessWidget {
 
   Widget _buildAnimeTab(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.paddingAll16,
       children: [
         _buildCollectionButton(
           context,
@@ -124,17 +125,17 @@ class CollectionsPage extends StatelessWidget {
   Widget _buildMoviesTab(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: AppSpacing.paddingAll32,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Icon(Icons.movie, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             Text(
               'Movie Collections',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
               style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -148,17 +149,17 @@ class CollectionsPage extends StatelessWidget {
   Widget _buildTVTab(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: AppSpacing.paddingAll32,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
             Icon(Icons.tv, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            SizedBox(height: AppSpacing.lg),
             Text(
               'TV Show Collections',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
               style: TextStyle(fontSize: 16, color: Colors.grey),

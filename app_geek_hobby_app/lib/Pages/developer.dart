@@ -3,6 +3,7 @@ import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/clear_anime_groups_button.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/api_stats_card.dart';
 import 'package:app_geek_hobby_app/Utils/dialog_helpers.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:flutter/material.dart';
 
 class DeveloperPage extends StatelessWidget {
@@ -17,7 +18,7 @@ class DeveloperPage extends StatelessWidget {
         backgroundColor: Colors.grey[800],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAll16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -25,14 +26,14 @@ class DeveloperPage extends StatelessWidget {
             Card(
               color: Colors.orange[100],
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: AppSpacing.paddingAll16,
                 child: Row(
                   children: [
                     Icon(
                       Icons.warning_amber_rounded,
                       color: Colors.orange[800],
                     ),
-                    const SizedBox(width: 12),
+                    AppSpacing.horizontalMd,
                     Expanded(
                       child: Text(
                         'Developer tools for debugging and maintenance',
@@ -46,7 +47,7 @@ class DeveloperPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXl,
 
             // Anime Groups Section
             _buildSection(
@@ -54,9 +55,9 @@ class DeveloperPage extends StatelessWidget {
               icon: Icons.collections_bookmark,
               children: [
                 const AnimeGroupStatsWidget(),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 const ClearAnimeGroupsButton(),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 Text(
                   'Use this if anime appear in multiple groups (e.g., Jujutsu Kaisen split across seasons)',
                   style: TextStyle(
@@ -68,7 +69,7 @@ class DeveloperPage extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
 
             // Game Cache Section
             _buildSection(

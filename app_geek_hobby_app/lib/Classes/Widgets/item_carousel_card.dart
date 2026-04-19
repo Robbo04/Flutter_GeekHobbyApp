@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 import 'package:app_geek_hobby_app/Classes/anime.dart';
 import 'package:app_geek_hobby_app/Classes/game.dart';
@@ -110,7 +111,7 @@ class ItemCarouselCard extends StatelessWidget {
                     top: 4,
                     right: 4,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: AppSpacing.paddingAll4,
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 219, 167, 227),
                         borderRadius: BorderRadius.circular(4),
@@ -124,7 +125,7 @@ class ItemCarouselCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            AppSpacing.verticalSm,
             Text(
               getName(item),
               style: const TextStyle(fontSize: 14),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 import 'item_carousel_card.dart';
 
@@ -20,7 +21,7 @@ class ItemCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: AppSpacing.paddingH16,
           child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ),
         Container(

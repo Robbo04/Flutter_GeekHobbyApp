@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/Classes/game.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/Services/collections_service.dart';
@@ -130,7 +131,7 @@ void updateCompleted(bool value) async {
       imageUrl: widget.game.imageUrl,
       details: [
         Text(widget.game.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
+        AppSpacing.verticalLg,
         Text(widget.game.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.game.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
         Text("Age Rating: ${widget.game.ageRating}", style: const TextStyle(fontSize: 16)),

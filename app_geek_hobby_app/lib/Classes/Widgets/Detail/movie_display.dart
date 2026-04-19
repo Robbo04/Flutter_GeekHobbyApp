@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/Classes/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 
 class MovieDisplay extends StatefulWidget {
@@ -57,7 +58,7 @@ class _MovieDisplayState extends State<MovieDisplay> {
       imageUrl: widget.movie.imageUrl,
       details: [
         Text(widget.movie.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
+        AppSpacing.verticalLg,
         Text(widget.movie.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.movie.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
         Text("Runtime: ${widget.movie.duration} minutes", style: const TextStyle(fontSize: 16)),

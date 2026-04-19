@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
@@ -325,7 +326,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         children: [
           // Filter bar with content type and genre selectors
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: AppSpacing.paddingAll12,
             decoration: BoxDecoration(
               color: Colors.grey[100],
               border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
@@ -360,13 +361,13 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                 
                 // Genre filter (only for games)
                 if (_contentType == ContentType.games) ...[
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSm,
                   Row(
                     children: [
                       const Icon(Icons.filter_list, size: 18),
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSm,
                       const Text('Genre:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSm,
                       Expanded(
                         child: DropdownButton<String>(
                           value: _selectedGenre ?? 'all',
@@ -499,7 +500,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     Expanded(
                       child: SingleChildScrollView(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: AppSpacing.paddingH16V8,
                           child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -512,7 +513,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                 style: TextStyle(fontSize: titleFont, fontWeight: FontWeight.w700),
                                 textAlign: TextAlign.center,
                               ),
-                            const SizedBox(height: 8),
+                            AppSpacing.verticalSm,
                             if (_gameItems.isNotEmpty && _contentType == ContentType.games)
                               Text(
                                 'Platforms: ${_gameItems.first.platforms.map((p) => p.toString().split('.').last).join(', ')}',
@@ -528,11 +529,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                 textAlign: TextAlign.center,
                               ),
                             ],
-                            const SizedBox(height: 12),
+                            AppSpacing.verticalMd,
 
                             // Action buttons row: Skip, Owned (games only), Like
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: AppSpacing.paddingV8,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -574,9 +575,9 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                               ),
                             ),
 
-                            const SizedBox(height: 8),
+                            AppSpacing.verticalSm,
                             const Text('Swipe left to skip, swipe right to keep.', style: TextStyle(fontSize: 12)),
-                            const SizedBox(height: 8),
+                            AppSpacing.verticalSm,
                             if (_isLoading) const Padding(
                               padding: EdgeInsets.only(top: 8),
                               child: LoadingWidget.inline(),
@@ -587,7 +588,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    AppSpacing.verticalLg,
                   ],
                 );
               }),

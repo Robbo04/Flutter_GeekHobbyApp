@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
+
 /// Standardized empty state display widget with consistent styling across the app
 /// 
 /// Usage examples:
@@ -29,7 +31,7 @@ class EmptyStateWidget extends StatelessWidget {
     this.iconColor = Colors.grey,
     this.iconSize = 64,
     this.centered = true,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = AppSpacing.paddingAll16,
     this.textAlign = TextAlign.center,
   });
 
@@ -43,7 +45,7 @@ class EmptyStateWidget extends StatelessWidget {
     this.icon = Icons.inbox_outlined,
     this.iconColor = Colors.grey,
     this.iconSize = 64,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = AppSpacing.paddingAll16,
   })  : centered = true,
         textAlign = TextAlign.center;
 
@@ -58,7 +60,7 @@ class EmptyStateWidget extends StatelessWidget {
         onAction = null,
         actionLabel = null,
         centered = false,
-        padding = const EdgeInsets.all(8),
+        padding = AppSpacing.paddingAll8,
         textAlign = TextAlign.center;
 
   /// Simple text-only empty message
@@ -85,7 +87,7 @@ class EmptyStateWidget extends StatelessWidget {
         children: [
           if (iconSize > 0) ...[
             Icon(icon, size: iconSize, color: iconColor),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
           ],
           Text(
             message,
@@ -96,7 +98,7 @@ class EmptyStateWidget extends StatelessWidget {
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 8),
+            AppSpacing.verticalSm,
             Text(
               subtitle!,
               textAlign: textAlign,
@@ -107,7 +109,7 @@ class EmptyStateWidget extends StatelessWidget {
             ),
           ],
           if (onAction != null && actionLabel != null) ...[
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
             ElevatedButton(
               onPressed: onAction,
               child: Text(actionLabel!),

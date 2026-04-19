@@ -4,6 +4,7 @@ import 'package:app_geek_hobby_app/Classes/Widgets/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/error_widget.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/item_carousel.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Data/curated_lists.dart';
 import 'package:app_geek_hobby_app/Services/rawg_service.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
@@ -77,10 +78,10 @@ class _ExplorePageState extends State<ExplorePage> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingAll16,
         children: [
-          const SizedBox(height: 6),
-          const SizedBox(height: 14),
+          AppSpacing.verticalSm,
+          AppSpacing.verticalMd,
 
           // Dynamically generate game carousels
           ...ExploreCarousels.gameCarousels.map((category) {
@@ -104,7 +105,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     );
                   },
                 ),
-                const SizedBox(height: 14),
+                AppSpacing.verticalMd,
               ],
             );
           }),
@@ -131,7 +132,7 @@ class _ExplorePageState extends State<ExplorePage> {
                     );
                   },
                 ),
-                const SizedBox(height: 14),
+                AppSpacing.verticalMd,
               ],
             );
           }),

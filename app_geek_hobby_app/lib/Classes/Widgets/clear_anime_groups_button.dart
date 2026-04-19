@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/loading_widget.dart';
 import 'package:app_geek_hobby_app/Services/anilist_service.dart';
 import 'package:app_geek_hobby_app/Utils/dialog_helpers.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 /// Debug utility to clear anime groups
 /// Add this button to your settings page or debug menu
@@ -52,7 +53,7 @@ class AnimeGroupStatsWidget extends StatelessWidget {
 
         return Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.paddingAll16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -63,11 +64,11 @@ class AnimeGroupStatsWidget extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMd,
                 Text('Total Groups: ${stats['groups']}'),
                 Text('Grouped Anime: ${stats['groupedAnime']}'),
                 Text('Cached Anime: ${stats['cachedAnime']}'),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 Text(
                   'Coverage: ${stats['groups'] == 0 ? '0' : ((stats['groupedAnime']! / stats['cachedAnime']!) * 100).toStringAsFixed(1)}%',
                   style: const TextStyle(fontWeight: FontWeight.bold),

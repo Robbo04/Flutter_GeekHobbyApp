@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 /// Data model for a stat row
 class StatRow {
@@ -35,7 +36,7 @@ class ApiStatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.paddingAll16,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -48,10 +49,10 @@ class ApiStatsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: 16),
+          AppSpacing.verticalLg,
           ...stats.map(_buildStatRow),
           if (extraWidget != null) ...[
-            const SizedBox(height: 12),
+            AppSpacing.verticalMd,
             extraWidget!,
           ],
         ],
@@ -63,7 +64,7 @@ class ApiStatsCard extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, color: themeColor, size: 24),
-        const SizedBox(width: 12),
+        AppSpacing.horizontalMd,
         Text(
           title,
           style: TextStyle(
@@ -78,7 +79,7 @@ class ApiStatsCard extends StatelessWidget {
 
   Widget _buildStatRow(StatRow stat) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: AppSpacing.paddingV4,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

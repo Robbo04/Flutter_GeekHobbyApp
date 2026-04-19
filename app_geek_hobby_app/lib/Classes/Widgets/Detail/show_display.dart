@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/Classes/show.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/Classes/Widgets/Detail/item_display.dart';
 
 class ShowDisplay extends StatefulWidget {
@@ -57,7 +58,7 @@ class _ShowDisplayState extends State<ShowDisplay> {
       imageUrl: widget.show.imageUrl,
       details: [
         Text(widget.show.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
+        AppSpacing.verticalLg,
         Text(widget.show.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.show.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
         Text("Runtime: ${widget.show.runtime} minutes", style: const TextStyle(fontSize: 16)),

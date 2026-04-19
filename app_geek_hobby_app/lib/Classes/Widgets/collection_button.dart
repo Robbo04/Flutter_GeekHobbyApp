@@ -1,5 +1,6 @@
-import 'package:app_geek_hobby_app/Classes/itemlist.dart';
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/Classes/itemlist.dart';
+import 'package:app_geek_hobby_app/Constants/app_spacing.dart';
 
 class CollectionButton extends StatelessWidget {
   final ItemList collectionList; // The first item is the name, the rest are items
@@ -21,8 +22,8 @@ class CollectionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        padding: const EdgeInsets.all(16),
+        margin: AppSpacing.paddingV12,
+        padding: AppSpacing.paddingAll16,
         decoration: BoxDecoration(
           color: const Color(0xFF181820),
           borderRadius: BorderRadius.circular(20),
@@ -41,7 +42,7 @@ class CollectionButton extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSm,
                   ...items.take(3).map((item) => Text(
                         item,
                         style: const TextStyle(
@@ -52,7 +53,7 @@ class CollectionButton extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 16),
+            AppSpacing.horizontalLg,
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
