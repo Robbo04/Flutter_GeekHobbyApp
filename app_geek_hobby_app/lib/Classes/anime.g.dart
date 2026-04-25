@@ -26,6 +26,7 @@ class AnimeAdapter extends TypeAdapter<Anime> {
       seasons: fields[9] as int,
       episodes: fields[10] as int,
       runtime: fields[11] as int,
+      format: fields[12] as String,
     )
       ..owned = fields[3] as bool
       ..wishlist = fields[4] as bool
@@ -35,7 +36,7 @@ class AnimeAdapter extends TypeAdapter<Anime> {
   @override
   void write(BinaryWriter writer, Anime obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(7)
       ..write(obj.id)
       ..writeByte(8)
@@ -46,6 +47,8 @@ class AnimeAdapter extends TypeAdapter<Anime> {
       ..write(obj.episodes)
       ..writeByte(11)
       ..write(obj.runtime)
+      ..writeByte(12)
+      ..write(obj.format)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)

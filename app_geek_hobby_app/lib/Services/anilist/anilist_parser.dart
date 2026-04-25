@@ -42,6 +42,7 @@ class AniListParser {
       seasons: seasons,
       episodes: displayEpisodes,
       runtime: duration,
+      format: format ?? 'TV',
     );
   }
 }

@@ -119,6 +119,31 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
     await widget.anime.save();
   }
 
+  String _getEpisodesOrTypeText() {
+    final format = widget.anime.format.toUpperCase();
+    
+    switch (format) {
+      case 'MOVIE':
+        return 'Type: Movie';
+      case 'SPECIAL':
+        return 'Type: Special';
+      case 'OVA':
+        return 'Type: OVA';
+      case 'ONA':
+        return 'Type: ONA';
+      case 'TV_SHORT':
+        return widget.anime.episodes == 0 
+          ? 'Episodes: Ongoing (TV Short)' 
+          : 'Episodes: ${widget.anime.episodes} (TV Short)';
+      case 'MUSIC':
+        return 'Type: Music Video';
+      default: // TV or unknown
+        return widget.anime.episodes == 0 
+          ? 'Episodes: Ongoing' 
+          : 'Episodes: ${widget.anime.episodes}';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ItemDisplay(
@@ -161,9 +186,7 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
         Text("Runtime: ${widget.anime.runtime} minutes", style: const TextStyle(fontSize: 16)),
         Text("Seasons: ${widget.anime.seasons}", style: const TextStyle(fontSize: 16)),
         Text(
-          widget.anime.episodes == 0 
-            ? "Episodes: Ongoing" 
-            : "Episodes: ${widget.anime.episodes}",
+          _getEpisodesOrTypeText(),
           style: const TextStyle(fontSize: 16),
         ),
       ],

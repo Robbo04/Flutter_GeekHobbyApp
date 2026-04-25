@@ -15,6 +15,8 @@ class Anime extends Item{
   final int episodes;
   @HiveField(11)
   final int runtime; // Runtime in minutes
+  @HiveField(12)
+  final String format; // TV, MOVIE, SPECIAL, OVA, ONA
 
   Anime({
     required this.id,
@@ -26,5 +28,6 @@ class Anime extends Item{
     required this.seasons,
     required this.episodes,
     required this.runtime,
+    this.format = 'TV',
   });
 }
