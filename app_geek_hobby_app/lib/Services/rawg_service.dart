@@ -59,9 +59,12 @@ class RawgService {
     int daysToCache = 30,
     Duration cacheTTLHours = const Duration(days: 3),
     bool searchPrecise = false,
+    String excludeStores = '',
+    String excludePlatforms = '',
+    int minRatingsCount = 0,
   }) async {
     final cacheKey =
-        'rawg|search=$search|genre=${genre ?? ''}|page=$page|pageSize=$pageSize|ordering=$ordering|precise=$searchPrecise';
+        'rawg|search=$search|genre=${genre ?? ''}|page=$page|pageSize=$pageSize|ordering=$ordering|precise=$searchPrecise|excludeStore=$excludeStores|excludePlatform=$excludePlatforms|minRating=$minRatingsCount';
 
     // Check cache first
     final idList = _cache.getCachedSearchResults(cacheKey);
@@ -81,6 +84,9 @@ class RawgService {
       pageSize: pageSize,
       ordering: ordering,
       searchPrecise: searchPrecise,
+      excludeStores: excludeStores,
+      excludePlatforms: excludePlatforms,
+      minRatingsCount: minRatingsCount,
     );
     if (gamesList.isEmpty) return [];
 

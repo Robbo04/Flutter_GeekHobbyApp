@@ -36,6 +36,8 @@ class _SearchPageState extends State<SearchPage> {
         search: q,
         pageSize: 40, // Show more results for searches
         searchPrecise: true, // Prioritize exact matches
+        excludeStores: '9', // Exclude itch.io (store ID 9)
+        excludePlatforms: '4,21', // Exclude iOS (4) and Android (21)
       ) : null;
       _searchAnimeFuture = _searchAnime ? _anilistService.searchAnime(search: q) : null;
     });

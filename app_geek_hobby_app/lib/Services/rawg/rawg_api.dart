@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
 import 'rawg_cache.dart';
 import 'rawg_rate_limiter.dart';
 
@@ -24,6 +25,16 @@ class RawgAPI {
     required this.cache,
   });
 
+  // ==================== HELPER METHODS ====================
+
+  /// Filter out mobile-only games from a list
+  List<Game> _filterMobileOnlyGames(List<Game> games) {
+    return games.where((g) {
+      // Keep games that have at least one non-mobile platform
+      return g.platforms.any((p) => p != GamePlatform.mobile);
+    }).toList();
+  }
+
   // ==================== CORE API METHODS ====================
 
   /// Fetch games with specific parameters
@@ -34,6 +45,9 @@ class RawgAPI {
     int pageSize = 20,
     String ordering = '-added',
     bool searchPrecise = false,
+    String excludeStores = '', // Comma-separated store IDs to exclude (e.g., '9' for itch.io)
+    String excludePlatforms = '', // Comma-separated platform IDs to exclude (e.g., '4,21' for iOS/Android)
+    int minRatingsCount = 0, // Minimum rating count for client-side filtering
   }) async {
     final Map<String, String> params = {
       'key': apiKey,
@@ -52,6 +66,14 @@ class RawgAPI {
       if (searchPrecise) {
         params['search_precise'] = 'true';
       }
+      // Exclude specific stores (e.g., itch.io)
+      if (excludeStores.isNotEmpty) {
+        params['exclude_stores'] = excludeStores;
+      }
+      // Exclude specific platforms (e.g., mobile)
+      if (excludePlatforms.isNotEmpty) {
+        params['exclude_platforms'] = excludePlatforms;
+      }
     } else {
       // No search term, use provided ordering
       if (ordering.isNotEmpty) params['ordering'] = ordering;
@@ -68,7 +90,23 @@ class RawgAPI {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
-      return results.map((e) => Game.fromRawg(e)).toList();
+      var games = results.map((e) => Game.fromRawg(e)).toList();
+      
+      // Filter out mobile-only games
+      if (excludePlatforms.isNotEmpty) {
+        games = _filterMobileOnlyGames(games);
+      }
+      
+      // Apply client-side filtering if minRatingsCount is set
+      // Only check rating count if game doesn't have a Metacritic score
+      if (minRatingsCount > 0) {
+        games = games.where((g) {
+          // Keep if has Metacritic score OR has enough ratings
+          return g.metacriticRating > 0 || g.ratingCount >= minRatingsCount;
+        }).toList();
+      }
+      
+      return games;
     } else {
       debugPrint('Failed to load games (status: ${response.statusCode})');
       throw Exception('Failed to load games (status: ${response.statusCode})');
@@ -123,7 +161,7 @@ class RawgAPI {
     }
 
     final data = json.decode(response.body) as Map<String, dynamic>;
-    final results = (data['results'] as List<dynamic>)
+    var results = (data['results'] as List<dynamic>)
         .map((e) => Game.fromRawg(e))
         .where((g) {
           // Filter out low-quality / low-evidence items
@@ -133,6 +171,9 @@ class RawgAPI {
           if (g.ratingCount < minRatingsCount) return false;
           return true;
         }).toList();
+
+    // Filter out mobile-only games
+    results = _filterMobileOnlyGames(results);
 
     return results;
   }
@@ -159,7 +200,12 @@ class RawgAPI {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
-      return results.map((e) => Game.fromRawg(e)).toList();
+      var games = results.map((e) => Game.fromRawg(e)).toList();
+      
+      // Filter out mobile-only games
+      games = _filterMobileOnlyGames(games);
+      
+      return games;
     } else {
       throw Exception(
         'Failed to load most played games (status: ${response.statusCode})',
@@ -190,7 +236,12 @@ class RawgAPI {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
       debugPrint('Fetched ${results.length} coming soon games');
-      return results.map((e) => Game.fromRawg(e)).toList();
+      var games = results.map((e) => Game.fromRawg(e)).toList();
+      
+      // Filter out mobile-only games
+      games = _filterMobileOnlyGames(games);
+      
+      return games;
     } else {
       debugPrint(
           'Failed to load coming soon games (status: ${response.statusCode})');
@@ -225,10 +276,13 @@ class RawgAPI {
       final results = data['results'] as List<dynamic>;
 
       // Filter for well-known games
-      final gamesList = results
+      var gamesList = results
           .map((e) => Game.fromRawg(e))
           .where((g) => g.ratingCount >= minRatingsCount)
           .toList();
+
+      // Filter out mobile-only games
+      gamesList = _filterMobileOnlyGames(gamesList);
 
       return gamesList;
     } else {
@@ -265,10 +319,13 @@ class RawgAPI {
       debugPrint('Found ${results.length} games for tag "$tag"');
 
       // Filter for well-known games
-      final gamesList = results
+      var gamesList = results
           .map((e) => Game.fromRawg(e))
           .where((g) => g.ratingCount >= minRatingsCount)
           .toList();
+
+      // Filter out mobile-only games
+      gamesList = _filterMobileOnlyGames(gamesList);
 
       debugPrint(
           'After filtering: ${gamesList.length} games with $minRatingsCount+ ratings');
