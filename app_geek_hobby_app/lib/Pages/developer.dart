@@ -71,6 +71,47 @@ class DeveloperPage extends StatelessWidget {
 
             AppSpacing.verticalLg,
 
+            // Anime Cache Section
+            _buildSection(
+              title: 'Search Cache',
+              icon: Icons.search,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => DialogHelpers.executeAsyncAction(
+                    context,
+                    confirmTitle: 'Clear All Search Cache',
+                    confirmContent:
+                        'This will clear all cached search results for both games and anime. '
+                        'New searches will fetch fresh data from RAWG and AniList APIs. '
+                        'This is useful after updating search algorithms.',
+                    confirmText: 'Clear Cache',
+                    successMessage: 'All search cache cleared!',
+                    action: () async {
+                      await AniListService.instance.clearSearchCache();
+                      await RawgService.instance.clearSearchCache();
+                    },
+                  ),
+                  icon: const Icon(Icons.clear_all),
+                  label: const Text('Clear All Search Cache'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                AppSpacing.verticalSm,
+                Text(
+                  'Clears cached search results for both games and anime. Use this if search results seem outdated or incorrect.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+
+            AppSpacing.verticalLg,
+
             // Game Cache Section
             _buildSection(
               title: 'Game Cache',

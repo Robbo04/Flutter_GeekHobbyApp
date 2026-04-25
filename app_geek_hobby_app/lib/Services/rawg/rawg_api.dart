@@ -33,17 +33,32 @@ class RawgAPI {
     int page = 1,
     int pageSize = 20,
     String ordering = '-added',
+    bool searchPrecise = false,
   }) async {
     final Map<String, String> params = {
       'key': apiKey,
       'page': page.toString(),
       'page_size': pageSize.toString(),
     };
-    if (search.isNotEmpty) params['search'] = search;
+    if (search.isNotEmpty) {
+      params['search'] = search;
+      // For searches, prioritize relevance over date added
+      if (ordering == '-added') {
+        params['ordering'] = '-relevance';
+      } else {
+        params['ordering'] = ordering;
+      }
+      // Enable precise search for better exact matches
+      if (searchPrecise) {
+        params['search_precise'] = 'true';
+      }
+    } else {
+      // No search term, use provided ordering
+      if (ordering.isNotEmpty) params['ordering'] = ordering;
+    }
     if (genre != null && genre.isNotEmpty) {
       params['genres'] = genre;
     }
-    if (ordering.isNotEmpty) params['ordering'] = ordering;
 
     rateLimiter.checkRateLimit();
     final uri = Uri.https(_host, '$_basePath/games', params);

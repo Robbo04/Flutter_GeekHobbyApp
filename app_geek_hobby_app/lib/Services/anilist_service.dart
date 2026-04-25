@@ -266,6 +266,11 @@ class AniListService {
     return _grouping.clearAllGroups();
   }
 
+  /// Clear search cache (useful after search algorithm changes)
+  Future<void> clearSearchCache() async {
+    await _cache.clearSearchCache();
+  }
+
   // ==================== CLEANUP ====================
 
   void dispose() {

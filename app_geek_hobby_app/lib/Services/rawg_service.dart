@@ -58,9 +58,10 @@ class RawgService {
     String ordering = '-added',
     int daysToCache = 30,
     Duration cacheTTLHours = const Duration(days: 3),
+    bool searchPrecise = false,
   }) async {
     final cacheKey =
-        'rawg|search=$search|genre=${genre ?? ''}|page=$page|pageSize=$pageSize|ordering=$ordering';
+        'rawg|search=$search|genre=${genre ?? ''}|page=$page|pageSize=$pageSize|ordering=$ordering|precise=$searchPrecise';
 
     // Check cache first
     final idList = _cache.getCachedSearchResults(cacheKey);
@@ -79,6 +80,7 @@ class RawgService {
       page: page,
       pageSize: pageSize,
       ordering: ordering,
+      searchPrecise: searchPrecise,
     );
     if (gamesList.isEmpty) return [];
 
@@ -318,6 +320,11 @@ class RawgService {
   /// Clear all cached data
   Future<void> clearCache() async {
     await _cache.clearCache();
+  }
+
+  /// Clear search cache (useful after search algorithm changes)
+  Future<void> clearSearchCache() async {
+    await _cache.clearSearchCache();
   }
 
   // ==================== CLEANUP ====================

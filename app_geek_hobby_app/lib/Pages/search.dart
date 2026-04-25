@@ -32,7 +32,11 @@ class _SearchPageState extends State<SearchPage> {
     if (q.isEmpty) return;
     setState(() {
       _lastQuery = q;
-      _searchFuture = _searchGames ? _rawgService.fetchGames(search: q) : null;
+      _searchFuture = _searchGames ? _rawgService.fetchGames(
+        search: q,
+        pageSize: 40, // Show more results for searches
+        searchPrecise: true, // Prioritize exact matches
+      ) : null;
       _searchAnimeFuture = _searchAnime ? _anilistService.searchAnime(search: q) : null;
     });
   }

@@ -10,7 +10,7 @@ class AniListQueries {
           lastPage
           hasNextPage
         }
-        media(search: \$search, type: \$type, sort: POPULARITY_DESC) {
+        media(search: \$search, type: \$type, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
           id
           title {
             romaji
@@ -24,6 +24,7 @@ class AniListQueries {
             large
           }
           averageScore
+          popularity
           studios(isMain: true) {
             nodes {
               name

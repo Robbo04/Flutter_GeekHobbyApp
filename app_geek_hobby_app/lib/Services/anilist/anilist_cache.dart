@@ -71,4 +71,14 @@ class AniListCache {
     final raw = searchBox.get(cacheKey);
     return (raw is List) ? raw.cast<int>() : null;
   }
+
+  /// Clear all search cache (useful when search algorithm changes)
+  Future<void> clearSearchCache() async {
+    await searchBox.clear();
+    // Clear search-related metadata
+    final searchKeys = metaBox.keys.where((key) => key.toString().startsWith('anilist|search='));
+    for (final key in searchKeys) {
+      await metaBox.delete(key);
+    }
+  }
 }

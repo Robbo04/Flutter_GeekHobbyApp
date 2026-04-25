@@ -75,6 +75,16 @@ class RawgCache {
     await searchBox.clear();
   }
 
+  /// Clear only search cache (keeps game data intact)
+  Future<void> clearSearchCache() async {
+    await searchBox.clear();
+    // Clear search-related metadata
+    final searchKeys = metaBox.keys.where((key) => key.toString().startsWith('rawg|search='));
+    for (final key in searchKeys) {
+      await metaBox.delete(key);
+    }
+  }
+
   /// Get total number of cached games
   int get totalCachedGames => gamesBox.length;
 }
