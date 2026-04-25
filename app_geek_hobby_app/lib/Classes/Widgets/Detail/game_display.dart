@@ -134,6 +134,15 @@ void updateCompleted(bool value) async {
         AppSpacing.verticalLg,
         Text(widget.game.studio, style: const TextStyle(fontSize: 16)),
         Text(widget.game.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
+        if (widget.game.metacriticRating > 0)
+          Text("Metacritic: ${widget.game.metacriticRating}/100", 
+            style: TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.bold,
+              color: widget.game.metacriticRating >= 75 ? Colors.green : 
+                     widget.game.metacriticRating >= 50 ? Colors.orange : Colors.red,
+            ),
+          ),
         Text("Age Rating: ${widget.game.ageRating}", style: const TextStyle(fontSize: 16)),
         Text("Genres: ${widget.game.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
         Text("Platforms: ${widget.game.platforms.map((p) => p.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
