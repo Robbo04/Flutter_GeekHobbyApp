@@ -271,6 +271,11 @@ class AniListService {
     await _cache.clearSearchCache();
   }
 
+  /// Clear all cached anime data
+  Future<void> clearAnimeCache() async {
+    await _cache.clearAnimeCache();
+  }
+
   // ==================== CLEANUP ====================
 
   void dispose() {

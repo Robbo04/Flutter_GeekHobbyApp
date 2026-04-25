@@ -150,6 +150,46 @@ class DeveloperPage extends StatelessWidget {
               ],
             ),
 
+            AppSpacing.verticalLg,
+
+            // Anime Cache Section
+            _buildSection(
+              title: 'Anime Cache',
+              icon: Icons.movie,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => DialogHelpers.executeAsyncAction(
+                    context,
+                    confirmTitle: 'Clear Anime Cache',
+                    confirmContent:
+                        'This will clear all cached anime data. Your collection flags '
+                        '(watched/wishlist) and ratings will be preserved, but anime '
+                        'details will be refetched with updated episode counts.',
+                    confirmText: 'Clear Cache',
+                    successMessage: 'Anime cache cleared!',
+                    action: () async {
+                      await AniListService.instance.clearAnimeCache();
+                    },
+                  ),
+                  icon: const Icon(Icons.clear_all),
+                  label: const Text('Clear Anime Cache'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Use this to refresh anime episode counts for ongoing series',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 16),
 
             // API Request Stats Section

@@ -20,6 +20,9 @@ class AniListQueries {
           episodes
           duration
           seasonYear
+          nextAiringEpisode {
+            episode
+          }
           coverImage {
             large
           }
@@ -57,6 +60,9 @@ class AniListQueries {
               episodes
               duration
               seasonYear
+              nextAiringEpisode {
+                episode
+              }
               coverImage {
                 large
               }
@@ -86,6 +92,9 @@ class AniListQueries {
           episodes
           duration
           seasonYear
+          nextAiringEpisode {
+            episode
+          }
           coverImage {
             large
           }
@@ -114,6 +123,9 @@ class AniListQueries {
           episodes
           duration
           seasonYear
+          nextAiringEpisode {
+            episode
+          }
           coverImage {
             large
           }
@@ -142,6 +154,9 @@ class AniListQueries {
           episodes
           duration
           seasonYear
+          nextAiringEpisode {
+            episode
+          }
           coverImage {
             large
           }
@@ -170,6 +185,9 @@ class AniListQueries {
           episodes
           duration
           seasonYear
+          nextAiringEpisode {
+            episode
+          }
           coverImage {
             large
           }

@@ -160,7 +160,12 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
         Text(widget.anime.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
         Text("Runtime: ${widget.anime.runtime} minutes", style: const TextStyle(fontSize: 16)),
         Text("Seasons: ${widget.anime.seasons}", style: const TextStyle(fontSize: 16)),
-        Text("Episodes: ${widget.anime.episodes}", style: const TextStyle(fontSize: 16)),
+        Text(
+          widget.anime.episodes == 0 
+            ? "Episodes: Ongoing" 
+            : "Episodes: ${widget.anime.episodes}",
+          style: const TextStyle(fontSize: 16),
+        ),
       ],
       owned: watched,
       wishlisted: wishlisted,

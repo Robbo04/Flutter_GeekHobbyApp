@@ -81,4 +81,9 @@ class AniListCache {
       await metaBox.delete(key);
     }
   }
+
+  /// Clear all cached anime data
+  Future<void> clearAnimeCache() async {
+    await animeBox.clear();
+  }
 }

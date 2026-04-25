@@ -17,7 +17,12 @@ class AniListParser {
         ? studiosData!.first['name']
         : 'Unknown';
 
-    final episodes = data['episodes'] as int? ?? 0;
+    final episodes = data['episodes'] as int?;
+    final nextAiringEpisode = data['nextAiringEpisode']?['episode'] as int?;
+    
+    // Use episodes if available, otherwise use nextAiringEpisode - 1 for ongoing anime
+    final displayEpisodes = episodes ?? (nextAiringEpisode != null ? nextAiringEpisode - 1 : 0);
+    
     final duration = data['duration'] as int? ?? 0;
     final yearReleased = data['seasonYear'] as int? ?? 0;
 
@@ -25,7 +30,7 @@ class AniListParser {
     final imageUrl = coverImage?['large'] as String? ?? '';
 
     // For TV series, calculate seasons (rough estimate: 12-13 episodes per season)
-    final seasons = !isMovie && episodes > 0 ? (episodes / 12).ceil() : 0;
+    final seasons = !isMovie && displayEpisodes > 0 ? (displayEpisodes / 12).ceil() : 0;
 
     return Anime(
       id: id,
@@ -35,7 +40,7 @@ class AniListParser {
       imageUrl: imageUrl,
       isMovie: isMovie,
       seasons: seasons,
-      episodes: episodes,
+      episodes: displayEpisodes,
       runtime: duration,
     );
   }
