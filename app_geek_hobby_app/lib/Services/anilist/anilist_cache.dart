@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 
-import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Classes/anime_group.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/group/anime_group.dart';
 
 /// Manages caching for AniList data using Hive
 class AniListCache {

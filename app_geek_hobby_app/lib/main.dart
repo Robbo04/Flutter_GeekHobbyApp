@@ -1,19 +1,19 @@
-import 'package:app_geek_hobby_app/Classes/Widgets/navigation_bar.dart';
+import 'package:app_geek_hobby_app/widgets/common/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:app_geek_hobby_app/Classes/user.dart';
+import 'package:app_geek_hobby_app/models/user/user.dart';
 
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Classes/anime_group.dart';
-import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
-import 'package:app_geek_hobby_app/Enums/AgeRatings/game_age.dart';
-import 'package:app_geek_hobby_app/Enums/Genres/game_genre.dart';
-import 'package:app_geek_hobby_app/Classes/item.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/group/anime_group.dart';
+import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
+import 'package:app_geek_hobby_app/enums/age_ratings/game_age.dart';
+import 'package:app_geek_hobby_app/enums/genres/game_genre.dart';
+import 'package:app_geek_hobby_app/models/item/item.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:app_geek_hobby_app/Services/rawg_service.dart';
-import 'package:app_geek_hobby_app/Services/anilist_service.dart';
+import 'package:app_geek_hobby_app/services/rawg_service.dart';
+import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:http/http.dart' as http;
 
 Future<RawgService> initializeRawgService() async {

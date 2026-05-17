@@ -1,4 +1,4 @@
-import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
 
 /// Parses AniList GraphQL API responses into Anime objects
 class AniListParser {

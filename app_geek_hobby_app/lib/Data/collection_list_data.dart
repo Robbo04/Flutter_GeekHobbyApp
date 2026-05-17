@@ -1,9 +1,9 @@
-import 'package:app_geek_hobby_app/Classes/itemlist.dart';
+import 'package:app_geek_hobby_app/models/collection/itemlist.dart';
 
-import 'package:app_geek_hobby_app/Classes/movie.dart';
-import 'package:app_geek_hobby_app/Classes/show.dart';
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/models/item/movie.dart';
+import 'package:app_geek_hobby_app/models/item/show.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
 
 ItemList collectionListTest = ItemList(
   name: 'Collections',

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
 
 import 'rawg/rawg_api.dart';
 import 'rawg/rawg_cache.dart';

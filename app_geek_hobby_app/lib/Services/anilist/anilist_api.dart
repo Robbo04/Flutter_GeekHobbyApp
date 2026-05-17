@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
 
 import 'anilist_queries.dart';
 import 'anilist_parser.dart';

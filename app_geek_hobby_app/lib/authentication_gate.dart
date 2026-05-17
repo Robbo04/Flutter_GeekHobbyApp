@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:app_geek_hobby_app/Pages/Login.dart';
-import 'package:app_geek_hobby_app/Classes/Widgets/navigation_bar.dart';
+import 'package:app_geek_hobby_app/screens/login.dart';
+import 'package:app_geek_hobby_app/widgets/common/navigation_bar.dart';
 
 class AuthenticationGate extends StatefulWidget {
   const AuthenticationGate({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
 
 class CollectionsService {
   CollectionsService._();

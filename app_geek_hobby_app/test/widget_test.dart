@@ -10,10 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:app_geek_hobby_app/main.dart';
-import 'package:app_geek_hobby_app/Services/rawg_service.dart';
-import 'package:app_geek_hobby_app/Services/anilist_service.dart';
-import 'package:app_geek_hobby_app/Classes/anime.dart';
-import 'package:app_geek_hobby_app/Classes/anime_group.dart';
+import 'package:app_geek_hobby_app/services/rawg_service.dart';
+import 'package:app_geek_hobby_app/services/anilist_service.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/group/anime_group.dart';
 import 'package:http/testing.dart';
 import 'package:http/http.dart' as http;
 

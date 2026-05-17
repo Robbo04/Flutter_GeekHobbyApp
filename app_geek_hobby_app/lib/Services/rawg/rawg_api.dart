@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:app_geek_hobby_app/Classes/game.dart';
-import 'package:app_geek_hobby_app/Enums/Platforms/game_platform.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
+import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
 import 'rawg_cache.dart';
 import 'rawg_rate_limiter.dart';
 

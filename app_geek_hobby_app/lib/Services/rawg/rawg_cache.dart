@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-import 'package:app_geek_hobby_app/Classes/game.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart';
 
 /// Manages Hive cache storage for RAWG games
 class RawgCache {

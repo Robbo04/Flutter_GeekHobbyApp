@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:app_geek_hobby_app/models/item/item.dart';
+import 'package:app_geek_hobby_app/models/item/game.dart'; // If you want to use Game-specific fields
+import 'package:app_geek_hobby_app/models/item/movie.dart';
+import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/item/show.dart';
+import 'package:app_geek_hobby_app/widgets/detail/game_display.dart';
+import 'package:app_geek_hobby_app/widgets/detail/movie_display.dart';
+import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
+import 'package:app_geek_hobby_app/widgets/detail/show_display.dart';
+import 'package:app_geek_hobby_app/screens/item_detail.dart';
+import 'package:app_geek_hobby_app/screens/spin_wheel.dart';
+
+class CollectionsContentPage extends StatefulWidget {
+  final List<int> itemIds;
+  final String title;
+
+  const CollectionsContentPage({
+    super.key,
+    required this.itemIds,
+    required this.title,
+  });
+
+  @override
+  State<CollectionsContentPage> createState() => _CollectionsContentPageState();
+}
+
+class _CollectionsContentPageState extends State<CollectionsContentPage> {
+  int crossAxisCount = 3;
+  late List<Item> items;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch items from the appropriate boxes using the IDs
+    final gamesBox = Hive.box<Game>('rawg_games');
+    final animeBox = Hive.box<Anime>('anilist_anime');
+    
+    items = widget.itemIds.map((id) {
+      // Try to get from games box first
+      final game = gamesBox.get(id);
+      if (game != null) return game;
+      
+      // Try anime box
+      final anime = animeBox.get(id);
+      if (anime != null) return anime;
+      
+      return null;
+    }).whereType<Item>().toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
+        actions: [
+          IconButton(
+            icon: Icon(crossAxisCount == 3 ? Icons.grid_on : Icons.grid_view),
+            onPressed: () {
+              setState(() {
+                crossAxisCount = crossAxisCount == 3 ? 6 : 3;
+              });
+            },
+            tooltip: 'Toggle grid size',
+          ),
+          IconButton(
+            icon: Icon(Icons.casino_rounded),
+            color: Colors.red,
+            tooltip: 'Spin the Wheel',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SpinWheelPage()),
+              );
+            },
+    ),
+        ],
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(12),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 135 / 190, // width / height ≈ 0.71 for DVD/game box
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the correct detail page based on the item's runtime type
+              if (item is Game) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => GameDisplay(game: item)),
+                );
+              } else if (item is Movie) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => MovieDisplay(movie: item)),
+                );
+              } else if (item is Anime) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => AnimeDisplay(anime: item)),
+                );
+              } else if (item is Show) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ShowDisplay(show: item)),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
+                );
+              }
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+                  ? Image.network(item.imageUrl!, fit: BoxFit.cover)
+                  : Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                    ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
