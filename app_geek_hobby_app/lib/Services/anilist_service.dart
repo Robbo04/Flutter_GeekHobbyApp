@@ -139,6 +139,8 @@ class AniListService {
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(days: 7),
+    bool enableGrouping = true,
+    int groupTop = defaultGroupTop,
   }) async {
     final cacheKey = 'anilist|popular|page=$page|perPage=$perPage';
 
@@ -148,6 +150,9 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
+          if (enableGrouping && page == 1) {
+            _grouping.groupTopResults(cached.take(groupTop).toList());
+          }
           return cached;
         }
       }
@@ -161,6 +166,10 @@ class AniListService {
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
 
+    if (enableGrouping && page == 1) {
+      _grouping.groupTopResults(animeList.take(groupTop).toList());
+    }
+
     return animeList;
   }
 
@@ -169,6 +178,8 @@ class AniListService {
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(hours: 12),
+    bool enableGrouping = true,
+    int groupTop = defaultGroupTop,
   }) async {
     final cacheKey = 'anilist|comingSoon|page=$page|perPage=$perPage';
 
@@ -178,6 +189,9 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
+          if (enableGrouping && page == 1) {
+            _grouping.groupTopResults(cached.take(groupTop).toList());
+          }
           return cached;
         }
       }
@@ -191,6 +205,10 @@ class AniListService {
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
 
+    if (enableGrouping && page == 1) {
+      _grouping.groupTopResults(animeList.take(groupTop).toList());
+    }
+
     return animeList;
   }
 
@@ -200,6 +218,8 @@ class AniListService {
     int page = 1,
     int perPage = 20,
     Duration cacheTTL = const Duration(days: 7),
+    bool enableGrouping = true,
+    int groupTop = defaultGroupTop,
   }) async {
     final cacheKey = 'anilist|genre=$genre|page=$page|perPage=$perPage';
 
@@ -209,6 +229,9 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
+          if (enableGrouping && page == 1) {
+            _grouping.groupTopResults(cached.take(groupTop).toList());
+          }
           return cached;
         }
       }
@@ -225,6 +248,10 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
+
+    if (enableGrouping && page == 1) {
+      _grouping.groupTopResults(animeList.take(groupTop).toList());
+    }
 
     return animeList;
   }
