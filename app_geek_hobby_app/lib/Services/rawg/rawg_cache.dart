@@ -34,6 +34,8 @@ class RawgCache {
       game.userRating = existing.userRating;
     }
     await gamesBox.put(game.id, game);
+    // Track when this game was cached for freshness checks
+    await metaBox.put('game_${game.id}', DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Cache multiple games

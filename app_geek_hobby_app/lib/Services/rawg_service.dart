@@ -98,9 +98,26 @@ class RawgService {
   }
 
   /// Fetch game details with persistent cache
-  Future<Game> fetchGameDetails(int id) async {
+  /// 
+  /// Auto-refreshes games older than [maxCacheAge] to keep data up-to-date
+  Future<Game> fetchGameDetails(
+    int id, {
+    Duration maxCacheAge = const Duration(days: 30),
+  }) async {
     final cached = _cache.getCachedGame(id);
-    if (cached != null && cached.isDetailed) return cached;
+    
+    // Check if we have valid cached data
+    if (cached != null && cached.isDetailed) {
+      final cacheKey = 'game_$id';
+      
+      // Return cached if still fresh
+      if (_cache.isFresh(cacheKey, maxCacheAge)) {
+        return cached;
+      }
+      
+      // Cache expired, will re-fetch below
+      debugPrint('Game $id cache expired, refreshing...');
+    }
 
     // Fetch from API
     final game = await _api.fetchGameDetails(id);
