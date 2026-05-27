@@ -30,7 +30,10 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color.fromARGB(255, 184, 55, 182),
         unselectedItemColor: Colors.black,
