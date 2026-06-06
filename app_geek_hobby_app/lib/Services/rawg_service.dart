@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:app_geek_hobby_app/models/item/game.dart';
@@ -71,7 +70,6 @@ class RawgService {
     if (idList != null && idList.isNotEmpty) {
       final games = _cache.getCachedGameList(idList);
       if (games.length == idList.length) {
-        debugPrint('Loaded games from cache for key: $cacheKey');
         return games;
       }
     }
@@ -116,7 +114,7 @@ class RawgService {
       }
       
       // Cache expired, will re-fetch below
-      debugPrint('Game $id cache expired, refreshing...');
+      //debugPrint('Game $id cache expired, refreshing...');
     }
 
     // Fetch from API
@@ -201,7 +199,7 @@ class RawgService {
     if (idList != null && idList.isNotEmpty && _cache.isFresh(cacheKey, cacheTTL)) {
       final games = _cache.getCachedGameList(idList);
       if (games.length == idList.length) {
-        debugPrint('Loaded most played games from cache');
+        //debugPrint('Loaded most played games from cache');
         return games;
       }
     }
@@ -233,7 +231,7 @@ class RawgService {
     if (idList != null && idList.isNotEmpty && _cache.isFresh(cacheKey, cacheTTL)) {
       final games = _cache.getCachedGameList(idList);
       if (games.length == idList.length) {
-        debugPrint('Loaded coming soon games from cache');
+        //debugPrint('Loaded coming soon games from cache');
         return games;
       }
     }
@@ -274,7 +272,7 @@ class RawgService {
     if (idList != null && idList.isNotEmpty && _cache.isFresh(cacheKey, cacheTTL)) {
       final games = _cache.getCachedGameList(idList);
       if (games.length == idList.length) {
-        debugPrint('Loaded games by genre from cache');
+        //debugPrint('Loaded games by genre from cache');
         return games;
       }
     }
@@ -310,7 +308,7 @@ class RawgService {
     if (idList != null && idList.isNotEmpty && _cache.isFresh(cacheKey, cacheTTL)) {
       final games = _cache.getCachedGameList(idList);
       if (games.length == idList.length) {
-        debugPrint('Loaded games by tag from cache');
+        //debugPrint('Loaded games by tag from cache');
         return games;
       }
     }

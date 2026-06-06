@@ -128,7 +128,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       pageSize: _pageSize,
       genre: _selectedGenre,
     );
-    print('Fetched ${fetched.length} games from RAWG: ${fetched.map((g) => g.id).toList()}');
     
     final existingIds = _gameItems
         .map((item) => item.id)
@@ -139,21 +138,16 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       if (await _collections.isGameInAnyCollection(g.id)) continue;
       newGames.add(g);
     }
-    print('New games after filtering: ${newGames.map((g) => g.id).toList()}');
 
     if (fetched.length < _pageSize) _gamesHasMore = false;
 
     if (newGames.isNotEmpty) {
       setState(() => _gameItems.addAll(newGames));
-      print('Added new games to _gameItems. Total now: ${_gameItems.length}');
     } else {
       if (fetched.isNotEmpty && _gamesHasMore) {
         _gamePage++;
-        print('All games filtered out, fetching next page...');
         await _fetchNextPage();
         return;
-      } else {
-        print('No new games to add and no more pages.');
       }
     }
 
@@ -165,7 +159,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       page: _animePage,
       perPage: _pageSize,
     );
-    print('Fetched ${fetched.length} anime from AniList: ${fetched.map((a) => a.id).toList()}');
     
     final existingIds = _animeItems
         .map((item) => item.id)
@@ -175,21 +168,16 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       if (existingIds.contains(a.id)) continue;
       newAnime.add(a);
     }
-    print('New anime after filtering: ${newAnime.map((a) => a.id).toList()}');
 
     if (fetched.length < _pageSize) _animeHasMore = false;
 
     if (newAnime.isNotEmpty) {
       setState(() => _animeItems.addAll(newAnime));
-      print('Added new anime to _animeItems. Total now: ${_animeItems.length}');
     } else {
       if (fetched.isNotEmpty && _animeHasMore) {
         _animePage++;
-        print('All anime filtered out, fetching next page...');
         await _fetchNextPage();
         return;
-      } else {
-        print('No new anime to add and no more pages.');
       }
     }
 

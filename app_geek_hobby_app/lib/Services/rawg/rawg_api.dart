@@ -235,7 +235,6 @@ class RawgAPI {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
-      debugPrint('Fetched ${results.length} coming soon games');
       var games = results.map((e) => Game.fromRawg(e)).toList();
       
       // Filter out mobile-only games
@@ -309,14 +308,12 @@ class RawgAPI {
 
     rateLimiter.checkRateLimit();
     final uri = Uri.https(_host, '$_basePath/games', params);
-    debugPrint('Fetching games by tag: $uri');
     final response = await httpClient.get(uri);
     rateLimiter.trackRequest();
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final results = data['results'] as List<dynamic>;
-      debugPrint('Found ${results.length} games for tag "$tag"');
 
       // Filter for well-known games
       var gamesList = results
@@ -326,9 +323,6 @@ class RawgAPI {
 
       // Filter out mobile-only games
       gamesList = _filterMobileOnlyGames(gamesList);
-
-      debugPrint(
-          'After filtering: ${gamesList.length} games with $minRatingsCount+ ratings');
 
       return gamesList;
     } else {

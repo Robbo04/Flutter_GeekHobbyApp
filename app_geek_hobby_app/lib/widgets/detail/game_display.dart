@@ -4,6 +4,8 @@ import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/widgets/detail/item_display.dart';
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
 
 class GameDisplay extends StatefulWidget {
   final Game game;
@@ -122,7 +124,24 @@ void updateCompleted(bool value) async {
     await widget.game.save();
   }
 
-  
+  String? _getPlatformLogoPath(GamePlatform platform) {
+    switch (platform) {
+      case GamePlatform.pc:
+        return 'assets/logos/platforms/Logo_Windows.svg';
+      case GamePlatform.playstation:
+        return 'assets/logos/platforms/Logo_Playstation.svg';
+      case GamePlatform.xbox:
+        return 'assets/logos/platforms/Logo_Xbox.svg';
+      case GamePlatform.nintendo:
+        return 'assets/logos/platforms/Logo_Nintendo.svg';
+      case GamePlatform.mobile:
+        return null; // No mobile logo available
+      case GamePlatform.vr:
+        return 'assets/logos/platforms/Logo_Meta.svg'; // Using Meta for VR
+      case GamePlatform.other:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +164,29 @@ void updateCompleted(bool value) async {
           ),
         Text("Age Rating: ${widget.game.ageRating}", style: const TextStyle(fontSize: 16)),
         Text("Genres: ${widget.game.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
-        Text("Platforms: ${widget.game.platforms.map((p) => p.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
+        Row(
+          children: [
+            const Text("Platforms: ", style: TextStyle(fontSize: 16)),
+            ...widget.game.platforms.map((platform) {
+              final logoPath = _getPlatformLogoPath(platform);
+              if (logoPath != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: SvgPicture.asset(
+                    logoPath,
+                    width: 24,
+                    height: 24,
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(platform.toString().split('.').last, style: const TextStyle(fontSize: 14)),
+                );
+              }
+            }).toList(),
+          ],
+        ),
         if (owned) ...[
           SwitchListTile(
             title: const Text('Completed'),

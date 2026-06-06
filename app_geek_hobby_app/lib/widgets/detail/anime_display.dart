@@ -54,7 +54,7 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
   }
 
   void updateWatched(bool value) async {
-    debugPrint('updateWatched called with value: $value, anime id: ${widget.anime.id}');
+    //debugPrint('updateWatched called with value: $value, anime id: ${widget.anime.id}');
     setState(() {
       watched = value;
       if (watched) wishlisted = false;
@@ -64,10 +64,10 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
     try {
       if (value) {
         await CollectionsService.instance.addAnimeToWatched(widget.anime, removeFromWishlist: true);
-        debugPrint('Successfully added to watched collection');
+        //debugPrint('Successfully added to watched collection');
       } else {
         await CollectionsService.instance.removeAnimeFromWatched(widget.anime);
-        debugPrint('Successfully removed from watched collection');
+        //debugPrint('Successfully removed from watched collection');
       }
     } catch (e, st) {
       debugPrint('CollectionsService watched error: $e\n$st');
@@ -83,7 +83,7 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
   }
 
   void updateWishlist(bool value) async {
-    debugPrint('updateWishlist called with value: $value, anime id: ${widget.anime.id}');
+    //debugPrint('updateWishlist called with value: $value, anime id: ${widget.anime.id}');
     setState(() {
       wishlisted = value;
       widget.anime.wishlist = wishlisted;
@@ -92,10 +92,10 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
     try {
       if (value) {
         await CollectionsService.instance.addAnimeToWishlist(widget.anime);
-        debugPrint('Successfully added to wishlist collection');
+        //debugPrint('Successfully added to wishlist collection');
       } else {
         await CollectionsService.instance.removeAnimeFromWishlist(widget.anime);
-        debugPrint('Successfully removed from wishlist collection');
+        //debugPrint('Successfully removed from wishlist collection');
       }
     } catch (e, st) {
       debugPrint('CollectionsService wishlist error: $e\n$st');
