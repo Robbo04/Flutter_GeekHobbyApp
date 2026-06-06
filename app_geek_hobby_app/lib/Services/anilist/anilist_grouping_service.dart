@@ -17,22 +17,20 @@ class AniListGroupingService {
 
   // ==================== PUBLIC METHODS====================
 
-  /// Group top search results in background (don't wait for completion)
-  void groupTopResults(List<Anime> topResults) {
-    Future.microtask(() async {
-      for (final anime in topResults) {
-        // Skip if already grouped recently
-        final existing = getAnimeGroup(anime.id);
-        if (existing != null && !existing.needsUpdate()) continue;
+  /// Group top search results (waits for completion to enable deduplication)
+  Future<void> groupTopResults(List<Anime> topResults) async {
+    for (final anime in topResults) {
+      // Skip if already grouped recently
+      final existing = getAnimeGroup(anime.id);
+      if (existing != null && !existing.needsUpdate()) continue;
 
-        // Fetch relations and create group
-        try {
-          await fetchAnimeRelations(anime.id);
-        } catch (e) {
-          // Silently skip anime that can't be grouped (expected for some entries)
-        }
+      // Fetch relations and create group
+      try {
+        await fetchAnimeRelations(anime.id);
+      } catch (e) {
+        // Silently skip anime that can't be grouped (expected for some entries)
       }
-    });
+    }
   }
 
   /// Fetch anime relations and build a group

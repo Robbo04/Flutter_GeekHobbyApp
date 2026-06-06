@@ -66,9 +66,13 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          // If grouping enabled, try to group top results in background
+          // If grouping enabled, use smart grouping
           if (enableGrouping && page == 1) {
-            _grouping.groupTopResults(cached.take(groupTop).toList());
+            final potentialDuplicates = _findPotentialDuplicates(cached);
+            if (potentialDuplicates.isNotEmpty) {
+              await _grouping.groupTopResults(potentialDuplicates);
+            }
+            return _deduplicateByGroup(cached);
           }
           return cached;
         }
@@ -87,9 +91,13 @@ class AniListService {
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
 
-    // If grouping enabled and first page, group top results in background
+    // If grouping enabled and first page, use smart grouping
     if (enableGrouping && page == 1) {
-      _grouping.groupTopResults(animeList.take(groupTop).toList());
+      final potentialDuplicates = _findPotentialDuplicates(animeList);
+      if (potentialDuplicates.isNotEmpty) {
+        await _grouping.groupTopResults(potentialDuplicates);
+      }
+      return _deduplicateByGroup(animeList);
     }
 
     return animeList;
@@ -112,7 +120,11 @@ class AniListService {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
           if (enableGrouping && page == 1) {
-            _grouping.groupTopResults(cached.take(groupTop).toList());
+            final potentialDuplicates = _findPotentialDuplicates(cached);
+            if (potentialDuplicates.isNotEmpty) {
+              await _grouping.groupTopResults(potentialDuplicates);
+            }
+            return _deduplicateByGroup(cached);
           }
           return cached;
         }
@@ -128,7 +140,11 @@ class AniListService {
     await _cache.cacheSearchResults(cacheKey, ids);
 
     if (enableGrouping && page == 1) {
-      _grouping.groupTopResults(animeList.take(groupTop).toList());
+      final potentialDuplicates = _findPotentialDuplicates(animeList);
+      if (potentialDuplicates.isNotEmpty) {
+        await _grouping.groupTopResults(potentialDuplicates);
+      }
+      return _deduplicateByGroup(animeList);
     }
 
     return animeList;
@@ -151,7 +167,11 @@ class AniListService {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
           if (enableGrouping && page == 1) {
-            _grouping.groupTopResults(cached.take(groupTop).toList());
+            final potentialDuplicates = _findPotentialDuplicates(cached);
+            if (potentialDuplicates.isNotEmpty) {
+              await _grouping.groupTopResults(potentialDuplicates);
+            }
+            return _deduplicateByGroup(cached);
           }
           return cached;
         }
@@ -167,7 +187,11 @@ class AniListService {
     await _cache.cacheSearchResults(cacheKey, ids);
 
     if (enableGrouping && page == 1) {
-      _grouping.groupTopResults(animeList.take(groupTop).toList());
+      final potentialDuplicates = _findPotentialDuplicates(animeList);
+      if (potentialDuplicates.isNotEmpty) {
+        await _grouping.groupTopResults(potentialDuplicates);
+      }
+      return _deduplicateByGroup(animeList);
     }
 
     return animeList;
@@ -190,7 +214,11 @@ class AniListService {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
           if (enableGrouping && page == 1) {
-            _grouping.groupTopResults(cached.take(groupTop).toList());
+            final potentialDuplicates = _findPotentialDuplicates(cached);
+            if (potentialDuplicates.isNotEmpty) {
+              await _grouping.groupTopResults(potentialDuplicates);
+            }
+            return _deduplicateByGroup(cached);
           }
           return cached;
         }
@@ -206,7 +234,11 @@ class AniListService {
     await _cache.cacheSearchResults(cacheKey, ids);
 
     if (enableGrouping && page == 1) {
-      _grouping.groupTopResults(animeList.take(groupTop).toList());
+      final potentialDuplicates = _findPotentialDuplicates(animeList);
+      if (potentialDuplicates.isNotEmpty) {
+        await _grouping.groupTopResults(potentialDuplicates);
+      }
+      return _deduplicateByGroup(animeList);
     }
 
     return animeList;
@@ -230,7 +262,11 @@ class AniListService {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
           if (enableGrouping && page == 1) {
-            _grouping.groupTopResults(cached.take(groupTop).toList());
+            final potentialDuplicates = _findPotentialDuplicates(cached);
+            if (potentialDuplicates.isNotEmpty) {
+              await _grouping.groupTopResults(potentialDuplicates);
+            }
+            return _deduplicateByGroup(cached);
           }
           return cached;
         }
@@ -250,10 +286,109 @@ class AniListService {
     await _cache.cacheSearchResults(cacheKey, ids);
 
     if (enableGrouping && page == 1) {
-      _grouping.groupTopResults(animeList.take(groupTop).toList());
+      final potentialDuplicates = _findPotentialDuplicates(animeList);
+      if (potentialDuplicates.isNotEmpty) {
+        await _grouping.groupTopResults(potentialDuplicates);
+      }
+      return _deduplicateByGroup(animeList);
     }
 
     return animeList;
+  }
+
+  // ==================== PRIVATE METHODS ====================
+
+  /// Normalize anime title for comparison (remove season indicators, punctuation)
+  String _normalizeTitle(String title) {
+    return title
+        .toLowerCase()
+        // Remove numeric season indicators
+        .replaceAll(RegExp(r'season \d+'), '')
+        .replaceAll(RegExp(r's\d+'), '')
+        .replaceAll(RegExp(r'\bpart \d+\b'), '')
+        .replaceAll(RegExp(r'\b\d+nd season\b'), '')
+        .replaceAll(RegExp(r'\b\d+rd season\b'), '')
+        .replaceAll(RegExp(r'\b\d+th season\b'), '')
+        // Remove text-based season indicators
+        .replaceAll(RegExp(r'\bthe final season\b'), '')
+        .replaceAll(RegExp(r'\bfinal season\b'), '')
+        .replaceAll(RegExp(r'\bfinal arc\b'), '')
+        // Remove movie/special titles (common patterns)
+        .replaceAll(RegExp(r'\bthe movie\b'), '')
+        .replaceAll(RegExp(r'\bmovie\b'), '')
+        // Remove punctuation
+        .replaceAll(RegExp(r'[:\-–—!?()]'), ' ')
+        .replaceAll("'", ' ')
+        .replaceAll('"', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  /// Find anime that likely need grouping based on title similarity
+  List<Anime> _findPotentialDuplicates(List<Anime> animeList) {
+    final potentialDuplicates = <Anime>[];
+    final normalizedTitles = <String>[];
+
+    // Normalize all titles first
+    for (final anime in animeList) {
+      normalizedTitles.add(_normalizeTitle(anime.name));
+    }
+
+    // Find anime that share a common base title
+    for (int i = 0; i < animeList.length; i++) {
+      final titleA = normalizedTitles[i];
+      final wordsA = titleA.split(' ').where((w) => w.isNotEmpty).toList();
+      if (wordsA.length < 2) continue; // Need at least 2 words
+      
+      for (int j = i + 1; j < animeList.length; j++) {
+        final titleB = normalizedTitles[j];
+        final wordsB = titleB.split(' ').where((w) => w.isNotEmpty).toList();
+        if (wordsB.length < 2) continue;
+        
+        // Check if they share the first 2-3 significant words
+        final minWords = wordsA.length < wordsB.length ? wordsA.length : wordsB.length;
+        final checkWords = minWords >= 3 ? 3 : 2;
+        
+        bool matches = true;
+        for (int k = 0; k < checkWords; k++) {
+          if (wordsA[k] != wordsB[k]) {
+            matches = false;
+            break;
+          }
+        }
+        
+        if (matches) {
+          if (!potentialDuplicates.contains(animeList[i])) {
+            potentialDuplicates.add(animeList[i]);
+          }
+          if (!potentialDuplicates.contains(animeList[j])) {
+            potentialDuplicates.add(animeList[j]);
+          }
+        }
+      }
+    }
+
+    return potentialDuplicates;
+  }
+
+  /// Deduplicate anime list by keeping only one representative per group
+  List<Anime> _deduplicateByGroup(List<Anime> animeList) {
+    final deduplicated = <Anime>[];
+    final seenGroups = <int>{};
+
+    for (final anime in animeList) {
+      // Check if anime belongs to a group
+      final group = _grouping.getAnimeGroup(anime.id);
+      final groupId = group?.groupId ?? anime.id;
+
+      // Keep only first anime from each group
+      if (!seenGroups.contains(groupId)) {
+        deduplicated.add(anime);
+        seenGroups.add(groupId);
+      }
+    }
+
+    return deduplicated;
   }
 
   // ==================== GROUPING METHODS ====================
