@@ -22,7 +22,10 @@ class ItemCarousel extends StatelessWidget {
       children: [
         Padding(
           padding: AppSpacing.paddingH16,
-          child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
         ),
         Container(
           height: 190,
@@ -38,15 +41,12 @@ class ItemCarousel extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return ItemCarouselCard(
-                item: items[index],
-                getName: getName,
-              );
+              return ItemCarouselCard(item: items[index], getName: getName);
             },
           ),
         ),
       ],
-    );      
+    );
   }
 
   // Get gradient colors for carousel background based on item type
@@ -61,10 +61,10 @@ class ItemCarousel extends StatelessWidget {
     }
 
     final firstItem = items.first;
-    
+
     // Check item type from the actual classes
     final String itemType = firstItem.runtimeType.toString();
-    
+
     if (itemType == 'Game') {
       // Blue gradient for games
       return [
@@ -73,7 +73,7 @@ class ItemCarousel extends StatelessWidget {
         const Color(0xFF5E72E4).withOpacity(0.15),
         const Color(0xFF5E72E4).withOpacity(0.05),
       ];
-    } else if (itemType == 'Anime') {
+    } else if (itemType == 'Anime' || itemType == 'AnimeFranchise') {
       // Pink gradient for anime
       return [
         const Color(0xFFFF6B9D).withOpacity(0.5),
@@ -82,7 +82,7 @@ class ItemCarousel extends StatelessWidget {
         const Color(0xFFFF6B9D).withOpacity(0.05),
       ];
     }
-    
+
     return [
       Colors.grey.withOpacity(0.05),
       Colors.grey.withOpacity(0.1),
@@ -91,4 +91,3 @@ class ItemCarousel extends StatelessWidget {
     ];
   }
 }
-

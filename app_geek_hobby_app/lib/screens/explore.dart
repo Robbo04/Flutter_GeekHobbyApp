@@ -9,7 +9,7 @@ import 'package:app_geek_hobby_app/data/curated_lists.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
-import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/screens/search.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -42,18 +42,21 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   // Helper method to fetch anime based on carousel category
-  Future<List<Anime>> _fetchAnimeCarousel(CarouselCategory category) {
+  Future<List<AnimeFranchise>> _fetchAnimeCarousel(CarouselCategory category) {
     switch (category.type) {
       case CarouselType.trending:
-        return _aniListService.fetchTrending(perPage: 20);
+        return _aniListService.fetchTrendingFranchises(perPage: 20);
       case CarouselType.comingSoon:
-        return _aniListService.fetchComingSoon(perPage: 20);
+        return _aniListService.fetchComingSoonFranchises(perPage: 20);
       case CarouselType.mostPlayed:
-        return _aniListService.fetchMostPopular(perPage: 20);
+        return _aniListService.fetchMostPopularFranchises(perPage: 20);
       case CarouselType.genre:
-        return _aniListService.fetchByGenre(genre: category.value!, perPage: 20);
+        return _aniListService.fetchByGenreFranchises(
+          genre: category.value!,
+          perPage: 20,
+        );
       default:
-        return _aniListService.searchAnime();
+        return _aniListService.searchAnimeFranchises();
     }
   }
 
@@ -93,9 +96,13 @@ class _ExplorePageState extends State<ExplorePage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const LoadingWidget();
                     } else if (snapshot.hasError) {
-                      return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
+                      return AppErrorWidget.inline(
+                        message: 'Error: ${snapshot.error}',
+                      );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return EmptyStateWidget.simple(message: 'No ${category.title.toLowerCase()} found.');
+                      return EmptyStateWidget.simple(
+                        message: 'No ${category.title.toLowerCase()} found.',
+                      );
                     }
                     final games = snapshot.data!;
                     return ItemCarousel(
@@ -114,21 +121,25 @@ class _ExplorePageState extends State<ExplorePage> {
           ...ExploreCarousels.animeCarousels.map((category) {
             return Column(
               children: [
-                FutureBuilder<List<Anime>>(
+                FutureBuilder<List<AnimeFranchise>>(
                   future: _fetchAnimeCarousel(category),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const LoadingWidget();
                     } else if (snapshot.hasError) {
-                      return AppErrorWidget.inline(message: 'Error: ${snapshot.error}');
+                      return AppErrorWidget.inline(
+                        message: 'Error: ${snapshot.error}',
+                      );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return EmptyStateWidget.simple(message: 'No ${category.title.toLowerCase()} found.');
+                      return EmptyStateWidget.simple(
+                        message: 'No ${category.title.toLowerCase()} found.',
+                      );
                     }
-                    final anime = snapshot.data!;
+                    final franchises = snapshot.data!;
                     return ItemCarousel(
                       title: category.title,
-                      items: anime,
-                      getName: (item) => (item as Anime).name,
+                      items: franchises,
+                      getName: (item) => (item as AnimeFranchise).title,
                     );
                   },
                 ),

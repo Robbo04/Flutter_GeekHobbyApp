@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 
+import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
+import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/detail/game_display.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
 import 'package:app_geek_hobby_app/screens/item_detail.dart';
-import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 
 class ItemCarouselCard extends StatelessWidget {
@@ -24,18 +24,26 @@ class ItemCarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async{
+      onTap: () async {
         if (item is Game) {
           final navigator = Navigator.of(context);
           final messenger = ScaffoldMessenger.of(context);
 
-          showDialog(context: context, barrierDismissible: false, builder: (_) => const LoadingWidget());
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const LoadingWidget(),
+          );
           try {
-            final detailed = await RawgService.instance.fetchGameDetails(item.id);
-            
+            final detailed = await RawgService.instance.fetchGameDetails(
+              item.id,
+            );
+
             if (!navigator.mounted) return;
             navigator.pop(); // remove loader
-            navigator.push(MaterialPageRoute(builder: (_) => GameDisplay(game: detailed)));
+            navigator.push(
+              MaterialPageRoute(builder: (_) => GameDisplay(game: detailed)),
+            );
           } catch (e) {
             if (navigator.mounted) navigator.pop();
             messenger.showSnackBar(
@@ -44,22 +52,28 @@ class ItemCarouselCard extends StatelessWidget {
           }
           return;
         }
-        
+
         if (item is Anime) {
           Navigator.push(
             context,
+            MaterialPageRoute(builder: (context) => AnimeDisplay(anime: item)),
+          );
+          return;
+        }
+
+        if (item is AnimeFranchise) {
+          Navigator.push(
+            context,
             MaterialPageRoute(
-              builder: (context) => AnimeDisplay(anime: item),
+              builder: (context) => AnimeFranchiseDetailPage(franchise: item),
             ),
           );
           return;
         }
-        
+
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ItemDetailPage(item: item),
-          ),
+          MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
         );
       },
       child: Container(
@@ -77,10 +91,7 @@ class ItemCarouselCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
                       border: Border(
-                        left: BorderSide(
-                          color: _getAccentColor(),
-                          width: 4,
-                        ),
+                        left: BorderSide(color: _getAccentColor(), width: 4),
                       ),
                     ),
                     child: Stack(
@@ -90,42 +101,28 @@ class ItemCarouselCard extends StatelessWidget {
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.grey[300],
-                            image: item is Item && item.imageUrl != null && item.imageUrl.isNotEmpty
+                            image: _getImageUrl(item) != null
                                 ? DecorationImage(
-                                    image: NetworkImage(item.imageUrl),
+                                    image: NetworkImage(_getImageUrl(item)!),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
                           ),
-                          child: (item is! Item || item.imageUrl == null || item.imageUrl.isEmpty)
-                              ? const Icon(Icons.image, size: 60, color: Colors.grey)
+                          child: _getImageUrl(item) == null
+                              ? const Icon(
+                                  Icons.image,
+                                  size: 60,
+                                  color: Colors.grey,
+                                )
                               : null,
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Group badge for anime
-                if (item is Anime && AniListService.instance.isInGroup(item.id))
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Container(
-                      padding: AppSpacing.paddingAll4,
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 219, 167, 227),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.collections_bookmark,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
               ],
             ),
-            AppSpacing.verticalSm,
+            const SizedBox(height: 8),
             Text(
               getName(item),
               style: const TextStyle(fontSize: 14),
@@ -145,7 +142,24 @@ class ItemCarouselCard extends StatelessWidget {
       return const Color(0xFF5E72E4); // Blue for games
     } else if (item is Anime) {
       return const Color(0xFFFF6B9D); // Pink for anime
+    } else if (item is AnimeFranchise) {
+      return const Color(0xFFFF6B9D); // Pink for anime franchises
     }
     return Colors.grey;
+  }
+
+  String? _getImageUrl(dynamic value) {
+    if (value is AnimeFranchise) {
+      if (value.imageUrl != null && value.imageUrl!.isNotEmpty) {
+        return value.imageUrl;
+      }
+      return null;
+    }
+    if (value is Item) {
+      if (value.imageUrl != null && value.imageUrl!.isNotEmpty) {
+        return value.imageUrl;
+      }
+    }
+    return null;
   }
 }

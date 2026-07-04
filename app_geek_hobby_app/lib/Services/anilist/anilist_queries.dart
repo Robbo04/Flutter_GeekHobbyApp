@@ -10,12 +10,14 @@ class AniListQueries {
           lastPage
           hasNextPage
         }
-        media(search: \$search, type: \$type, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
+        media(search: \$search, type: \$type, format_not_in: [MUSIC, MANGA], sort: [SEARCH_MATCH, POPULARITY_DESC]) {
           id
           title {
+            userPreferred
             romaji
             english
           }
+          description(asHtml: false)
           format
           episodes
           duration
@@ -25,12 +27,23 @@ class AniListQueries {
           }
           coverImage {
             large
+            medium
+            color
           }
           averageScore
           popularity
           studios(isMain: true) {
             nodes {
               name
+            }
+          }
+          relations {
+            edges {
+              relationType
+              node {
+                id
+                format
+              }
             }
           }
         }
@@ -44,18 +57,22 @@ class AniListQueries {
       Media(id: \$id, type: ANIME) {
         id
         title {
+          userPreferred
           romaji
           english
         }
+        description(asHtml: false)
         relations {
           edges {
             relationType
             node {
               id
               title {
+                userPreferred
                 romaji
                 english
               }
+              description(asHtml: false)
               format
               episodes
               duration
@@ -65,6 +82,8 @@ class AniListQueries {
               }
               coverImage {
                 large
+                medium
+                color
               }
               studios(isMain: true) {
                 nodes {
@@ -85,9 +104,11 @@ class AniListQueries {
         media(type: ANIME, sort: TRENDING_DESC) {
           id
           title {
+            userPreferred
             romaji
             english
           }
+          description(asHtml: false)
           format
           episodes
           duration
@@ -97,11 +118,22 @@ class AniListQueries {
           }
           coverImage {
             large
+            medium
+            color
           }
           averageScore
           studios(isMain: true) {
             nodes {
               name
+            }
+          }
+          relations {
+            edges {
+              relationType
+              node {
+                id
+                format
+              }
             }
           }
         }
@@ -116,9 +148,11 @@ class AniListQueries {
         media(type: ANIME, sort: POPULARITY_DESC) {
           id
           title {
+            userPreferred
             romaji
             english
           }
+          description(asHtml: false)
           format
           episodes
           duration
@@ -128,11 +162,22 @@ class AniListQueries {
           }
           coverImage {
             large
+            medium
+            color
           }
           averageScore
           studios(isMain: true) {
             nodes {
               name
+            }
+          }
+          relations {
+            edges {
+              relationType
+              node {
+                id
+                format
+              }
             }
           }
         }
@@ -147,9 +192,11 @@ class AniListQueries {
         media(type: ANIME, status: NOT_YET_RELEASED, sort: POPULARITY_DESC) {
           id
           title {
+            userPreferred
             romaji
             english
           }
+          description(asHtml: false)
           format
           episodes
           duration
@@ -159,11 +206,22 @@ class AniListQueries {
           }
           coverImage {
             large
+            medium
+            color
           }
           averageScore
           studios(isMain: true) {
             nodes {
               name
+            }
+          }
+          relations {
+            edges {
+              relationType
+              node {
+                id
+                format
+              }
             }
           }
         }
@@ -178,9 +236,11 @@ class AniListQueries {
         media(type: ANIME, genre: \$genre, sort: POPULARITY_DESC) {
           id
           title {
+            userPreferred
             romaji
             english
           }
+          description(asHtml: false)
           format
           episodes
           duration
@@ -190,11 +250,22 @@ class AniListQueries {
           }
           coverImage {
             large
+            medium
+            color
           }
           averageScore
           studios(isMain: true) {
             nodes {
               name
+            }
+          }
+          relations {
+            edges {
+              relationType
+              node {
+                id
+                format
+              }
             }
           }
         }

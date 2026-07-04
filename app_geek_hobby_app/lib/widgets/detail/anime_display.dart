@@ -2,8 +2,6 @@ import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/widgets/detail/item_display.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
-import 'package:app_geek_hobby_app/services/anilist_service.dart';
-import 'package:app_geek_hobby_app/screens/anime_group_detail.dart';
 import 'package:hive/hive.dart';
 
 class AnimeDisplay extends StatefulWidget {
@@ -19,9 +17,6 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
   bool watched = false;
   late bool wishlisted;
   late int userRating;
-  final _anilistService = AniListService.instance;
-  bool _isInGroup = false;
-  Map<String, dynamic>? _groupSummary;
 
   @override
   void initState() {
@@ -29,18 +24,6 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
     wishlisted = widget.anime.wishlist;
     userRating = widget.anime.userRating;
     _loadCollectionStatus();
-    _checkGroupStatus();
-  }
-
-  void _checkGroupStatus() {
-    final isInGroup = _anilistService.isInGroup(widget.anime.id);
-    if (isInGroup) {
-      final summary = _anilistService.getGroupSummary(widget.anime.id);
-      setState(() {
-        _isInGroup = true;
-        _groupSummary = summary;
-      });
-    }
   }
 
   void _loadCollectionStatus() async {
@@ -63,7 +46,10 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
 
     try {
       if (value) {
-        await CollectionsService.instance.addAnimeToWatched(widget.anime, removeFromWishlist: true);
+        await CollectionsService.instance.addAnimeToWatched(
+          widget.anime,
+          removeFromWishlist: true,
+        );
         //debugPrint('Successfully added to watched collection');
       } else {
         await CollectionsService.instance.removeAnimeFromWatched(widget.anime);
@@ -75,9 +61,9 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
         watched = !value;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update watched: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update watched: $e')));
       }
     }
   }
@@ -121,7 +107,7 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
 
   String _getEpisodesOrTypeText() {
     final format = widget.anime.format.toUpperCase();
-    
+
     switch (format) {
       case 'MOVIE':
         return 'Type: Movie';
@@ -132,15 +118,15 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
       case 'ONA':
         return 'Type: ONA';
       case 'TV_SHORT':
-        return widget.anime.episodes == 0 
-          ? 'Episodes: Ongoing (TV Short)' 
-          : 'Episodes: ${widget.anime.episodes} (TV Short)';
+        return widget.anime.episodes == 0
+            ? 'Episodes: Ongoing (TV Short)'
+            : 'Episodes: ${widget.anime.episodes} (TV Short)';
       case 'MUSIC':
         return 'Type: Music Video';
       default: // TV or unknown
-        return widget.anime.episodes == 0 
-          ? 'Episodes: Ongoing' 
-          : 'Episodes: ${widget.anime.episodes}';
+        return widget.anime.episodes == 0
+            ? 'Episodes: Ongoing'
+            : 'Episodes: ${widget.anime.episodes}';
     }
   }
 
@@ -150,45 +136,26 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
       title: "Anime details",
       imageUrl: widget.anime.imageUrl,
       details: [
-        Text(widget.anime.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        
-        // GROUP INDICATOR BUTTON
-        if (_isInGroup && _groupSummary != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AnimeGroupDetailPage(
-                      animeId: widget.anime.id,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.collections_bookmark),
-              label: Text(
-                'Part of ${_groupSummary!['name']} Collection (${_groupSummary!['itemCount']} items)',
-                style: const TextStyle(fontSize: 12),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 219, 167, 227),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-            ),
-          ),
-        
-        Text(widget.anime.studio, style: const TextStyle(fontSize: 16)),
-        Text(widget.anime.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
-        Text("Runtime: ${widget.anime.runtime} minutes", style: const TextStyle(fontSize: 16)),
-        Text("Seasons: ${widget.anime.seasons}", style: const TextStyle(fontSize: 16)),
         Text(
-          _getEpisodesOrTypeText(),
+          widget.anime.name,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+
+        Text(widget.anime.studio, style: const TextStyle(fontSize: 16)),
+        Text(
+          widget.anime.yearReleased.toString(),
           style: const TextStyle(fontSize: 16),
         ),
+        Text(
+          "Runtime: ${widget.anime.runtime} minutes",
+          style: const TextStyle(fontSize: 16),
+        ),
+        Text(
+          "Seasons: ${widget.anime.seasons}",
+          style: const TextStyle(fontSize: 16),
+        ),
+        Text(_getEpisodesOrTypeText(), style: const TextStyle(fontSize: 16)),
       ],
       owned: watched,
       wishlisted: wishlisted,

@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/widgets/common/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/widgets/common/error_widget.dart';
 import 'package:app_geek_hobby_app/widgets/carousels/item_carousel.dart';
+import 'package:app_geek_hobby_app/widgets/anime/anime_franchise_results.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
-import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -22,7 +23,7 @@ class _SearchPageState extends State<SearchPage> {
   final AniListService _anilistService = AniListService.instance;
   final TextEditingController _controller = TextEditingController();
   Future<List<Game>>? _searchFuture;
-  Future<List<Anime>>? _searchAnimeFuture;
+  Future<List<AnimeFranchise>>? _searchAnimeFuture;
   String _lastQuery = '';
   bool _searchGames = true;
   bool _searchAnime = true;
@@ -32,14 +33,18 @@ class _SearchPageState extends State<SearchPage> {
     if (q.isEmpty) return;
     setState(() {
       _lastQuery = q;
-      _searchFuture = _searchGames ? _rawgService.fetchGames(
-        search: q,
-        pageSize: 40, // Show more results for searches
-        searchPrecise: true, // Prioritize exact matches
-        excludeStores: '9', // Exclude itch.io (store ID 9)
-        excludePlatforms: '4,21', // Exclude iOS (4) and Android (21)
-      ) : null;
-      _searchAnimeFuture = _searchAnime ? _anilistService.searchAnime(search: q) : null;
+      _searchFuture = _searchGames
+          ? _rawgService.fetchGames(
+              search: q,
+              pageSize: 40, // Show more results for searches
+              searchPrecise: true, // Prioritize exact matches
+              excludeStores: '9', // Exclude itch.io (store ID 9)
+              excludePlatforms: '4,21', // Exclude iOS (4) and Android (21)
+            )
+          : null;
+      _searchAnimeFuture = _searchAnime
+          ? _anilistService.searchAnimeFranchises(search: q)
+          : null;
     });
   }
 
@@ -67,7 +72,9 @@ class _SearchPageState extends State<SearchPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
             padding: AppSpacing.paddingV12,
-            child: EmptyStateWidget.inline(message: 'No games found for "$_lastQuery".'),
+            child: EmptyStateWidget.inline(
+              message: 'No games found for "$_lastQuery".',
+            ),
           );
         }
 
@@ -86,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
       return const SizedBox.shrink();
     }
 
-    return FutureBuilder<List<Anime>>(
+    return FutureBuilder<List<AnimeFranchise>>(
       future: _searchAnimeFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -99,16 +106,14 @@ class _SearchPageState extends State<SearchPage> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Padding(
             padding: AppSpacing.paddingV12,
-            child: EmptyStateWidget.inline(message: 'No anime found for "$_lastQuery".'),
+            child: EmptyStateWidget.inline(
+              message: 'No anime found for "$_lastQuery".',
+            ),
           );
         }
 
-        final anime = snapshot.data!;
-        return ItemCarousel(
-          title: 'Anime — results for "$_lastQuery"',
-          items: anime,
-          getName: (item) => (item as Anime).name,
-        );
+        final franchises = snapshot.data!;
+        return AnimeFranchiseResults(franchises: franchises, query: _lastQuery);
       },
     );
   }
@@ -178,7 +183,10 @@ class _SearchPageState extends State<SearchPage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: AppSpacing.md),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: AppSpacing.md,
+              ),
             ),
             onSubmitted: _doSearch,
           ),
@@ -191,11 +199,17 @@ class _SearchPageState extends State<SearchPage> {
           // Anime results (AniList)
           _buildAnimeSection(),
           AppSpacing.verticalMd,
-          
+
           if (_searchFuture == null && _searchAnimeFuture == null)
             Center(
               child: Text(
-                'Enter a search term and press Enter to find ${_searchGames && _searchAnime ? 'games and anime' : _searchGames ? 'games' : _searchAnime ? 'anime' : 'content'}.',
+                'Enter a search term and press Enter to find ${_searchGames && _searchAnime
+                    ? 'games and anime'
+                    : _searchGames
+                    ? 'games'
+                    : _searchAnime
+                    ? 'anime'
+                    : 'content'}.',
               ),
             ),
         ],
