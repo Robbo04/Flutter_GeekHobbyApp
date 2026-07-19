@@ -161,9 +161,18 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     );
 
     final existingIds = _animeItems.map((item) => item.franchiseId).toSet();
+    final wishlistedIds = (await _collections.getAnimeWishlistIds()).toSet();
+    final watchedIds = (await _collections.getAnimeWatchedIds()).toSet();
     final newAnime = <AnimeFranchise>[];
     for (final a in fetched) {
       if (existingIds.contains(a.franchiseId)) continue;
+      final primary = a.entries.where((e) => e.id == a.primaryAnimeId).firstOrNull;
+      final primaryAnime = primary ?? a.entries.firstOrNull;
+      if (primaryAnime == null) continue;
+      if (wishlistedIds.contains(primaryAnime.id) ||
+          watchedIds.contains(primaryAnime.id)) {
+        continue;
+      }
       newAnime.add(a);
     }
 
@@ -220,10 +229,18 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         await _collections.addToWishlist(game);
         _showSnackBar('Added "${game.name}" to wishlist');
       } else {
-        final anime = item as AnimeFranchise;
-        _showSnackBar('Anime wishlist coming soon! (${anime.title})');
-        _removeTop();
-        return;
+        final franchise = item as AnimeFranchise;
+        final primary = franchise.entries
+            .where((e) => e.id == franchise.primaryAnimeId)
+            .firstOrNull;
+        final primaryAnime = primary ?? franchise.entries.firstOrNull;
+        if (primaryAnime == null) {
+          _showSnackBar('Could not add anime to wishlist');
+          return;
+        }
+
+        await _collections.addAnimeToWishlist(primaryAnime);
+        _showSnackBar('Added "${franchise.title}" to wishlist');
       }
     } catch (e) {
       _showSnackBar('Failed to add to wishlist: $e');
