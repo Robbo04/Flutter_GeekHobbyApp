@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
-import 'package:app_geek_hobby_app/models/item/game.dart'; // If you want to use Game-specific fields
+import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/models/item/movie.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/item/show.dart';
+import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/widgets/detail/game_display.dart';
 import 'package:app_geek_hobby_app/widgets/detail/movie_display.dart';
-import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/detail/show_display.dart';
 import 'package:app_geek_hobby_app/screens/item_detail.dart';
+import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/screens/spin_wheel.dart';
+import 'package:app_geek_hobby_app/services/anilist_service.dart';
 
 class CollectionsContentPage extends StatefulWidget {
   final List<int> itemIds;
@@ -33,21 +35,79 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch items from the appropriate boxes using the IDs
     final gamesBox = Hive.box<Game>('rawg_games');
     final animeBox = Hive.box<Anime>('anilist_anime');
     
     items = widget.itemIds.map((id) {
-      // Try to get from games box first
       final game = gamesBox.get(id);
       if (game != null) return game;
       
-      // Try anime box
       final anime = animeBox.get(id);
       if (anime != null) return anime;
       
       return null;
     }).whereType<Item>().toList();
+  }
+
+  Future<void> _openAnime(Anime anime) async {
+    final service = AniListService.instance;
+    AnimeFranchise? franchise;
+
+    try {
+      final group = await service.getOrFetchAnimeGroup(anime.id);
+      if (group != null && mounted) {
+        final entries = service.getGroupAnimeList(group.groupId);
+        entries.sort((a, b) {
+          final yearCmp = a.yearReleased.compareTo(b.yearReleased);
+          if (yearCmp != 0) return yearCmp;
+          return a.id.compareTo(b.id);
+        });
+        franchise = AnimeFranchise(
+          franchiseId: anime.id,
+          primaryAnimeId: anime.id,
+          title: anime.name,
+          heroTitle: anime.name,
+          description: anime.description,
+          imageUrl: anime.imageUrl,
+          coverColor: anime.coverColor,
+          entries: entries.isNotEmpty ? entries : [anime],
+          fromExplicitRelations: false,
+        );
+      }
+    } catch (_) {
+      // Fall through to single-anime display
+    }
+
+    if (!mounted) return;
+
+    if (franchise != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AnimeFranchiseDetailPage(franchise: franchise!),
+        ),
+      );
+    } else {
+      // Fallback: build a standalone franchise wrapper
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AnimeFranchiseDetailPage(
+            franchise: AnimeFranchise(
+              franchiseId: anime.id,
+              primaryAnimeId: anime.id,
+              title: anime.name,
+              heroTitle: anime.name,
+              description: anime.description,
+              imageUrl: anime.imageUrl,
+              coverColor: anime.coverColor,
+              entries: [anime],
+              fromExplicitRelations: false,
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -92,7 +152,6 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
           final item = items[index];
           return GestureDetector(
             onTap: () {
-              // Navigate to the correct detail page based on the item's runtime type
               if (item is Game) {
                 Navigator.push(
                   context,
@@ -104,10 +163,7 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
                   MaterialPageRoute(builder: (_) => MovieDisplay(movie: item)),
                 );
               } else if (item is Anime) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AnimeDisplay(anime: item)),
-                );
+                _openAnime(item);
               } else if (item is Show) {
                 Navigator.push(
                   context,

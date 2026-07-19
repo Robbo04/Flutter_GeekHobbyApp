@@ -662,7 +662,6 @@ class AniListService {
       'TV',
       'TV_SHORT',
       'MOVIE',
-      'SPECIAL',
       'OVA',
       'ONA',
     };
@@ -672,7 +671,7 @@ class AniListService {
       if (!allowedFormats.contains(format)) {
         return false;
       }
-      if ((format == 'SPECIAL' || format == 'OVA') && anime.duration <= 3) {
+      if ((format == 'OVA') && anime.duration <= 3) {
         return false;
       }
       return true;

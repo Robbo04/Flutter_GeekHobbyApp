@@ -31,4 +31,14 @@ class AnimeFranchise {
     }
     return total;
   }
+
+  /// Returns the rating of the primary anime entry
+  int get franchiseRating {
+    try {
+      final primary = entries.firstWhere((e) => e.id == primaryAnimeId);
+      return primary.userRating;
+    } catch (_) {
+      return entries.isNotEmpty ? entries.first.userRating : 0;
+    }
+  }
 }
