@@ -83,13 +83,13 @@ class CollectionsPage extends StatelessWidget {
           context,
           animewishlistCollection,
           'anime_wishlist_collection_id',
-          'Anime Wishlist',
+          'Wishlist',
         ),
         _buildCollectionButton(
           context,
           animeWatchedCollection,
           'anime_watched_collection_id',
-          'Anime Watched',
+          'Watched/Watching',
         ),
       ],
     );

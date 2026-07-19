@@ -61,6 +61,6 @@ ItemList animewishlistCollection = ItemList(
 )..allowedTypes.add(Anime);
 
 ItemList animeWatchedCollection = ItemList(
-  name: 'Anime Watched',
+  name: 'Anime Watched/Watching',
   items: [],
 )..allowedTypes.add(Anime);
