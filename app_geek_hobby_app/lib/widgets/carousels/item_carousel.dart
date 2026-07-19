@@ -7,12 +7,22 @@ class ItemCarousel extends StatelessWidget {
   final String title;
   final List items;
   final String Function(dynamic) getName;
+  final EdgeInsets titlePadding;
+  final double carouselHeight;
+  final double itemWidth;
+  final double itemImageHeight;
+  final double itemHorizontalMargin;
 
   const ItemCarousel({
     super.key,
     required this.title,
     required this.items,
     required this.getName,
+    this.titlePadding = AppSpacing.paddingH16,
+    this.carouselHeight = 190,
+    this.itemWidth = 90,
+    this.itemImageHeight = 140,
+    this.itemHorizontalMargin = 8,
   });
 
   @override
@@ -21,73 +31,31 @@ class ItemCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: AppSpacing.paddingH16,
+          padding: titlePadding,
           child: Text(
             title,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ),
         Container(
-          height: 190,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: _getGradientColors(),
-              stops: const [0.0, 0.3, 0.7, 1.0],
-            ),
-          ),
+          height: carouselHeight,
+          color: Colors.transparent,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return ItemCarouselCard(item: items[index], getName: getName);
+              return ItemCarouselCard(
+                item: items[index],
+                getName: getName,
+                cardWidth: itemWidth,
+                imageHeight: itemImageHeight,
+                horizontalMargin: itemHorizontalMargin,
+              );
             },
           ),
         ),
       ],
     );
-  }
-
-  // Get gradient colors for carousel background based on item type
-  List<Color> _getGradientColors() {
-    if (items.isEmpty) {
-      return [
-        Colors.transparent,
-        Colors.transparent,
-        Colors.transparent,
-        Colors.transparent,
-      ];
-    }
-
-    final firstItem = items.first;
-
-    // Check item type from the actual classes
-    final String itemType = firstItem.runtimeType.toString();
-
-    if (itemType == 'Game') {
-      // Blue gradient for games
-      return [
-        const Color(0xFF5E72E4).withOpacity(0.5),
-        const Color(0xFF5E72E4).withOpacity(0.15),
-        const Color(0xFF5E72E4).withOpacity(0.15),
-        const Color(0xFF5E72E4).withOpacity(0.05),
-      ];
-    } else if (itemType == 'Anime' || itemType == 'AnimeFranchise') {
-      // Pink gradient for anime
-      return [
-        const Color(0xFFFF6B9D).withOpacity(0.5),
-        const Color(0xFFFF6B9D).withOpacity(0.15),
-        const Color(0xFFFF6B9D).withOpacity(0.15),
-        const Color(0xFFFF6B9D).withOpacity(0.05),
-      ];
-    }
-
-    return [
-      Colors.grey.withOpacity(0.05),
-      Colors.grey.withOpacity(0.1),
-      Colors.grey.withOpacity(0.1),
-      Colors.grey.withOpacity(0.05),
-    ];
   }
 }

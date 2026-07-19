@@ -60,94 +60,132 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  Widget _buildGameTab() {
+    return ListView(
+      padding: AppSpacing.paddingAll8,
+      physics: const ClampingScrollPhysics(),
+      children: [
+        AppSpacing.verticalSm,
+        AppSpacing.verticalMd,
+        ...ExploreCarousels.gameCarousels.map((category) {
+          return Column(
+            children: [
+              FutureBuilder<List<Game>>(
+                future: _fetchGameCarousel(category),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const LoadingWidget();
+                  } else if (snapshot.hasError) {
+                    return AppErrorWidget.inline(
+                      message: 'Error: ${snapshot.error}',
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return EmptyStateWidget.simple(
+                      message: 'No ${category.title.toLowerCase()} found.',
+                    );
+                  }
+
+                  final games = snapshot.data!;
+                  return ItemCarousel(
+                    title: category.title,
+                    items: games,
+                    getName: (item) => (item as Game).name,
+                    titlePadding: AppSpacing.paddingH8,
+                    carouselHeight: 225,
+                    itemWidth: 112,
+                    itemImageHeight: 170,
+                    itemHorizontalMargin: 4,
+                  );
+                },
+              ),
+              AppSpacing.verticalMd,
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildAnimeTab() {
+    return ListView(
+      padding: AppSpacing.paddingAll8,
+      physics: const ClampingScrollPhysics(),
+      children: [
+        AppSpacing.verticalSm,
+        AppSpacing.verticalMd,
+        ...ExploreCarousels.animeCarousels.map((category) {
+          return Column(
+            children: [
+              FutureBuilder<List<AnimeFranchise>>(
+                future: _fetchAnimeCarousel(category),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const LoadingWidget();
+                  } else if (snapshot.hasError) {
+                    return AppErrorWidget.inline(
+                      message: 'Error: ${snapshot.error}',
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return EmptyStateWidget.simple(
+                      message: 'No ${category.title.toLowerCase()} found.',
+                    );
+                  }
+
+                  final franchises = snapshot.data!;
+                  return ItemCarousel(
+                    title: category.title,
+                    items: franchises,
+                    getName: (item) => (item as AnimeFranchise).title,
+                    titlePadding: AppSpacing.paddingH8,
+                    carouselHeight: 225,
+                    itemWidth: 112,
+                    itemImageHeight: 170,
+                    itemHorizontalMargin: 4,
+                  );
+                },
+              ),
+              AppSpacing.verticalMd,
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Explore'),
-        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            iconSize: 38.0,
-            tooltip: 'Search',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SearchPage()),
-              );
-            },
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Explore'),
+          backgroundColor: const Color.fromARGB(255, 219, 167, 227),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              iconSize: 38.0,
+              tooltip: 'Search',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SearchPage()),
+                );
+              },
+            ),
+          ],
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Games'),
+              Tab(text: 'Anime'),
+            ],
           ),
-        ],
-      ),
-      body: ListView(
-        padding: AppSpacing.paddingAll16,
-        children: [
-          AppSpacing.verticalSm,
-          AppSpacing.verticalMd,
-
-          // Dynamically generate game carousels
-          ...ExploreCarousels.gameCarousels.map((category) {
-            return Column(
-              children: [
-                FutureBuilder<List<Game>>(
-                  future: _fetchGameCarousel(category),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const LoadingWidget();
-                    } else if (snapshot.hasError) {
-                      return AppErrorWidget.inline(
-                        message: 'Error: ${snapshot.error}',
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return EmptyStateWidget.simple(
-                        message: 'No ${category.title.toLowerCase()} found.',
-                      );
-                    }
-                    final games = snapshot.data!;
-                    return ItemCarousel(
-                      title: category.title,
-                      items: games,
-                      getName: (item) => (item as Game).name,
-                    );
-                  },
-                ),
-                AppSpacing.verticalMd,
-              ],
-            );
-          }),
-
-          // Dynamically generate anime carousels
-          ...ExploreCarousels.animeCarousels.map((category) {
-            return Column(
-              children: [
-                FutureBuilder<List<AnimeFranchise>>(
-                  future: _fetchAnimeCarousel(category),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const LoadingWidget();
-                    } else if (snapshot.hasError) {
-                      return AppErrorWidget.inline(
-                        message: 'Error: ${snapshot.error}',
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return EmptyStateWidget.simple(
-                        message: 'No ${category.title.toLowerCase()} found.',
-                      );
-                    }
-                    final franchises = snapshot.data!;
-                    return ItemCarousel(
-                      title: category.title,
-                      items: franchises,
-                      getName: (item) => (item as AnimeFranchise).title,
-                    );
-                  },
-                ),
-                AppSpacing.verticalMd,
-              ],
-            );
-          }),
-        ],
+        ),
+        body: TabBarView(
+          children: [
+            _buildGameTab(),
+            _buildAnimeTab(),
+          ],
+        ),
       ),
     );
   }

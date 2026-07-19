@@ -14,11 +14,17 @@ import 'package:app_geek_hobby_app/services/rawg_service.dart';
 class ItemCarouselCard extends StatelessWidget {
   final dynamic item;
   final String Function(dynamic) getName;
+  final double cardWidth;
+  final double imageHeight;
+  final double horizontalMargin;
 
   const ItemCarouselCard({
     super.key,
     required this.item,
     required this.getName,
+    this.cardWidth = 90,
+    this.imageHeight = 140,
+    this.horizontalMargin = 8,
   });
 
   @override
@@ -77,8 +83,8 @@ class ItemCarouselCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 90,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: cardWidth,
+        margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
         child: Column(
           children: [
             Stack(
@@ -86,13 +92,11 @@ class ItemCarouselCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    height: 140,
-                    width: 90,
+                    height: imageHeight,
+                    width: cardWidth,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      border: Border(
-                        left: BorderSide(color: _getAccentColor(), width: 4),
-                      ),
+                      border: Border.all(color: Colors.black12),
                     ),
                     child: Stack(
                       fit: StackFit.expand,
@@ -134,18 +138,6 @@ class ItemCarouselCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // Get accent color based on item type
-  Color _getAccentColor() {
-    if (item is Game) {
-      return const Color(0xFF5E72E4); // Blue for games
-    } else if (item is Anime) {
-      return const Color(0xFFFF6B9D); // Pink for anime
-    } else if (item is AnimeFranchise) {
-      return const Color(0xFFFF6B9D); // Pink for anime franchises
-    }
-    return Colors.grey;
   }
 
   String? _getImageUrl(dynamic value) {
