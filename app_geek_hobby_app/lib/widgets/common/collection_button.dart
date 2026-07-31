@@ -16,6 +16,7 @@ class CollectionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final String collectionName = collectionList.name;
     final List<String> items = collectionList.items.length > 1 ? collectionList.items.sublist(1).map((item) => item.name).toList() : [];
 
@@ -25,7 +26,7 @@ class CollectionButton extends StatelessWidget {
         margin: AppSpacing.paddingV12,
         padding: AppSpacing.paddingAll16,
         decoration: BoxDecoration(
-          color: const Color(0xFF181820),
+          color: colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -36,18 +37,18 @@ class CollectionButton extends StatelessWidget {
                 children: [
                   Text(
                     collectionName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   AppSpacing.verticalSm,
                   ...items.take(3).map((item) => Text(
                         item,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       )),
                 ],
@@ -64,8 +65,12 @@ class CollectionButton extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 120,
                   height: 80,
-                  color: Colors.grey[800],
-                  child: const Icon(Icons.image, color: Colors.white, size: 40),
+                  color: colorScheme.surfaceContainerHighest,
+                  child: Icon(
+                    Icons.image,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 40,
+                  ),
                 ),
               ),
             ),

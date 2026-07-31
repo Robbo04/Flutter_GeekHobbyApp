@@ -11,11 +11,11 @@ class DeveloperPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 247, 247),
       appBar: AppBar(
         title: const Text('Developer Tools'),
-        backgroundColor: Colors.grey[800],
       ),
       body: SingleChildScrollView(
         padding: AppSpacing.paddingAll16,
@@ -24,21 +24,21 @@ class DeveloperPage extends StatelessWidget {
           children: [
             // Header
             Card(
-              color: Colors.orange[100],
+              color: colorScheme.secondaryContainer,
               child: Padding(
                 padding: AppSpacing.paddingAll16,
                 child: Row(
                   children: [
                     Icon(
                       Icons.warning_amber_rounded,
-                      color: Colors.orange[800],
+                      color: colorScheme.onSecondaryContainer,
                     ),
                     AppSpacing.horizontalMd,
                     Expanded(
                       child: Text(
                         'Developer tools for debugging and maintenance',
                         style: TextStyle(
-                          color: Colors.orange[900],
+                          color: colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -51,6 +51,7 @@ class DeveloperPage extends StatelessWidget {
 
             // Anime Groups Section
             _buildSection(
+              context: context,
               title: 'Anime Groups',
               icon: Icons.collections_bookmark,
               children: [
@@ -62,7 +63,7 @@ class DeveloperPage extends StatelessWidget {
                   'Use this if anime appear in multiple groups (e.g., Jujutsu Kaisen split across seasons)',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -73,6 +74,7 @@ class DeveloperPage extends StatelessWidget {
 
             // Anime Cache Section
             _buildSection(
+              context: context,
               title: 'Search Cache',
               icon: Icons.search,
               children: [
@@ -94,8 +96,8 @@ class DeveloperPage extends StatelessWidget {
                   icon: const Icon(Icons.clear_all),
                   label: const Text('Clear All Search Cache'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                   ),
                 ),
                 AppSpacing.verticalSm,
@@ -103,7 +105,7 @@ class DeveloperPage extends StatelessWidget {
                   'Clears cached search results for both games and anime. Use this if search results seem outdated or incorrect.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -114,6 +116,7 @@ class DeveloperPage extends StatelessWidget {
 
             // Game Cache Section
             _buildSection(
+              context: context,
               title: 'Game Cache',
               icon: Icons.videogame_asset,
               children: [
@@ -134,8 +137,8 @@ class DeveloperPage extends StatelessWidget {
                   icon: const Icon(Icons.replay),
                   label: const Text('Refresh Game Cache'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.secondary,
+                    foregroundColor: colorScheme.onSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -143,7 +146,7 @@ class DeveloperPage extends StatelessWidget {
                   'Updates game details and images from RAWG API',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -154,6 +157,7 @@ class DeveloperPage extends StatelessWidget {
 
             // Anime Cache Section
             _buildSection(
+              context: context,
               title: 'Anime Cache',
               icon: Icons.movie,
               children: [
@@ -174,8 +178,8 @@ class DeveloperPage extends StatelessWidget {
                   icon: const Icon(Icons.clear_all),
                   label: const Text('Clear Anime Cache'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.tertiary,
+                    foregroundColor: colorScheme.onTertiary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -183,7 +187,7 @@ class DeveloperPage extends StatelessWidget {
                   'Use this to refresh anime episode counts for ongoing series',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -194,6 +198,7 @@ class DeveloperPage extends StatelessWidget {
 
             // API Request Stats Section
             _buildSection(
+              context: context,
               title: 'API Request Tracking',
               icon: Icons.analytics,
               children: [const ApiStatsWidget()],
@@ -205,7 +210,10 @@ class DeveloperPage extends StatelessWidget {
             Center(
               child: Text(
                 'These tools are for development and debugging purposes',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
@@ -215,13 +223,16 @@ class DeveloperPage extends StatelessWidget {
   }
 
   Widget _buildSection({
+    required BuildContext context,
     required String title,
     required IconData icon,
     required List<Widget> children,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[300],
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(16),
@@ -254,6 +265,7 @@ class ApiStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final rawgService = RawgService.instance;
     final aniListService = AniListService.instance;
 
@@ -264,22 +276,22 @@ class ApiStatsWidget extends StatelessWidget {
         ApiStatsCard(
           title: 'RAWG API (Games)',
           icon: Icons.videogame_asset,
-          themeColor: Colors.blue[700]!,
+          themeColor: colorScheme.primary,
           stats: [
             StatRow('Monthly Limit:', '${rawgService.monthlyLimit}'),
             StatRow(
               'This Month Used:',
               '${rawgService.monthlyRequestsMade}',
               valueColor: rawgService.usagePercentage > 80
-                  ? Colors.red[700]
-                  : Colors.grey[700],
+                  ? colorScheme.error
+                  : colorScheme.onSurfaceVariant,
             ),
             StatRow(
               'Remaining:',
               '${rawgService.monthlyRequestsRemaining}',
               valueColor: rawgService.monthlyRequestsRemaining < 1000
-                  ? Colors.red[700]
-                  : Colors.green[700],
+                  ? colorScheme.error
+                  : colorScheme.primary,
               isBold: true,
             ),
           ],
@@ -290,13 +302,13 @@ class ApiStatsWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
                   value: rawgService.usagePercentage / 100,
-                  backgroundColor: Colors.grey[300],
+                  backgroundColor: colorScheme.surfaceContainerHighest,
                   valueColor: AlwaysStoppedAnimation<Color>(
                     rawgService.usagePercentage > 80
-                        ? Colors.red
+                        ? colorScheme.error
                         : rawgService.usagePercentage > 50
-                            ? Colors.orange
-                            : Colors.green,
+                            ? colorScheme.tertiary
+                            : colorScheme.primary,
                   ),
                   minHeight: 12,
                 ),
@@ -306,7 +318,7 @@ class ApiStatsWidget extends StatelessWidget {
                 '${rawgService.usagePercentage.toStringAsFixed(1)}% used',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -315,13 +327,13 @@ class ApiStatsWidget extends StatelessWidget {
                 StatRow(
                   'Session Requests:',
                   '${rawgService.sessionRequests}',
-                  valueColor: Colors.grey[600],
+                  valueColor: colorScheme.onSurfaceVariant,
                 ),
                 if (rawgService.lastRequestTime != null)
                   StatRow(
                     'Last Request:',
                     TimeFormatter.formatTimeAgo(rawgService.lastRequestTime!),
-                    valueColor: Colors.grey[600],
+                    valueColor: colorScheme.onSurfaceVariant,
                   ),
               ].map((s) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -330,14 +342,17 @@ class ApiStatsWidget extends StatelessWidget {
                       children: [
                         Text(
                           s.label,
-                          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         Text(
                           s.value,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: s.isBold ? FontWeight.bold : FontWeight.w600,
-                            color: s.valueColor ?? Colors.grey[700],
+                            color: s.valueColor ?? colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -351,32 +366,32 @@ class ApiStatsWidget extends StatelessWidget {
         ApiStatsCard(
           title: 'AniList API (Anime)',
           icon: Icons.collections_bookmark,
-          themeColor: Colors.purple[700]!,
+          themeColor: colorScheme.secondary,
           stats: [
             StatRow('Per-Minute Limit:', '${aniListService.minuteLimit}'),
             StatRow(
               'Last Minute:',
               '${aniListService.requestsLastMinute}/${aniListService.minuteLimit}',
               valueColor: aniListService.requestsLastMinute > 80
-                  ? Colors.red[700]
-                  : Colors.green[700],
+                  ? colorScheme.error
+                  : colorScheme.primary,
               isBold: true,
             ),
             StatRow(
               "Today's Requests:",
               '${aniListService.todayRequestsMade}',
-              valueColor: Colors.grey[600],
+              valueColor: colorScheme.onSurfaceVariant,
             ),
             StatRow(
               'Session Requests:',
               '${aniListService.sessionRequests}',
-              valueColor: Colors.grey[600],
+              valueColor: colorScheme.onSurfaceVariant,
             ),
             if (aniListService.lastRequestTime != null)
               StatRow(
                 'Last Request:',
                 TimeFormatter.formatTimeAgo(aniListService.lastRequestTime!),
-                valueColor: Colors.grey[600],
+                valueColor: colorScheme.onSurfaceVariant,
               ),
           ],
         ),
@@ -384,17 +399,24 @@ class ApiStatsWidget extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
+            color: colorScheme.secondaryContainer,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+              Icon(
+                Icons.info_outline,
+                color: colorScheme.onSecondaryContainer,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Data persists across app restarts. Cache TTL is 3 days to minimize API usage.',
-                  style: TextStyle(fontSize: 12, color: Colors.blue[900]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ],

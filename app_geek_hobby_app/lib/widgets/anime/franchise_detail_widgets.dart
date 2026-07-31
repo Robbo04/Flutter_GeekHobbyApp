@@ -49,6 +49,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final heroImage = widget.franchise.imageUrl;
     final progress = widget.franchise.entries.isEmpty
         ? 0.0
@@ -81,7 +82,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Container(color: Colors.black.withOpacity(0.34)),
+              child: Container(color: colorScheme.scrim.withOpacity(0.34)),
             ),
           ),
           Positioned.fill(
@@ -91,8 +92,8 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.10),
-                    Colors.black.withOpacity(0.66),
+                    colorScheme.scrim.withOpacity(0.10),
+                    colorScheme.scrim.withOpacity(0.66),
                   ],
                 ),
               ),
@@ -140,7 +141,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.34),
+                          color: colorScheme.scrim.withOpacity(0.34),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -165,8 +166,8 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.78),
+                                    const Color(0x00000000),
+                                    colorScheme.scrim.withOpacity(0.78),
                                   ],
                                 ),
                               ),
@@ -186,7 +187,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: Color(0xFFFFFFFF),
                                         fontSize: 27,
                                         fontWeight: FontWeight.w800,
                                         height: 1.06,
@@ -196,7 +197,9 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                                     Text(
                                       '${widget.franchise.entries.length} entries • ${widget.franchise.totalEpisodes} eps',
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.85),
+                                        color: const Color(
+                                          0xFFFFFFFF,
+                                        ).withOpacity(0.85),
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -217,7 +220,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     const Text(
                       'Progress',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFFFFFFFF),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -226,7 +229,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     Text(
                       '${widget.watchedCount} of ${widget.franchise.entries.length} episodes',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.88),
+                        color: const Color(0xFFFFFFFF).withOpacity(0.88),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
@@ -240,7 +243,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     height: 8,
                     child: LinearProgressIndicator(
                       value: progress,
-                      backgroundColor: Colors.white.withOpacity(0.18),
+                      backgroundColor: const Color(0xFFFFFFFF).withOpacity(0.18),
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Color(0xFFA855F7),
                       ),
@@ -270,7 +273,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                           label: widget.rating > 0
                               ? '${widget.rating}/100'
                               : 'Rate',
-                          iconColor: Colors.amber,
+                          iconColor: colorScheme.tertiary,
                           onPressed: widget.isWatched
                               ? () => setState(
                                   () => _showRatingSlider = !_showRatingSlider,
@@ -319,6 +322,8 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
@@ -328,12 +333,12 @@ class _StatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: Colors.white),
+          Icon(icon, size: 15, color: colorScheme.onPrimary),
           const SizedBox(width: 6),
           Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorScheme.onPrimary,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),
@@ -360,7 +365,7 @@ class _ActionPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: const Color(0x00000000),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
@@ -368,8 +373,8 @@ class _ActionPillButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            color: Colors.white.withOpacity(0.80),
-            border: Border.all(color: Colors.white.withOpacity(0.30)),
+            color: const Color(0xFFFFFFFF).withOpacity(0.80),
+            border: Border.all(color: const Color(0xFFFFFFFF).withOpacity(0.30)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -486,6 +491,8 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 160,
       child: Container(
@@ -493,10 +500,10 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
         child: Material(
           elevation: 3,
           borderRadius: BorderRadius.circular(12),
-          shadowColor: Colors.black.withOpacity(0.15),
+          shadowColor: colorScheme.scrim.withOpacity(0.15),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -512,7 +519,7 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
                           topRight: Radius.circular(12),
                         ),
                         child: Container(
-                          color: Colors.grey.shade300,
+                          color: colorScheme.surfaceContainerHighest,
                           width: double.infinity,
                           height: double.infinity,
                           child: _buildEntryImage(),
@@ -526,12 +533,12 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: _isWatched
-                                  ? Colors.green.withOpacity(0.9)
-                                  : Colors.black.withOpacity(0.5),
+                                  ? colorScheme.primary.withOpacity(0.9)
+                                  : colorScheme.scrim.withOpacity(0.5),
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: colorScheme.scrim.withOpacity(0.2),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -540,7 +547,7 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
                             padding: const EdgeInsets.all(5),
                             child: Icon(
                               _isWatched ? Icons.check : Icons.add,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                               size: 14,
                             ),
                           ),
@@ -606,9 +613,12 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
   }
 
   Widget _buildEntryImage() {
+    final colorScheme = Theme.of(context).colorScheme;
     final thumbUrl = widget.anime.imageUrl ?? widget.anime.mediumImageUrl;
     if (thumbUrl == null || thumbUrl.isEmpty) {
-      return const Center(child: Icon(Icons.tv, color: Colors.grey));
+      return Center(
+        child: Icon(Icons.tv, color: colorScheme.onSurfaceVariant),
+      );
     }
     return Image.network(
       thumbUrl,
@@ -674,8 +684,8 @@ class FormatBadge extends StatelessWidget {
       ),
       child: Text(
         normalized,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.3,

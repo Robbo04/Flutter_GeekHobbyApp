@@ -163,6 +163,7 @@ class _GameDisplayState extends State<GameDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final heroImage = widget.game.imageUrl;
     final genres = widget.game.genres
         .map((g) => g.toString().split('.').last)
@@ -172,9 +173,9 @@ class _GameDisplayState extends State<GameDisplay> {
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
         title: const Text('Game details'),
-        backgroundColor: Colors.black.withOpacity(0.35),
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colorScheme.scrim.withOpacity(0.35),
+        foregroundColor: const Color(0xFFFFFFFF),
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)),
         elevation: 0,
       ),
       body: Stack(
@@ -187,7 +188,7 @@ class _GameDisplayState extends State<GameDisplay> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-              child: Container(color: Colors.black.withOpacity(0.34)),
+              child: Container(color: colorScheme.scrim.withOpacity(0.34)),
             ),
           ),
           Positioned.fill(
@@ -197,8 +198,8 @@ class _GameDisplayState extends State<GameDisplay> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.16),
-                    Colors.black.withOpacity(0.74),
+                    colorScheme.scrim.withOpacity(0.16),
+                    colorScheme.scrim.withOpacity(0.74),
                   ],
                 ),
               ),
@@ -254,7 +255,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.34),
+                                color: colorScheme.scrim.withOpacity(0.34),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -279,8 +280,8 @@ class _GameDisplayState extends State<GameDisplay> {
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
                                         colors: [
-                                          Colors.transparent,
-                                          Colors.black.withOpacity(0.78),
+                                            const Color(0x00000000),
+                                            colorScheme.scrim.withOpacity(0.78),
                                         ],
                                       ),
                                     ),
@@ -300,7 +301,7 @@ class _GameDisplayState extends State<GameDisplay> {
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                              color: Colors.white,
+                                              color: Color(0xFFFFFFFF),
                                               fontSize: 27,
                                               fontWeight: FontWeight.w800,
                                               height: 1.06,
@@ -311,9 +312,9 @@ class _GameDisplayState extends State<GameDisplay> {
                                             '${widget.game.yearReleased} • $genres',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              color: Colors.white.withOpacity(
-                                                0.85,
-                                              ),
+                                              color: const Color(
+                                                0xFFFFFFFF,
+                                              ).withOpacity(0.85),
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -335,7 +336,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             const Text(
                               'Metacritic',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Color(0xFFFFFFFF),
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -344,7 +345,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             Text(
                               '${widget.game.metacriticRating}/100',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.88),
+                                color: const Color(0xFFFFFFFF).withOpacity(0.88),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -358,7 +359,9 @@ class _GameDisplayState extends State<GameDisplay> {
                             height: 8,
                             child: LinearProgressIndicator(
                               value: _metacriticProgress(),
-                              backgroundColor: Colors.white.withOpacity(0.18),
+                              backgroundColor: const Color(
+                                0xFFFFFFFF,
+                              ).withOpacity(0.18),
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 Color(0xFFA855F7),
                               ),
@@ -404,7 +407,7 @@ class _GameDisplayState extends State<GameDisplay> {
                                 label: userRating > 0
                                     ? '$userRating/100'
                                     : 'Rate',
-                                iconColor: Colors.amber,
+                                iconColor: colorScheme.tertiary,
                                 onPressed: owned
                                     ? () => setState(
                                         () => _showRatingSlider =
@@ -480,7 +483,7 @@ class _GameDisplayState extends State<GameDisplay> {
                         height: 36,
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
+                          color: const Color(0xFFFFFFFF).withOpacity(0.95),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: SvgPicture.asset(logoPath),
@@ -492,14 +495,16 @@ class _GameDisplayState extends State<GameDisplay> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: const Color(0xFFFFFFFF).withOpacity(0.12),
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.white24),
+                        border: Border.all(
+                          color: const Color(0xFFFFFFFF).withOpacity(0.24),
+                        ),
                       ),
                       child: Text(
                         platform.toString().split('.').last,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFFFFFFFF),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -531,6 +536,8 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
       decoration: BoxDecoration(
@@ -540,12 +547,12 @@ class _StatusPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: Colors.white),
+          Icon(icon, size: 15, color: colorScheme.onPrimary),
           const SizedBox(width: 6),
           Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorScheme.onPrimary,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),
@@ -572,7 +579,7 @@ class _ActionPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: const Color(0x00000000),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
@@ -580,8 +587,8 @@ class _ActionPillButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            color: Colors.white.withOpacity(0.80),
-            border: Border.all(color: Colors.white.withOpacity(0.30)),
+            color: const Color(0xFFFFFFFF).withOpacity(0.80),
+            border: Border.all(color: const Color(0xFFFFFFFF).withOpacity(0.30)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -618,9 +625,9 @@ class _InfoPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: const Color(0xFFFFFFFF).withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.12)),
+        border: Border.all(color: const Color(0xFFFFFFFF).withOpacity(0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -628,7 +635,7 @@ class _InfoPanel extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Colors.white,
+              color: Color(0xFFFFFFFF),
               fontSize: 15,
               fontWeight: FontWeight.w700,
             ),
@@ -657,15 +664,15 @@ class _InfoRow extends StatelessWidget {
             TextSpan(
               text: '$label: ',
               style: const TextStyle(
-                color: Colors.white,
+                color: Color(0xFFFFFFFF),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
             ),
             TextSpan(
               text: value,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: const Color(0xFFFFFFFF).withOpacity(0.8),
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

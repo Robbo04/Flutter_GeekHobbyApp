@@ -39,7 +39,7 @@ class ItemCarousel extends StatelessWidget {
         ),
         Container(
           height: carouselHeight,
-          color: Colors.transparent,
+          color: const Color(0x00000000),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const ClampingScrollPhysics(),

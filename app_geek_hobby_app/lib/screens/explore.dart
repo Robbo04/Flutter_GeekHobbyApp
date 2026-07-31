@@ -159,7 +159,6 @@ class _ExplorePageState extends State<ExplorePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Explore'),
-          backgroundColor: const Color.fromARGB(255, 219, 167, 227),
           actions: [
             IconButton(
               icon: const Icon(Icons.search),

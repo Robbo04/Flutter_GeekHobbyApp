@@ -35,9 +35,6 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 184, 55, 182),
-        unselectedItemColor: Colors.black,
-        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

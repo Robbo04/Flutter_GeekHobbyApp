@@ -27,8 +27,8 @@ class ClearAnimeGroupsButton extends StatelessWidget {
       icon: const Icon(Icons.refresh),
       label: const Text('Clear Anime Groups'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        foregroundColor: Theme.of(context).colorScheme.onTertiary,
       ),
     );
   }

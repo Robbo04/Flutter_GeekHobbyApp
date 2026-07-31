@@ -115,7 +115,6 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
         actions: [
           IconButton(
             icon: Icon(crossAxisCount == 3 ? Icons.grid_on : Icons.grid_view),
@@ -128,7 +127,7 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
           ),
           IconButton(
             icon: Icon(Icons.casino_rounded),
-            color: Colors.red,
+            color: Theme.of(context).colorScheme.error,
             tooltip: 'Spin the Wheel',
             onPressed: () {
               Navigator.push(
@@ -181,8 +180,12 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
               child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
                   ? Image.network(item.imageUrl!, fit: BoxFit.cover)
                   : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: Icon(
+                        Icons.image,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
             ),
           );

@@ -213,7 +213,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
               fontWeight: FontWeight.w700,
               fontSize: 16,
               letterSpacing: 0.3,
-              color: Colors.white,
+              color: const Color(0xFFFFFFFF),
             ),
           ),
         ),
@@ -238,6 +238,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final tint =
         _parseAniListColor(_franchise.coverColor) ?? const Color(0xFF1F7A8C);
     final heroImage = _franchise.imageUrl;
@@ -246,9 +247,9 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
         title: Text(_franchise.title),
-        backgroundColor: Colors.black.withOpacity(0.35),
-        foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colorScheme.scrim.withOpacity(0.35),
+        foregroundColor: const Color(0xFFFFFFFF),
+        iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)),
         elevation: 0,
       ),
       body: _isLoading
@@ -263,7 +264,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                 Positioned.fill(
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                    child: Container(color: Colors.black.withOpacity(0.35)),
+                    child: Container(color: colorScheme.scrim.withOpacity(0.35)),
                   ),
                 ),
                 Positioned.fill(
@@ -273,8 +274,8 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.18),
-                          Colors.black.withOpacity(0.72),
+                          colorScheme.scrim.withOpacity(0.18),
+                          colorScheme.scrim.withOpacity(0.72),
                         ],
                       ),
                     ),
@@ -301,7 +302,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: const Color(0xFFFFFFFF),
                             ),
                       ),
                       const SizedBox(height: 8),
@@ -320,7 +321,11 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                                 child: Text(
                                   normalizedDescription,
                                   style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: Colors.white70),
+                                      ?.copyWith(
+                                        color: const Color(
+                                          0xFFFFFFFF,
+                                        ).withOpacity(0.8),
+                                      ),
                                   maxLines: _isDescriptionExpanded ? null : 4,
                                   overflow: _isDescriptionExpanded
                                       ? TextOverflow.visible
@@ -351,7 +356,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                                       : 'See more',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white.withOpacity(0.95),
+                                    color: const Color(0xFFFFFFFF).withOpacity(0.95),
                                   ),
                                 ),
                               ),

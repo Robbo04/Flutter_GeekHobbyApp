@@ -18,11 +18,7 @@ class CollectionsPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('My Collections'),
-          backgroundColor: const Color.fromARGB(255, 219, 167, 227),
           bottom: const TabBar(
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
             tabs: [
               Tab(icon: Icon(Icons.videogame_asset), text: 'Games'),
               Tab(icon: Icon(Icons.animation), text: 'Anime'),
@@ -123,22 +119,27 @@ class CollectionsPage extends StatelessWidget {
   }
 
   Widget _buildMoviesTab(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
       child: Padding(
         padding: AppSpacing.paddingAll32,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.movie, size: 64, color: Colors.grey),
-            SizedBox(height: AppSpacing.lg),
-            Text(
+          children: [
+            Icon(Icons.movie, size: 64, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: AppSpacing.lg),
+            const Text(
               'Movie Collections',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -147,22 +148,27 @@ class CollectionsPage extends StatelessWidget {
   }
 
   Widget _buildTVTab(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
       child: Padding(
         padding: AppSpacing.paddingAll32,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.tv, size: 64, color: Colors.grey),
-            SizedBox(height: AppSpacing.lg),
-            Text(
+          children: [
+            Icon(Icons.tv, size: 64, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: AppSpacing.lg),
+            const Text(
               'TV Show Collections',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

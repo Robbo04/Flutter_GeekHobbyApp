@@ -15,7 +15,7 @@ class EmptyStateWidget extends StatelessWidget {
   final VoidCallback? onAction;
   final String? actionLabel;
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final double iconSize;
   final bool centered;
   final EdgeInsetsGeometry padding;
@@ -28,7 +28,7 @@ class EmptyStateWidget extends StatelessWidget {
     this.onAction,
     this.actionLabel,
     this.icon = Icons.inbox_outlined,
-    this.iconColor = Colors.grey,
+    this.iconColor,
     this.iconSize = 64,
     this.centered = true,
     this.padding = AppSpacing.paddingAll16,
@@ -43,7 +43,7 @@ class EmptyStateWidget extends StatelessWidget {
     required this.onAction,
     required this.actionLabel,
     this.icon = Icons.inbox_outlined,
-    this.iconColor = Colors.grey,
+    this.iconColor,
     this.iconSize = 64,
     this.padding = AppSpacing.paddingAll16,
   })  : centered = true,
@@ -54,7 +54,7 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     required this.message,
     this.icon = Icons.inbox_outlined,
-    this.iconColor = Colors.grey,
+    this.iconColor,
     this.iconSize = 24,
   })  : subtitle = null,
         onAction = null,
@@ -70,7 +70,7 @@ class EmptyStateWidget extends StatelessWidget {
     this.textAlign = TextAlign.center,
   })  : subtitle = null,
         icon = Icons.inbox_outlined,
-        iconColor = Colors.grey,
+      iconColor = null,
         iconSize = 0,
         onAction = null,
         actionLabel = null,
@@ -79,6 +79,9 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final resolvedIconColor = iconColor ?? colorScheme.onSurfaceVariant;
+
     final content = Padding(
       padding: padding,
       child: Column(
@@ -86,7 +89,7 @@ class EmptyStateWidget extends StatelessWidget {
         mainAxisSize: centered ? MainAxisSize.max : MainAxisSize.min,
         children: [
           if (iconSize > 0) ...[
-            Icon(icon, size: iconSize, color: iconColor),
+            Icon(icon, size: iconSize, color: resolvedIconColor),
             AppSpacing.verticalLg,
           ],
           Text(
@@ -94,7 +97,7 @@ class EmptyStateWidget extends StatelessWidget {
             textAlign: textAlign,
             style: TextStyle(
               fontSize: iconSize > 40 ? 16 : 14,
-              color: Colors.grey[700],
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           if (subtitle != null) ...[
@@ -104,7 +107,7 @@ class EmptyStateWidget extends StatelessWidget {
               textAlign: textAlign,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],

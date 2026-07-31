@@ -142,6 +142,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final tint =
         _parseAniListColor(widget.franchise.coverColor) ?? const Color(0xFF1F7A8C);
     final cleanedTitle = _cleanMasterTitle(widget.franchise.title);
@@ -167,7 +168,10 @@ class _FranchiseCardState extends State<_FranchiseCard> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [tint.withOpacity(0.2), Colors.white],
+              colors: [
+                tint.withOpacity(0.2),
+                colorScheme.surface,
+              ],
             ),
           ),
           child: Column(
@@ -207,7 +211,9 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                           _isFranchiseWatched
                               ? Icons.check_circle
                               : Icons.circle_outlined,
-                          color: _isFranchiseWatched ? Colors.green : Colors.grey,
+                          color: _isFranchiseWatched
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
                         ),
                         onPressed: _toggleFranchiseWatched,
                         tooltip: _isFranchiseWatched
@@ -222,8 +228,8 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                               ? Icons.bookmark
                               : Icons.bookmark_outline,
                           color: _isFranchiseWishlisted
-                              ? Colors.blue
-                              : Colors.grey,
+                            ? colorScheme.secondary
+                            : colorScheme.onSurfaceVariant,
                         ),
                         onPressed: _toggleFranchiseWishlist,
                         tooltip: _isFranchiseWishlisted
@@ -243,7 +249,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                   height: 6,
                   child: LinearProgressIndicator(
                     value: progressPercent,
-                    backgroundColor: Colors.grey.shade300,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       tint.withOpacity(0.7),
                     ),
@@ -255,7 +261,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                 '$_watchedCount/${widget.franchise.entries.length} watched',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.grey.shade600,
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -292,15 +298,20 @@ class _HeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Container(
         width: 48,
         height: 70,
-        color: Colors.grey.shade300,
+        color: colorScheme.surfaceContainerHighest,
         child: (url != null && url!.isNotEmpty)
             ? Image.network(url!, fit: BoxFit.cover)
-            : const Icon(Icons.movie_creation_outlined, color: Colors.grey),
+            : Icon(
+                Icons.movie_creation_outlined,
+                color: colorScheme.onSurfaceVariant,
+              ),
       ),
     );
   }

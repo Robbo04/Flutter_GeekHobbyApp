@@ -114,10 +114,11 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_group?.name ?? 'Anime Collection'),
-        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: _isLoading
           ? const LoadingWidget()
@@ -134,8 +135,8 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color.fromARGB(255, 219, 167, 227),
-                            const Color.fromARGB(255, 219, 167, 227).withOpacity(0.5),
+                            colorScheme.primary,
+                            colorScheme.primary.withOpacity(0.5),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -143,31 +144,35 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       ),
                       child: Column(
                         children: [
-                          const Icon(Icons.collections, size: 48, color: Colors.white),
+                          Icon(
+                            Icons.collections,
+                            size: 48,
+                            color: colorScheme.onPrimary,
+                          ),
                           const SizedBox(height: 8),
                           Text(
                             _group?.name ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${_animeList.length} items • ${_group?.getTotalEpisodes(Hive.box<Anime>('anilist_anime')) ?? 0} total episodes',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white70,
+                              color: colorScheme.onPrimary.withOpacity(0.8),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${_group?.studio ?? ''} • ${_group?.yearReleased ?? ''}+',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white70,
+                              color: colorScheme.onPrimary.withOpacity(0.8),
                             ),
                           ),
                         ],
@@ -198,6 +203,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
   }
 
   Widget _buildAnimeCard(Anime anime) {
+    final colorScheme = Theme.of(context).colorScheme;
     final relationLabel = _getRelationLabel(anime.id);
     final relationIcon = _getRelationIcon(anime.id);
 
@@ -221,7 +227,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                 width: 60,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                   image: anime.imageUrl != null && anime.imageUrl!.isNotEmpty
                       ? DecorationImage(
@@ -231,7 +237,11 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       : null,
                 ),
                 child: anime.imageUrl == null || anime.imageUrl!.isEmpty
-                    ? const Icon(Icons.tv, size: 30, color: Colors.grey)
+                    ? Icon(
+                        Icons.tv,
+                        size: 30,
+                        color: colorScheme.onSurfaceVariant,
+                      )
                     : null,
               ),
               const SizedBox(width: 12),
@@ -253,13 +263,17 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(relationIcon, size: 14, color: Colors.purple),
+                        Icon(
+                          relationIcon,
+                          size: 14,
+                          color: colorScheme.secondary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           relationLabel,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.purple[700],
+                            color: colorScheme.secondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -270,7 +284,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       '${anime.episodes} episodes • ${anime.yearReleased}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey[600],
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     if (anime.isMovie)
@@ -282,15 +296,15 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.orange[100],
+                            color: colorScheme.tertiaryContainer,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
+                          child: Text(
                             'MOVIE',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: Colors.orange,
+                              color: colorScheme.onTertiaryContainer,
                             ),
                           ),
                         ),
@@ -299,7 +313,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                 ),
               ),
               
-              const Icon(Icons.chevron_right, color: Colors.grey),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),

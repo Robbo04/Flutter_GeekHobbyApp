@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/screens/developer.dart';
 import 'package:app_geek_hobby_app/screens/credits.dart';
+import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     Widget section({required String title, required List<Widget> children}) {
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(32),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                )),
-            SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+            ),
+            const SizedBox(height: 12),
             ...children,
           ],
         ),
@@ -30,14 +35,14 @@ class SettingsPage extends StatelessWidget {
 
     Widget buttonRow({required String label, required VoidCallback onTap, Widget? trailing}) {
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 6),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         child: Material(
-          color: Colors.transparent,
+          color: const Color(0x00000000),
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
             onTap: onTap,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: Row(
                 children: [
                   Expanded(child: Text(label)),
@@ -52,21 +57,58 @@ class SettingsPage extends StatelessWidget {
 
     Widget readOnlyRow({required String label, required String value}) {
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 6),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           children: [
             Expanded(child: Text(label)),
-            Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      );
+    }
+
+    Widget themeModeRow() {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            const Expanded(child: Text('Theme mode')),
+            ValueListenableBuilder<ThemeMode>(
+              valueListenable: ThemeController.themeMode,
+              builder: (context, mode, _) {
+                return DropdownButton<ThemeMode>(
+                  value: mode,
+                  onChanged: (selected) {
+                    if (selected != null) {
+                      ThemeController.setThemeMode(selected);
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: ThemeMode.system,
+                      child: Text('System'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.light,
+                      child: Text('Light'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.dark,
+                      child: Text('Dark'),
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 247, 247),
       appBar: AppBar(
-        title: Text('Settings'),
-        backgroundColor: Colors.grey[800],
+        title: const Text('Settings'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -83,10 +125,11 @@ class SettingsPage extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
-                        shape: StadiumBorder(),
-                        backgroundColor: Colors.grey[400],
+                        shape: const StadiumBorder(),
+                        backgroundColor: colorScheme.secondaryContainer,
+                        foregroundColor: colorScheme.onSecondaryContainer,
                       ),
-                      child: Text('Change'),
+                      child: const Text('Change'),
                     ),
                   ],
                 ),
@@ -95,20 +138,7 @@ class SettingsPage extends StatelessWidget {
             section(
               title: 'Customisation',
               children: [
-                buttonRow(
-                  label: 'Colour scheme',
-                  onTap: () {},
-                  trailing: Container(
-                    width: 60,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        colors: [Colors.blue, Colors.red],
-                      ),
-                    ),
-                  ),
-                ),
+                themeModeRow(),
                 buttonRow(
                   label: 'Font size',
                   onTap: () {},
@@ -158,7 +188,10 @@ class SettingsPage extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const DeveloperPage()),
                     );
                   },
-                  trailing: Icon(Icons.developer_mode, color: Colors.orange),
+                  trailing: Icon(
+                    Icons.developer_mode,
+                    color: colorScheme.tertiary,
+                  ),
                 ),
               ],
             ),

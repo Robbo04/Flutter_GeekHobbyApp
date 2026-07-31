@@ -1,4 +1,6 @@
 import 'package:app_geek_hobby_app/widgets/common/navigation_bar.dart';
+import 'package:app_geek_hobby_app/core/themes/app_theme.dart';
+import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:app_geek_hobby_app/models/user/user.dart';
@@ -114,6 +116,9 @@ Future<void> initializeHive() async {
   // Collection boxes ANIME
   await Hive.openBox<int>('anime_wishlist_collection_id');
   await Hive.openBox<int>('anime_watched_collection_id');
+
+  // App preferences
+  await Hive.openBox<String>('app_preferences');
 }
 
 void main() async {
@@ -129,6 +134,8 @@ void main() async {
   RawgService.instance = rawgService;
   AniListService.instance = aniListService;
 
+  await ThemeController.initialize(Hive.box<String>('app_preferences'));
+
   runApp(MyApp(rawgService: rawgService));
 }
 
@@ -139,13 +146,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: MainTabScaffold(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeController.themeMode,
+      builder: (context, mode, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          theme: AppTheme.lightTheme(),
+          darkTheme: AppTheme.darkTheme(),
+          themeMode: mode,
+          home: MainTabScaffold(),
+        );
+      },
     );
   }
 }

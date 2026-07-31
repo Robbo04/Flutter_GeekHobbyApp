@@ -72,6 +72,8 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final indicator = CircularProgressIndicator(
       strokeWidth: strokeWidth,
       color: color,
@@ -99,7 +101,7 @@ class LoadingWidget extends StatelessWidget {
             message!,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[600],
+              color: colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),

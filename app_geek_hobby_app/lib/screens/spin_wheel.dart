@@ -245,7 +245,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                   Container(
                     width: cardWidth,
                     height: cardHeight,
-                    color: Colors.grey[200],
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: Center(
                       child: Text(
                         '#${_winner!.id}',
@@ -276,12 +276,13 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
 
   // Utility draw colors
   Color _colorForIndex(int i) {
-    final base = Colors.primaries[i % Colors.primaries.length];
-    return base.withOpacity(0.85);
+    final hue = (i * 47) % 360;
+    return HSLColor.fromAHSL(0.85, hue.toDouble(), 0.62, 0.52).toColor();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final wheelSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.95;
     final pointerSize = wheelSize * 0.14;
 
@@ -348,8 +349,10 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                     itemsCount: _items.isEmpty ? 1 : _items.length,
                                     colorForIndex: _colorForIndex,
                                     labels: _items.isEmpty ? ['No items'] : _items.map((e) => e.name).toList(),
-                                    textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white) ??
-                                        const TextStyle(color: Colors.white),
+                                    textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          color: colorScheme.onPrimary,
+                                        ) ??
+                                        TextStyle(color: colorScheme.onPrimary),
                                   ),
                                 ),
                               ),
@@ -364,9 +367,18 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).cardColor,
                                     shape: BoxShape.circle,
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6)],
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colorScheme.scrim.withOpacity(0.15),
+                                        blurRadius: 6,
+                                      ),
+                                    ],
                                   ),
-                                  child: Icon(Icons.keyboard_arrow_down, size: pointerSize * 0.7, color: Colors.black87),
+                                  child: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    size: pointerSize * 0.7,
+                                    color: colorScheme.onSurface,
+                                  ),
                                 ),
                               ),
 
@@ -377,7 +389,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                   painter: _WinnerPainter(
                                     itemsCount: _items.length,
                                     winnerIndex: _winnerIndex!,
-                                    color: Colors.white.withOpacity(0.28),
+                                    color: colorScheme.onSurface.withOpacity(0.28),
                                   ),
                                 ),
 
@@ -388,7 +400,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                   child: AbsorbPointer(
                                     absorbing: true,
                                     // transparent container so there's no grey overlay while spinning
-                                    child: Container(color: Colors.transparent),
+                                    child: Container(color: const Color(0x00000000)),
                                   ),
                                 ),
 
@@ -399,7 +411,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                                     child: AnimatedOpacity(
                                       duration: const Duration(milliseconds: 200),
                                       opacity: 0.55,
-                                      child: Container(color: Colors.black),
+                                      child: Container(color: colorScheme.scrim),
                                     ),
                                   ),
                                 ),
@@ -419,7 +431,8 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (_isSpinning) const Text('Spinning...', style: TextStyle(fontWeight: FontWeight.bold)),
-                      if (!_isSpinning) Text('Ready', style: TextStyle(color: Colors.green[700])),
+                      if (!_isSpinning)
+                        Text('Ready', style: TextStyle(color: colorScheme.primary)),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
                         onPressed: _isSpinning ? null : () => _loadCollection(),
@@ -471,7 +484,7 @@ class _WheelPainter extends CustomPainter {
     // Draw dividing lines
     final border = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Colors.white
+      ..color = const Color(0xFFFFFFFF)
       ..strokeWidth = 2;
 
     for (int i = 0; i < itemsCount; i++) {
@@ -549,7 +562,7 @@ class _WheelPainter extends CustomPainter {
     // Outer circle edge
     final edge = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Colors.black.withOpacity(0.2)
+      ..color = const Color(0xFF000000).withOpacity(0.2)
       ..strokeWidth = 3;
     canvas.drawCircle(center, radius, edge);
   }
@@ -588,7 +601,7 @@ class _WinnerPainter extends CustomPainter {
 
     final outline = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Colors.white.withOpacity(0.95)
+      ..color = const Color(0xFFFFFFFF).withOpacity(0.95)
       ..strokeWidth = max(2.0, radius * 0.04);
     canvas.drawPath(path, outline);
   }

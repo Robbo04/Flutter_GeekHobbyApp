@@ -32,10 +32,11 @@ class ItemDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: const Color.fromARGB(255, 219, 167, 227),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,7 +74,7 @@ class ItemDisplay extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ...details,
-            Divider(height: 32, color: Colors.grey[400]),
+            Divider(height: 32, color: colorScheme.outlineVariant),
             if (owned)
             UserRatingSlider(
               initialRating: userRating,

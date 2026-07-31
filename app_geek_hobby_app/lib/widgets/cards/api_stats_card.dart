@@ -35,10 +35,12 @@ class ApiStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: AppSpacing.paddingAll16,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: themeColor.withOpacity(0.4),
@@ -50,7 +52,7 @@ class ApiStatsCard extends StatelessWidget {
         children: [
           _buildHeader(),
           AppSpacing.verticalLg,
-          ...stats.map(_buildStatRow),
+          ...stats.map((stat) => _buildStatRow(context, stat)),
           if (extraWidget != null) ...[
             AppSpacing.verticalMd,
             extraWidget!,
@@ -77,7 +79,9 @@ class ApiStatsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatRow(StatRow stat) {
+  Widget _buildStatRow(BuildContext context, StatRow stat) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: AppSpacing.paddingV4,
       child: Row(
@@ -85,14 +89,14 @@ class ApiStatsCard extends StatelessWidget {
         children: [
           Text(
             stat.label,
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
           ),
           Text(
             stat.value,
             style: TextStyle(
               fontSize: 14,
               fontWeight: stat.isBold ? FontWeight.bold : FontWeight.w600,
-              color: stat.valueColor ?? Colors.grey[700],
+              color: stat.valueColor ?? colorScheme.onSurfaceVariant,
             ),
           ),
         ],

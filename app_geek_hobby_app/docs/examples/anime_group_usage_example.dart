@@ -116,5 +116,5 @@ Future<void> exampleCacheGrowth() async {
     if (service.isInGroup(anime.id)) alreadyGrouped++;
   }
   
-  print('Search 2: $alreadyGrouped results already grouped from cache!');
+  //print('Search 2: $alreadyGrouped results already grouped from cache!');
 }

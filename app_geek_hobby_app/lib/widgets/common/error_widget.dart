@@ -13,7 +13,7 @@ class AppErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final double iconSize;
   final bool centered;
   final EdgeInsetsGeometry padding;
@@ -24,7 +24,7 @@ class AppErrorWidget extends StatelessWidget {
     required this.message,
     this.onRetry,
     this.icon = Icons.error_outline,
-    this.iconColor = Colors.red,
+    this.iconColor,
     this.iconSize = 64,
     this.centered = true,
     this.padding = AppSpacing.paddingAll16,
@@ -37,7 +37,7 @@ class AppErrorWidget extends StatelessWidget {
     required this.message,
     required this.onRetry,
     this.icon = Icons.error_outline,
-    this.iconColor = Colors.red,
+    this.iconColor,
     this.iconSize = 64,
     this.padding = AppSpacing.paddingAll16,
   })  : centered = true,
@@ -48,7 +48,7 @@ class AppErrorWidget extends StatelessWidget {
     super.key,
     required this.message,
     this.icon = Icons.error_outline,
-    this.iconColor = Colors.red,
+    this.iconColor,
     this.iconSize = 24,
   })  : onRetry = null,
         centered = false,
@@ -61,7 +61,7 @@ class AppErrorWidget extends StatelessWidget {
     required this.message,
     this.textAlign = TextAlign.center,
   })  : icon = Icons.error_outline,
-        iconColor = Colors.red,
+      iconColor = null,
         iconSize = 0,
         onRetry = null,
         centered = false,
@@ -69,6 +69,9 @@ class AppErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final resolvedIconColor = iconColor ?? colorScheme.error;
+
     final content = Padding(
       padding: padding,
       child: Column(
@@ -76,7 +79,7 @@ class AppErrorWidget extends StatelessWidget {
         mainAxisSize: centered ? MainAxisSize.max : MainAxisSize.min,
         children: [
           if (iconSize > 0) ...[
-            Icon(icon, size: iconSize, color: iconColor),
+            Icon(icon, size: iconSize, color: resolvedIconColor),
             AppSpacing.verticalLg,
           ],
           Text(

@@ -29,6 +29,8 @@ class ItemCarouselCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: () async {
         if (item is Game) {
@@ -95,8 +97,8 @@ class ItemCarouselCard extends StatelessWidget {
                     height: imageHeight,
                     width: cardWidth,
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      border: Border.all(color: Colors.black12),
+                      color: colorScheme.surfaceContainerHighest,
+                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
                     child: Stack(
                       fit: StackFit.expand,
@@ -104,7 +106,7 @@ class ItemCarouselCard extends StatelessWidget {
                         // Image
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: colorScheme.surfaceContainerHighest,
                             image: _getImageUrl(item) != null
                                 ? DecorationImage(
                                     image: NetworkImage(_getImageUrl(item)!),
@@ -113,10 +115,10 @@ class ItemCarouselCard extends StatelessWidget {
                                 : null,
                           ),
                           child: _getImageUrl(item) == null
-                              ? const Icon(
+                              ? Icon(
                                   Icons.image,
                                   size: 60,
-                                  color: Colors.grey,
+                                  color: colorScheme.onSurfaceVariant,
                                 )
                               : null,
                         ),

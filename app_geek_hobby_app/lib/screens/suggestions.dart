@@ -305,23 +305,31 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                 image,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.grey[350],
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: Center(
-                    child: Icon(fallbackIcon, size: 48, color: Colors.black26),
+                    child: Icon(
+                      fallbackIcon,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Container(
-                    color: Colors.grey[300],
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: const LoadingWidget.compact(),
                   );
                 },
               )
             : Container(
-                color: Colors.grey[350],
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: Center(
-                  child: Icon(fallbackIcon, size: 48, color: Colors.black26),
+                  child: Icon(
+                    fallbackIcon,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
       ),
@@ -335,6 +343,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Suggestions')),
       body: Column(
@@ -343,8 +353,10 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           Container(
             padding: AppSpacing.paddingAll12,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+              color: colorScheme.surfaceContainerLow,
+              border: Border(
+                bottom: BorderSide(color: colorScheme.outlineVariant),
+              ),
             ),
             child: Column(
               children: [
@@ -517,7 +529,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                               (_cardOffset.dx.abs() / 200)
                                                   .clamp(0.0, 1.0),
                                             )
-                                          : Colors.transparent,
+                                          : const Color(0x00000000),
                                     ),
                                   ),
                                 ),
@@ -585,7 +597,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                         'Platforms: ${_gameItems.first.platforms.map((p) => p.toString().split('.').last).join(', ')}',
                                         style: TextStyle(
                                           fontSize: subtitleFont,
-                                          color: Colors.black54,
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -595,7 +607,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                         '${_animeItems.first.entries.length} entries • ${_animeItems.first.totalEpisodes} total episodes',
                                         style: TextStyle(
                                           fontSize: subtitleFont,
-                                          color: Colors.black54,
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -612,11 +624,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                           // Skip (left swipe equivalent)
                                           CircleAvatar(
                                             radius: actionIconSize * 0.9,
-                                            backgroundColor: Colors.grey[200],
+                                            backgroundColor: colorScheme.surfaceContainerHighest,
                                             child: IconButton(
                                               icon: Icon(
                                                 Icons.close,
-                                                color: Colors.red,
+                                                color: colorScheme.error,
                                                 size: actionIconSize,
                                               ),
                                               onPressed: _onSkipPressed,
@@ -629,11 +641,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                               ContentType.games) ...[
                                             CircleAvatar(
                                               radius: actionIconSize * 1.1,
-                                              backgroundColor: Colors.grey[200],
+                                              backgroundColor: colorScheme.surfaceContainerHighest,
                                               child: IconButton(
                                                 icon: Icon(
                                                   Icons.inventory_2,
-                                                  color: Colors.green,
+                                                  color: colorScheme.primary,
                                                   size: actionIconSize * 1.05,
                                                 ),
                                                 onPressed:
@@ -646,11 +658,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                           // Like (right swipe equivalent)
                                           CircleAvatar(
                                             radius: actionIconSize * 0.9,
-                                            backgroundColor: Colors.grey[200],
+                                            backgroundColor: colorScheme.surfaceContainerHighest,
                                             child: IconButton(
                                               icon: Icon(
                                                 Icons.favorite,
-                                                color: Colors.pink,
+                                                color: colorScheme.tertiary,
                                                 size: actionIconSize,
                                               ),
                                               onPressed:
