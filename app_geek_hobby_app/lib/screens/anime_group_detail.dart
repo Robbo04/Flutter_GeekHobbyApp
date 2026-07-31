@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/group/anime_group.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/common/error_widget.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
@@ -115,6 +116,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -152,9 +154,8 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                           const SizedBox(height: 8),
                           Text(
                             _group?.name ?? '',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                            style: textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
                               color: colorScheme.onPrimary,
                             ),
                             textAlign: TextAlign.center,
@@ -162,16 +163,14 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                           const SizedBox(height: 8),
                           Text(
                             '${_animeList.length} items • ${_group?.getTotalEpisodes(Hive.box<Anime>('anilist_anime')) ?? 0} total episodes',
-                            style: TextStyle(
-                              fontSize: 14,
+                            style: textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onPrimary.withOpacity(0.8),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${_group?.studio ?? ''} • ${_group?.yearReleased ?? ''}+',
-                            style: TextStyle(
-                              fontSize: 14,
+                            style: textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onPrimary.withOpacity(0.8),
                             ),
                           ),
@@ -185,12 +184,9 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Collection Items',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 12),
                           ..._animeList.map((anime) => _buildAnimeCard(anime)),
@@ -204,6 +200,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
 
   Widget _buildAnimeCard(Anime anime) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final relationLabel = _getRelationLabel(anime.id);
     final relationIcon = _getRelationIcon(anime.id);
 
@@ -251,14 +248,13 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    AppTitleText(
                       anime.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
                       ),
                       maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -271,21 +267,23 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                         const SizedBox(width: 4),
                         Text(
                           relationLabel,
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: textTheme.bodySmall?.copyWith(
                             color: colorScheme.secondary,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${anime.episodes} episodes • ${anime.yearReleased}',
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (anime.isMovie)
                       Padding(

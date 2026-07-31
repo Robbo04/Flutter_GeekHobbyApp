@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 
 class AnimeFranchiseResults extends StatelessWidget {
   final List<AnimeFranchise> franchises;
@@ -19,12 +21,17 @@ class AnimeFranchiseResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AppTitleText(
           sectionTitle ?? 'Anime Franchises - "$query"',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+          maxLines: 2,
         ),
         const SizedBox(height: 10),
         ...franchises.map((franchise) => _FranchiseCard(franchise: franchise)),
@@ -143,6 +150,8 @@ class _FranchiseCardState extends State<_FranchiseCard> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final semantic = context.semanticColors;
+    final textTheme = Theme.of(context).textTheme;
     final tint =
         _parseAniListColor(widget.franchise.coverColor) ?? const Color(0xFF1F7A8C);
     final cleanedTitle = _cleanMasterTitle(widget.franchise.title);
@@ -184,21 +193,22 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        AppTitleText(
                           cleanedTitle,
-                          style: const TextStyle(
-                            fontSize: 16,
+                          style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
+                            height: 1.2,
                           ),
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           widget.franchise.entries.length > 1
                               ? '${widget.franchise.entries.length} entries • ${widget.franchise.totalEpisodes} total eps'
                               : 'Standalone',
-                          style: const TextStyle(fontSize: 12),
+                          style: textTheme.bodySmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -212,7 +222,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                               ? Icons.check_circle
                               : Icons.circle_outlined,
                           color: _isFranchiseWatched
-                              ? colorScheme.primary
+                            ? semantic.success
                               : colorScheme.onSurfaceVariant,
                         ),
                         onPressed: _toggleFranchiseWatched,
@@ -228,7 +238,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                               ? Icons.bookmark
                               : Icons.bookmark_outline,
                           color: _isFranchiseWishlisted
-                            ? colorScheme.secondary
+                            ? semantic.info
                             : colorScheme.onSurfaceVariant,
                         ),
                         onPressed: _toggleFranchiseWishlist,
@@ -259,10 +269,9 @@ class _FranchiseCardState extends State<_FranchiseCard> {
               const SizedBox(height: 4),
               Text(
                 '$_watchedCount/${widget.franchise.entries.length} watched',
-                style: TextStyle(
-                  fontSize: 11,
+                style: textTheme.labelSmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

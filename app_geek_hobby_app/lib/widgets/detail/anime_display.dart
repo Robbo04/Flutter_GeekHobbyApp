@@ -1,6 +1,7 @@
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/widgets/detail/item_display.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
 import 'package:hive/hive.dart';
 
@@ -132,30 +133,34 @@ class _AnimeDisplayState extends State<AnimeDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return ItemDisplay(
       title: "Anime details",
       imageUrl: widget.anime.imageUrl,
       details: [
-        Text(
+        AppTitleText(
           widget.anime.name,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          selectable: true,
+          maxLines: null,
+          style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 16),
 
-        Text(widget.anime.studio, style: const TextStyle(fontSize: 16)),
+        Text(widget.anime.studio, style: textTheme.bodyMedium),
         Text(
           widget.anime.yearReleased.toString(),
-          style: const TextStyle(fontSize: 16),
+          style: textTheme.bodyMedium,
         ),
         Text(
           "Runtime: ${widget.anime.runtime} minutes",
-          style: const TextStyle(fontSize: 16),
+          style: textTheme.bodyMedium,
         ),
         Text(
           "Seasons: ${widget.anime.seasons}",
-          style: const TextStyle(fontSize: 16),
+          style: textTheme.bodyMedium,
         ),
-        Text(_getEpisodesOrTypeText(), style: const TextStyle(fontSize: 16)),
+        Text(_getEpisodesOrTypeText(), style: textTheme.bodyMedium),
       ],
       owned: watched,
       wishlisted: wishlisted,

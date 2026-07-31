@@ -1,6 +1,7 @@
 import 'package:app_geek_hobby_app/models/item/show.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/detail/item_display.dart';
 
 class ShowDisplay extends StatefulWidget {
@@ -53,17 +54,24 @@ class _ShowDisplayState extends State<ShowDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return ItemDisplay(
       title: "Show details",
       imageUrl: widget.show.imageUrl,
       details: [
-        Text(widget.show.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        AppTitleText(
+          widget.show.name,
+          selectable: true,
+          maxLines: null,
+          style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
         AppSpacing.verticalLg,
-        Text(widget.show.studio, style: const TextStyle(fontSize: 16)),
-        Text(widget.show.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
-        Text("Runtime: ${widget.show.runtime} minutes", style: const TextStyle(fontSize: 16)),
-        Text("Age Rating: ${widget.show.ageRating}", style: const TextStyle(fontSize: 16)),
-        Text("Genres: ${widget.show.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
+        Text(widget.show.studio, style: textTheme.bodyMedium),
+        Text(widget.show.yearReleased.toString(), style: textTheme.bodyMedium),
+        Text("Runtime: ${widget.show.runtime} minutes", style: textTheme.bodyMedium),
+        Text("Age Rating: ${widget.show.ageRating}", style: textTheme.bodyMedium),
+        Text("Genres: ${widget.show.genres.map((g) => g.toString().split('.').last).join(', ')}", style: textTheme.bodyMedium),
       ],
       owned: owned,
       wishlisted: wishlisted,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:app_geek_hobby_app/widgets/common/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/widgets/cards/swipable_itemcard.dart';
@@ -346,6 +347,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final semantic = context.semanticColors;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Suggestions')),
@@ -480,13 +482,13 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                       final centerLeft = (constraints.maxWidth - boxWidth) / 2;
 
                       // Compute scalable font sizes based on boxWidth (slightly smaller)
-                      final double titleFont = (boxWidth * 0.065).clamp(
-                        13.0,
-                        28.0,
+                      final double titleFont = (boxWidth * 0.06).clamp(
+                        14.0,
+                        22.0,
                       );
                       final double subtitleFont = (boxWidth * 0.04).clamp(
-                        10.0,
-                        16.0,
+                        11.0,
+                        14.0,
                       );
 
                       // Icon sizing for bottom action bar (slightly smaller)
@@ -572,36 +574,42 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                             ? _gameItems
                                             : _animeItems)
                                         .isNotEmpty)
-                                      Text(
+                                      AppTitleText(
                                         _contentType == ContentType.games
                                             ? _gameItems.first.name
                                             : _animeItems.first.title,
-                                        style: TextStyle(
+                                        style: textTheme.titleMedium?.copyWith(
                                           fontSize: titleFont,
                                           fontWeight: FontWeight.w700,
+                                          height: 1.2,
                                         ),
                                         textAlign: TextAlign.center,
+                                        maxLines: 2,
                                       ),
                                     AppSpacing.verticalSm,
                                     if (_gameItems.isNotEmpty &&
                                         _contentType == ContentType.games)
                                       Text(
                                         'Platforms: ${_gameItems.first.platforms.map((p) => p.toString().split('.').last).join(', ')}',
-                                        style: TextStyle(
+                                        style: textTheme.bodySmall?.copyWith(
                                           fontSize: subtitleFont,
                                           color: colorScheme.onSurfaceVariant,
                                         ),
                                         textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     if (_animeItems.isNotEmpty &&
                                         _contentType == ContentType.anime) ...[
                                       Text(
                                         '${_animeItems.first.entries.length} entries • ${_animeItems.first.totalEpisodes} total episodes',
-                                        style: TextStyle(
+                                        style: textTheme.bodySmall?.copyWith(
                                           fontSize: subtitleFont,
                                           color: colorScheme.onSurfaceVariant,
                                         ),
                                         textAlign: TextAlign.center,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                     AppSpacing.verticalMd,

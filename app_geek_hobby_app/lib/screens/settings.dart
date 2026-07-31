@@ -7,6 +7,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     Widget section({required String title, required List<Widget> children}) {
       return Container(
@@ -21,10 +22,7 @@ class SettingsPage extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             ...children,
@@ -61,7 +59,10 @@ class SettingsPage extends StatelessWidget {
         child: Row(
           children: [
             Expanded(child: Text(label)),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ],
         ),
       );

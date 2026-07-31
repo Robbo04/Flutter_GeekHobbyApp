@@ -7,6 +7,7 @@ import 'package:app_geek_hobby_app/models/item/item.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/detail/game_display.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
 import 'package:app_geek_hobby_app/screens/item_detail.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
@@ -30,6 +31,9 @@ class ItemCarouselCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final title = getName(item);
+    final nameFontSize = (cardWidth * 0.13).clamp(11.0, 13.0);
 
     return InkWell(
       onTap: () async {
@@ -129,12 +133,15 @@ class ItemCarouselCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              getName(item),
-              style: const TextStyle(fontSize: 14),
-              maxLines: 2,
+            AppTitleText(
+              title,
+              style: textTheme.bodySmall?.copyWith(
+                fontSize: nameFontSize,
+                fontWeight: FontWeight.w600,
+                height: 1.18,
+              ),
+              maxLines: 3,
               textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

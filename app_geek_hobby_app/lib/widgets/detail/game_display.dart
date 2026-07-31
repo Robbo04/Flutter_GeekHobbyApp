@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/common/user_rating_bar.dart';
 
 class GameDisplay extends StatefulWidget {
@@ -281,7 +282,7 @@ class _GameDisplayState extends State<GameDisplay> {
                                         end: Alignment.bottomCenter,
                                         colors: [
                                             const Color(0x00000000),
-                                            colorScheme.scrim.withOpacity(0.78),
+                                            colorScheme.scrim.withOpacity(0.86),
                                         ],
                                       ),
                                     ),
@@ -295,19 +296,6 @@ class _GameDisplayState extends State<GameDisplay> {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                            widget.game.name,
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Color(0xFFFFFFFF),
-                                              fontSize: 27,
-                                              fontWeight: FontWeight.w800,
-                                              height: 1.06,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 7),
                                           Text(
                                             '${widget.game.yearReleased} • $genres',
                                             textAlign: TextAlign.center,
@@ -330,6 +318,19 @@ class _GameDisplayState extends State<GameDisplay> {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      AppTitleText(
+                        widget.game.name,
+                        selectable: true,
+                        textAlign: TextAlign.center,
+                        maxLines: null,
+                        style: const TextStyle(
+                          color: Color(0xFFFFFFFF),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                       if (widget.game.metacriticRating > 0) ...[
                         Row(
                           children: [

@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/common/user_rating_bar.dart';
 
 class AnimeFranchiseHeader extends StatefulWidget {
@@ -167,7 +168,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     const Color(0x00000000),
-                                    colorScheme.scrim.withOpacity(0.78),
+                                    colorScheme.scrim.withOpacity(0.86),
                                   ],
                                 ),
                               ),
@@ -181,19 +182,6 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      widget.franchise.title,
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Color(0xFFFFFFFF),
-                                        fontSize: 27,
-                                        fontWeight: FontWeight.w800,
-                                        height: 1.06,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 7),
                                     Text(
                                       '${widget.franchise.entries.length} entries • ${widget.franchise.totalEpisodes} eps',
                                       style: TextStyle(
@@ -215,6 +203,19 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                   ),
                 ),
                 const SizedBox(height: 18),
+                AppTitleText(
+                  widget.franchise.title,
+                  selectable: true,
+                  textAlign: TextAlign.center,
+                  maxLines: null,
+                  style: const TextStyle(
+                    color: Color(0xFFFFFFFF),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     const Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/core/utils/dialog_helpers.dart';
@@ -27,8 +28,8 @@ class ClearAnimeGroupsButton extends StatelessWidget {
       icon: const Icon(Icons.refresh),
       label: const Text('Clear Anime Groups'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.tertiary,
-        foregroundColor: Theme.of(context).colorScheme.onTertiary,
+        backgroundColor: context.semanticColors.warning,
+        foregroundColor: context.semanticColors.onWarning,
       ),
     );
   }

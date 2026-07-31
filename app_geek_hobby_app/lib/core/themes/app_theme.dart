@@ -15,6 +15,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      textTheme: _appTextTheme(colorScheme),
       extensions: <ThemeExtension<dynamic>>[
         AppSemanticColors.light(),
       ],
@@ -83,6 +84,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      textTheme: _appTextTheme(colorScheme),
       extensions: <ThemeExtension<dynamic>>[
         AppSemanticColors.dark(),
       ],
@@ -138,6 +140,48 @@ class AppTheme {
         labelStyle: TextStyle(color: colorScheme.onSurface),
         secondaryLabelStyle: TextStyle(color: colorScheme.onSecondaryContainer),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  static TextTheme _appTextTheme(ColorScheme colorScheme) {
+    final base = Typography.material2021().black;
+    return base.copyWith(
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+        color: colorScheme.onSurface,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        color: colorScheme.onSurface,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.22,
+        color: colorScheme.onSurface,
+      ),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.35,
+        color: colorScheme.onSurface,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+        color: colorScheme.onSurfaceVariant,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        height: 1.2,
+        color: colorScheme.onSurfaceVariant,
       ),
     );
   }

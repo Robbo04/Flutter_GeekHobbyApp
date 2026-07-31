@@ -19,14 +19,16 @@ class ItemCarousel extends StatelessWidget {
     required this.items,
     required this.getName,
     this.titlePadding = AppSpacing.paddingH16,
-    this.carouselHeight = 190,
-    this.itemWidth = 90,
-    this.itemImageHeight = 140,
+    this.carouselHeight = 205,
+    this.itemWidth = 104,
+    this.itemImageHeight = 150,
     this.itemHorizontalMargin = 8,
   });
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,7 +36,12 @@ class ItemCarousel extends StatelessWidget {
           padding: titlePadding,
           child: Text(
             title,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              height: 1.2,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Container(

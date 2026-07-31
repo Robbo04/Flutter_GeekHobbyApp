@@ -120,6 +120,7 @@ class CollectionsPage extends StatelessWidget {
 
   Widget _buildMoviesTab(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Center(
       child: Padding(
@@ -129,15 +130,16 @@ class CollectionsPage extends StatelessWidget {
           children: [
             Icon(Icons.movie, size: 64, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: AppSpacing.lg),
-            const Text(
+            Text(
               'Movie Collections',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
-              style: TextStyle(
-                fontSize: 16,
+              style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
@@ -149,6 +151,7 @@ class CollectionsPage extends StatelessWidget {
 
   Widget _buildTVTab(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Center(
       child: Padding(
@@ -158,15 +161,16 @@ class CollectionsPage extends StatelessWidget {
           children: [
             Icon(Icons.tv, size: 64, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: AppSpacing.lg),
-            const Text(
+            Text(
               'TV Show Collections',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Coming soon...',
-              style: TextStyle(
-                fontSize: 16,
+              style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),

@@ -246,7 +246,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: Text(_franchise.title),
+        title: const Text('Franchise details'),
         backgroundColor: colorScheme.scrim.withOpacity(0.35),
         foregroundColor: const Color(0xFFFFFFFF),
         iconTheme: const IconThemeData(color: Color(0xFFFFFFFF)),

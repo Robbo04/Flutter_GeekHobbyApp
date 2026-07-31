@@ -17,6 +17,7 @@ class CollectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final String collectionName = collectionList.name;
     final List<String> items = collectionList.items.length > 1 ? collectionList.items.sublist(1).map((item) => item.name).toList() : [];
 
@@ -37,19 +38,22 @@ class CollectionButton extends StatelessWidget {
                 children: [
                   Text(
                     collectionName,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
                       color: colorScheme.onSurface,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   AppSpacing.verticalSm,
                   ...items.take(3).map((item) => Text(
                         item,
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       )),
                 ],
               ),

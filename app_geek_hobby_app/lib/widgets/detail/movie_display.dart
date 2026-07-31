@@ -1,6 +1,7 @@
 import 'package:app_geek_hobby_app/models/item/movie.dart';
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
+import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/detail/item_display.dart';
 
 class MovieDisplay extends StatefulWidget {
@@ -53,17 +54,24 @@ class _MovieDisplayState extends State<MovieDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return ItemDisplay(
       title: "Movie details",
       imageUrl: widget.movie.imageUrl,
       details: [
-        Text(widget.movie.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        AppTitleText(
+          widget.movie.name,
+          selectable: true,
+          maxLines: null,
+          style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
         AppSpacing.verticalLg,
-        Text(widget.movie.studio, style: const TextStyle(fontSize: 16)),
-        Text(widget.movie.yearReleased.toString(), style: const TextStyle(fontSize: 16)),
-        Text("Runtime: ${widget.movie.duration} minutes", style: const TextStyle(fontSize: 16)),
-        Text("Age Rating: ${widget.movie.ageRating}", style: const TextStyle(fontSize: 16)),
-        Text("Genres: ${widget.movie.genres.map((g) => g.toString().split('.').last).join(', ')}", style: const TextStyle(fontSize: 16)),
+        Text(widget.movie.studio, style: textTheme.bodyMedium),
+        Text(widget.movie.yearReleased.toString(), style: textTheme.bodyMedium),
+        Text("Runtime: ${widget.movie.duration} minutes", style: textTheme.bodyMedium),
+        Text("Age Rating: ${widget.movie.ageRating}", style: textTheme.bodyMedium),
+        Text("Genres: ${widget.movie.genres.map((g) => g.toString().split('.').last).join(', ')}", style: textTheme.bodyMedium),
       ],
       owned: owned,
       wishlisted: wishlisted,

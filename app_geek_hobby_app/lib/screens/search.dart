@@ -120,6 +120,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search'),
@@ -209,6 +211,8 @@ class _SearchPageState extends State<SearchPage> {
                     : _searchAnime
                     ? 'anime'
                     : 'content'}.',
+                style: textTheme.bodyMedium,
+                textAlign: TextAlign.center,
               ),
             ),
         ],
