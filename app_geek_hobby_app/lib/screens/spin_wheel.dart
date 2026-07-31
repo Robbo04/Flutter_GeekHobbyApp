@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
@@ -283,6 +284,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final semantic = context.semanticColors;
     final wheelSize = min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height) * 0.95;
     final pointerSize = wheelSize * 0.14;
 
@@ -432,7 +434,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                     children: [
                       if (_isSpinning) const Text('Spinning...', style: TextStyle(fontWeight: FontWeight.bold)),
                       if (!_isSpinning)
-                        Text('Ready', style: TextStyle(color: colorScheme.primary)),
+                        Text('Ready', style: TextStyle(color: semantic.success)),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
                         onPressed: _isSpinning ? null : () => _loadCollection(),

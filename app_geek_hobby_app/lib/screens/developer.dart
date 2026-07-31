@@ -2,6 +2,7 @@ import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/widgets/common/clear_anime_groups_button.dart';
 import 'package:app_geek_hobby_app/widgets/cards/api_stats_card.dart';
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/core/utils/dialog_helpers.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:flutter/material.dart';
@@ -266,6 +267,7 @@ class ApiStatsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final semantic = context.semanticColors;
     final rawgService = RawgService.instance;
     final aniListService = AniListService.instance;
 
@@ -291,7 +293,7 @@ class ApiStatsWidget extends StatelessWidget {
               '${rawgService.monthlyRequestsRemaining}',
               valueColor: rawgService.monthlyRequestsRemaining < 1000
                   ? colorScheme.error
-                  : colorScheme.primary,
+                  : semantic.success,
               isBold: true,
             ),
           ],
@@ -307,8 +309,8 @@ class ApiStatsWidget extends StatelessWidget {
                     rawgService.usagePercentage > 80
                         ? colorScheme.error
                         : rawgService.usagePercentage > 50
-                            ? colorScheme.tertiary
-                            : colorScheme.primary,
+                            ? semantic.warning
+                            : semantic.success,
                   ),
                   minHeight: 12,
                 ),
@@ -374,7 +376,7 @@ class ApiStatsWidget extends StatelessWidget {
               '${aniListService.requestsLastMinute}/${aniListService.minuteLimit}',
               valueColor: aniListService.requestsLastMinute > 80
                   ? colorScheme.error
-                  : colorScheme.primary,
+                  : semantic.success,
               isBold: true,
             ),
             StatRow(
@@ -399,14 +401,14 @@ class ApiStatsWidget extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: colorScheme.secondaryContainer,
+            color: semantic.info,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: [
               Icon(
                 Icons.info_outline,
-                color: colorScheme.onSecondaryContainer,
+                color: semantic.onInfo,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -415,7 +417,7 @@ class ApiStatsWidget extends StatelessWidget {
                   'Data persists across app restarts. Cache TTL is 3 days to minimize API usage.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: colorScheme.onSecondaryContainer,
+                    color: semantic.onInfo,
                   ),
                 ),
               ),

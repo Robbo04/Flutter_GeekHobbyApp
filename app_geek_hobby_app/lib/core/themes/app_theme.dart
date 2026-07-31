@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 
 class AppTheme {
   AppTheme._();
@@ -14,6 +15,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      extensions: <ThemeExtension<dynamic>>[
+        AppSemanticColors.light(),
+      ],
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.primary,
@@ -79,6 +83,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
+      extensions: <ThemeExtension<dynamic>>[
+        AppSemanticColors.dark(),
+      ],
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surfaceContainerHighest,

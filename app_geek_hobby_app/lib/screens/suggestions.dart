@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/widgets/common/empty_state_widget.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
+import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/widgets/cards/swipable_itemcard.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
@@ -344,6 +345,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final semantic = context.semanticColors;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Suggestions')),
@@ -510,22 +512,12 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                         milliseconds: 120,
                                       ),
                                       color: _cardOffset.dx < 0
-                                          ? const Color.fromARGB(
-                                              255,
-                                              206,
-                                              29,
-                                              29,
-                                            ).withOpacity(
+                                          ? semantic.warning.withOpacity(
                                               (_cardOffset.dx.abs() / 200)
                                                   .clamp(0.0, 1.0),
                                             )
                                           : _cardOffset.dx > 0
-                                          ? const Color.fromARGB(
-                                              255,
-                                              60,
-                                              244,
-                                              54,
-                                            ).withOpacity(
+                                          ? semantic.success.withOpacity(
                                               (_cardOffset.dx.abs() / 200)
                                                   .clamp(0.0, 1.0),
                                             )
@@ -628,7 +620,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                             child: IconButton(
                                               icon: Icon(
                                                 Icons.close,
-                                                color: colorScheme.error,
+                                                color: semantic.warning,
                                                 size: actionIconSize,
                                               ),
                                               onPressed: _onSkipPressed,
@@ -645,7 +637,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                               child: IconButton(
                                                 icon: Icon(
                                                   Icons.inventory_2,
-                                                  color: colorScheme.primary,
+                                                  color: semantic.success,
                                                   size: actionIconSize * 1.05,
                                                 ),
                                                 onPressed:
@@ -662,7 +654,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                                             child: IconButton(
                                               icon: Icon(
                                                 Icons.favorite,
-                                                color: colorScheme.tertiary,
+                                                color: semantic.info,
                                                 size: actionIconSize,
                                               ),
                                               onPressed:
