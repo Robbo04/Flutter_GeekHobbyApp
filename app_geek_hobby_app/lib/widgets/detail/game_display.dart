@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
@@ -207,7 +208,7 @@ class _GameDisplayState extends State<GameDisplay> {
             ),
           ),
           ListView(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.paddingAll16,
             children: [
               Container(
                 clipBehavior: Clip.antiAlias,
@@ -246,7 +247,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: AppSpacing.lg + 2),
                       Align(
                         alignment: Alignment.center,
                         child: Container(
@@ -317,7 +318,7 @@ class _GameDisplayState extends State<GameDisplay> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: AppSpacing.lg + 2),
                       AppTitleText(
                         widget.game.name,
                         selectable: true,
@@ -330,7 +331,7 @@ class _GameDisplayState extends State<GameDisplay> {
                           height: 1.15,
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: AppSpacing.md + 2),
                       if (widget.game.metacriticRating > 0) ...[
                         Row(
                           children: [
@@ -353,7 +354,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        AppSpacing.verticalSm,
                         ClipRRect(
                           borderRadius: BorderRadius.circular(99),
                           child: SizedBox(
@@ -369,7 +370,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: AppSpacing.md + 2),
                       ],
                       Row(
                         children: [
@@ -382,7 +383,7 @@ class _GameDisplayState extends State<GameDisplay> {
                               onPressed: () => updateOwned(!owned),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSm,
                           Expanded(
                             child: Opacity(
                               opacity: owned ? 0.45 : 1.0,
@@ -399,7 +400,7 @@ class _GameDisplayState extends State<GameDisplay> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          AppSpacing.horizontalSm,
                           Expanded(
                             child: Opacity(
                               opacity: owned ? 1.0 : 0.45,
@@ -421,7 +422,7 @@ class _GameDisplayState extends State<GameDisplay> {
                         ],
                       ),
                       if (owned) ...[
-                        const SizedBox(height: 8),
+                        AppSpacing.verticalSm,
                         _ActionPillButton(
                           icon: completed
                               ? Icons.verified
@@ -437,7 +438,7 @@ class _GameDisplayState extends State<GameDisplay> {
                             : CrossFadeState.showFirst,
                         firstChild: const SizedBox.shrink(),
                         secondChild: Padding(
-                          padding: const EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.only(top: AppSpacing.sm + 2),
                           child: UserRatingSlider(
                             initialRating: userRating,
                             onChanged: updateUserRating,
@@ -448,7 +449,7 @@ class _GameDisplayState extends State<GameDisplay> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.verticalLg,
               _InfoPanel(
                 title: 'Details',
                 child: Column(
@@ -470,7 +471,7 @@ class _GameDisplayState extends State<GameDisplay> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMd,
               _InfoPanel(
                 title: 'Platforms',
                 child: Wrap(
@@ -540,7 +541,7 @@ class _StatusPill extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 1),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
         gradient: LinearGradient(colors: [colorA, colorB]),
@@ -549,7 +550,7 @@ class _StatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: colorScheme.onPrimary),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.xs + 2),
           Text(
             text,
             style: TextStyle(
@@ -585,7 +586,7 @@ class _ActionPillButton extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
             color: const Color(0xFFFFFFFF).withOpacity(0.80),
@@ -595,7 +596,7 @@ class _ActionPillButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: iconColor ?? const Color(0xFF0F172A), size: 20),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSm,
               Flexible(
                 child: Text(
                   label,
@@ -624,7 +625,7 @@ class _InfoPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.md + 2),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF).withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
@@ -641,7 +642,7 @@ class _InfoPanel extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm + 2),
           child,
         ],
       ),

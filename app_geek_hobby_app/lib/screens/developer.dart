@@ -19,7 +19,7 @@ class DeveloperPage extends StatelessWidget {
         title: const Text('Developer Tools'),
       ),
       body: SingleChildScrollView(
-        padding: AppSpacing.paddingAll16,
+        padding: AppSpacing.paddingAll16Responsive(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -59,7 +59,7 @@ class DeveloperPage extends StatelessWidget {
                 const AnimeGroupStatsWidget(),
                 AppSpacing.verticalMd,
                 const ClearAnimeGroupsButton(),
-                AppSpacing.verticalSm,
+                AppSpacing.verticalSmResponsive(context),
                 Text(
                   'Use this if anime appear in multiple groups (e.g., Jujutsu Kaisen split across seasons)',
                   style: TextStyle(
@@ -101,7 +101,7 @@ class DeveloperPage extends StatelessWidget {
                     foregroundColor: colorScheme.onPrimary,
                   ),
                 ),
-                AppSpacing.verticalSm,
+                AppSpacing.verticalSmResponsive(context),
                 Text(
                   'Clears cached search results for both games and anime. Use this if search results seem outdated or incorrect.',
                   style: TextStyle(
@@ -113,7 +113,7 @@ class DeveloperPage extends StatelessWidget {
               ],
             ),
 
-            AppSpacing.verticalLg,
+            AppSpacing.verticalLgResponsive(context),
 
             // Game Cache Section
             _buildSection(
@@ -142,7 +142,7 @@ class DeveloperPage extends StatelessWidget {
                     foregroundColor: colorScheme.onSecondary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 Text(
                   'Updates game details and images from RAWG API',
                   style: TextStyle(
@@ -183,7 +183,7 @@ class DeveloperPage extends StatelessWidget {
                     foregroundColor: colorScheme.onTertiary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 Text(
                   'Use this to refresh anime episode counts for ongoing series',
                   style: TextStyle(
@@ -195,7 +195,7 @@ class DeveloperPage extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
 
             // API Request Stats Section
             _buildSection(
@@ -205,7 +205,7 @@ class DeveloperPage extends StatelessWidget {
               children: [const ApiStatsWidget()],
             ),
 
-            const SizedBox(height: 32),
+            AppSpacing.verticalXxlResponsive(context),
 
             // Info footer
             Center(
@@ -236,14 +236,14 @@ class DeveloperPage extends StatelessWidget {
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.paddingAll16Responsive(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(icon, size: 20),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmResponsive(context),
               Text(
                 title,
                 style: const TextStyle(
@@ -253,7 +253,7 @@ class DeveloperPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalLgResponsive(context),
           ...children,
         ],
       ),
@@ -315,7 +315,7 @@ class ApiStatsWidget extends StatelessWidget {
                   minHeight: 12,
                 ),
               ),
-              const SizedBox(height: 4),
+              AppSpacing.verticalXsResponsive(context),
               Text(
                 '${rawgService.usagePercentage.toStringAsFixed(1)}% used',
                 style: TextStyle(
@@ -324,7 +324,7 @@ class ApiStatsWidget extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 12),
+              AppSpacing.verticalMdResponsive(context),
               ...[
                 StatRow(
                   'Session Requests:',
@@ -338,7 +338,7 @@ class ApiStatsWidget extends StatelessWidget {
                     valueColor: colorScheme.onSurfaceVariant,
                   ),
               ].map((s) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: AppSpacing.paddingV4,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -363,7 +363,7 @@ class ApiStatsWidget extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalLgResponsive(context),
         // AniList API Stats Card
         ApiStatsCard(
           title: 'AniList API (Anime)',
@@ -397,9 +397,9 @@ class ApiStatsWidget extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: 16),
+        AppSpacing.verticalLgResponsive(context),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: AppSpacing.paddingAll12Responsive(context),
           decoration: BoxDecoration(
             color: semantic.info,
             borderRadius: BorderRadius.circular(8),
@@ -411,7 +411,7 @@ class ApiStatsWidget extends StatelessWidget {
                 color: semantic.onInfo,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSmResponsive(context),
               Expanded(
                 child: Text(
                   'Data persists across app restarts. Cache TTL is 3 days to minimize API usage.',

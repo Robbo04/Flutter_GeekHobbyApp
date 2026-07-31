@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
@@ -33,7 +34,7 @@ class AnimeFranchiseResults extends StatelessWidget {
           ),
           maxLines: 2,
         ),
-        const SizedBox(height: 10),
+        AppSpacing.verticalResponsive(context, AppSpacing.sm + 2),
         ...franchises.map((franchise) => _FranchiseCard(franchise: franchise)),
       ],
     );
@@ -160,7 +161,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
         : _watchedCount / widget.franchise.entries.length;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
@@ -172,7 +173,11 @@ class _FranchiseCardState extends State<_FranchiseCard> {
           );
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: AppSpacing.paddingSymmetricResponsive(
+            context,
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm + 2,
+          ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -188,7 +193,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
               Row(
                 children: [
                   _HeroImage(url: widget.franchise.imageUrl),
-                  const SizedBox(width: 12),
+                  AppSpacing.horizontalMdResponsive(context),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +206,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                           ),
                           maxLines: 2,
                         ),
-                        const SizedBox(height: 4),
+                        AppSpacing.verticalXsResponsive(context),
                         Text(
                           widget.franchise.entries.length > 1
                               ? '${widget.franchise.entries.length} entries • ${widget.franchise.totalEpisodes} total eps'
@@ -230,7 +235,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                             ? 'Mark all as unwatched'
                             : 'Mark all as watched',
                         constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.all(8),
+                        padding: AppSpacing.paddingAll8,
                       ),
                       IconButton(
                         icon: Icon(
@@ -246,13 +251,13 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                             ? 'Remove from wishlist'
                             : 'Add to wishlist',
                         constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.all(8),
+                        padding: AppSpacing.paddingAll8,
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              AppSpacing.verticalSmResponsive(context),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: SizedBox(
@@ -266,7 +271,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
+              AppSpacing.verticalXsResponsive(context),
               Text(
                 '$_watchedCount/${widget.franchise.entries.length} watched',
                 style: textTheme.labelSmall?.copyWith(

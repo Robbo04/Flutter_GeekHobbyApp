@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/models/item/movie.dart';
@@ -139,7 +140,7 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
         ],
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: AppSpacing.paddingAll12,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
           crossAxisSpacing: 8,

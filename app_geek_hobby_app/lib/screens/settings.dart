@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/screens/developer.dart';
 import 'package:app_geek_hobby_app/screens/credits.dart';
 import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 
 class SettingsPage extends StatelessWidget {
   @override
@@ -11,8 +12,12 @@ class SettingsPage extends StatelessWidget {
 
     Widget section({required String title, required List<Widget> children}) {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        padding: const EdgeInsets.all(16),
+        margin: AppSpacing.paddingSymmetricResponsive(
+          context,
+          vertical: AppSpacing.md,
+          horizontal: AppSpacing.sm,
+        ),
+        padding: AppSpacing.paddingAll16Responsive(context),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(32),
@@ -24,7 +29,7 @@ class SettingsPage extends StatelessWidget {
               title,
               style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 12),
+            AppSpacing.verticalMdResponsive(context),
             ...children,
           ],
         ),
@@ -33,14 +38,21 @@ class SettingsPage extends StatelessWidget {
 
     Widget buttonRow({required String label, required VoidCallback onTap, Widget? trailing}) {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
+        margin: AppSpacing.paddingSymmetricResponsive(
+          context,
+          vertical: AppSpacing.xs + 2,
+        ),
         child: Material(
           color: const Color(0x00000000),
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              padding: AppSpacing.paddingSymmetricResponsive(
+                context,
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.md,
+              ),
               child: Row(
                 children: [
                   Expanded(child: Text(label)),
@@ -55,7 +67,10 @@ class SettingsPage extends StatelessWidget {
 
     Widget readOnlyRow({required String label, required String value}) {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
+        margin: AppSpacing.paddingSymmetricResponsive(
+          context,
+          vertical: AppSpacing.xs + 2,
+        ),
         child: Row(
           children: [
             Expanded(child: Text(label)),
@@ -70,8 +85,15 @@ class SettingsPage extends StatelessWidget {
 
     Widget themeModeRow() {
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        margin: AppSpacing.paddingSymmetricResponsive(
+          context,
+          vertical: AppSpacing.xs + 2,
+        ),
+        padding: AppSpacing.paddingSymmetricResponsive(
+          context,
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
         child: Row(
           children: [
             const Expanded(child: Text('Theme mode')),

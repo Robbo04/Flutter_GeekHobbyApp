@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/models/user/user.dart';
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 
@@ -196,11 +197,11 @@ class LoginPage extends StatelessWidget {
         title: const Text('Login Page'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppSpacing.paddingAll16,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -209,7 +210,7 @@ class LoginPage extends StatelessWidget {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLg,
             TextField(
               controller: passwordController,
               decoration: const InputDecoration(
@@ -218,12 +219,12 @@ class LoginPage extends StatelessWidget {
               ),
               obscureText: true,
             ),
-            const SizedBox(height: 24),
+            AppSpacing.verticalXl,
             ElevatedButton(
               onPressed: signInUser,
               child: const Text('Sign In'),
             ),
-            const SizedBox(width: 8),
+            AppSpacing.horizontalSm,
             TextButton(
               onPressed: createUser,
               child: const Text('Sign Up'),

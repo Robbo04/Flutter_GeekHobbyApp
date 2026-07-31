@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
@@ -228,7 +229,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 16,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: AppSpacing.paddingAll16Responsive(context),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -254,7 +255,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                       ),
                     ),
                   ),
-                const SizedBox(height: 12),
+                AppSpacing.verticalMdResponsive(context),
                 Text(
                   _winner!.name,
                   style: TextStyle(
@@ -262,7 +263,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSmResponsive(context),
                 ElevatedButton(
                   onPressed: _onTapDismissWinner,
                   child: const Text('Close'),
@@ -293,15 +294,15 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
       body: _isLoading
           ? const LoadingWidget()
           : Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: AppSpacing.paddingAll12Responsive(context),
               child: Column(
                 children: [
                   // Collection dropdown (always present)
                   Row(
                     children: [
-                      const SizedBox(width: 8),
+                      AppSpacing.horizontalSmResponsive(context),
                       const Text('Collection:'),
-                      const SizedBox(width: 12),
+                      AppSpacing.horizontalMdResponsive(context),
                       Expanded(
                         child: DropdownButton<String>(
                           value: _selectedBox,
@@ -326,7 +327,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMdResponsive(context),
 
                   // Wheel area - detect swipes (pan end)
                   Expanded(
@@ -427,7 +428,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  AppSpacing.verticalMdResponsive(context),
                   // Helper row: spin state and reload collection
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -435,7 +436,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                       if (_isSpinning) const Text('Spinning...', style: TextStyle(fontWeight: FontWeight.bold)),
                       if (!_isSpinning)
                         Text('Ready', style: TextStyle(color: semantic.success)),
-                      const SizedBox(width: 16),
+                      AppSpacing.horizontalLgResponsive(context),
                       ElevatedButton.icon(
                         onPressed: _isSpinning ? null : () => _loadCollection(),
                         icon: const Icon(Icons.refresh),
@@ -443,7 +444,7 @@ class _SpinWheelPageState extends State<SpinWheelPage> with SingleTickerProvider
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  AppSpacing.verticalSmResponsive(context),
                 ],
               ),
             ),

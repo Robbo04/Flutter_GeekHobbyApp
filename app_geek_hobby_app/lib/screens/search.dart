@@ -146,7 +146,7 @@ class _SearchPageState extends State<SearchPage> {
                   showCheckmark: true,
                 ),
               ),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSm,
               Expanded(
                 child: FilterChip(
                   label: const Text('Anime'),

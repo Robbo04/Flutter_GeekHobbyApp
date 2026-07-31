@@ -1,4 +1,5 @@
 import 'package:app_geek_hobby_app/widgets/common/user_rating_bar.dart';
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:flutter/material.dart';
 
 class ItemDisplay extends StatelessWidget {
@@ -39,14 +40,14 @@ class ItemDisplay extends StatelessWidget {
         title: Text(title),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppSpacing.paddingAll16Responsive(context),
         child: ListView(
           children: [
             if (imageUrl != null && imageUrl!.isNotEmpty)
               Center(
                 child: Image.network(imageUrl!, height: 200),
               ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLgResponsive(context),
             // --- Add the toggles here ---
             Column(
               children: [
@@ -72,15 +73,15 @@ class ItemDisplay extends StatelessWidget {
                   ),  
               ],
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLgResponsive(context),
             ...details,
-            Divider(height: 32, color: colorScheme.outlineVariant),
+            Divider(height: AppSpacing.xxl, color: colorScheme.outlineVariant),
             if (owned)
             UserRatingSlider(
               initialRating: userRating,
               onChanged: onUserRatingChanged,
             ),
-            const SizedBox(height: 16),
+            AppSpacing.verticalLgResponsive(context),
           ],
         ),
       ),

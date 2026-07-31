@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
@@ -132,7 +133,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.lg + 2),
                 Align(
                   alignment: Alignment.center,
                   child: Container(
@@ -202,7 +203,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: AppSpacing.lg + 2),
                 AppTitleText(
                   widget.franchise.title,
                   selectable: true,
@@ -215,7 +216,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     height: 1.15,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.md + 2),
                 Row(
                   children: [
                     const Text(
@@ -237,7 +238,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                AppSpacing.verticalSm,
                 ClipRRect(
                   borderRadius: BorderRadius.circular(99),
                   child: SizedBox(
@@ -251,7 +252,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.md + 2),
                 Row(
                   children: [
                     Expanded(
@@ -265,7 +266,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                         onPressed: widget.onWishlistChanged,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.horizontalSm,
                     Expanded(
                       child: Opacity(
                         opacity: widget.isWatched ? 1.0 : 0.45,
@@ -292,7 +293,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                       : CrossFadeState.showFirst,
                   firstChild: const SizedBox.shrink(),
                   secondChild: Padding(
-                    padding: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(top: AppSpacing.sm + 2),
                     child: UserRatingSlider(
                       initialRating: widget.rating,
                       onChanged: widget.onRatingChanged,
@@ -326,7 +327,7 @@ class _StatusPill extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md + 2, vertical: AppSpacing.sm + 1),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
         gradient: LinearGradient(colors: [colorA, colorB]),
@@ -335,7 +336,7 @@ class _StatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: colorScheme.onPrimary),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.xs + 2),
           Text(
             text,
             style: TextStyle(
@@ -371,7 +372,7 @@ class _ActionPillButton extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
         child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 3),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
             color: const Color(0xFFFFFFFF).withOpacity(0.80),
@@ -381,7 +382,7 @@ class _ActionPillButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: iconColor ?? const Color(0xFF0F172A), size: 20),
-              const SizedBox(width: 8),
+              AppSpacing.horizontalSm,
               Flexible(
                 child: Text(
                   label,

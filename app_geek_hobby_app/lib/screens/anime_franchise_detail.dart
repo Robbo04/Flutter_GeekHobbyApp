@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/utils/text_formatter.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
@@ -206,7 +207,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
       if (items.isEmpty) return;
       sections.add(
         Padding(
-          padding: const EdgeInsets.fromLTRB(0, 4, 0, 10),
+          padding: const EdgeInsets.fromLTRB(0, AppSpacing.xs, 0, 10),
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -225,7 +226,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
         ),
       );
       if (addBottomGap) {
-        sections.add(const SizedBox(height: 20));
+        sections.add(const SizedBox(height: AppSpacing.lg + AppSpacing.xs));
       }
     }
 
@@ -282,7 +283,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                   ),
                 ),
                 ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: AppSpacing.paddingAll16Responsive(context),
                   children: [
                     AnimeFranchiseHeader(
                       franchise: _franchise,
@@ -295,7 +296,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                       onWishlistChanged: _toggleFranchiseWishlist,
                       onRatingChanged: _setFranchiseRating,
                     ),
-                    const SizedBox(height: 16),
+                    AppSpacing.verticalLgResponsive(context),
                     if ((_franchise.description ?? '').trim().isNotEmpty) ...[
                       Text(
                         'Description',
@@ -305,7 +306,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                               color: const Color(0xFFFFFFFF),
                             ),
                       ),
-                      const SizedBox(height: 8),
+                      AppSpacing.verticalSmResponsive(context),
                       Builder(
                         builder: (context) {
                           final normalizedDescription =
@@ -332,7 +333,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                                       : TextOverflow.ellipsis,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: AppSpacing.xs + 2),
                               TextButton(
                                 onPressed: () {
                                   setState(() {
@@ -341,10 +342,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                                   });
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 2,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
                                   minimumSize: const Size(0, 0),
                                   tapTargetSize:
                                       MaterialTapTargetSize.shrinkWrap,
@@ -364,7 +362,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
                           );
                         },
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: AppSpacing.lg + 2),
                     ],
                     ..._buildCategorizedCarousels(),
                   ],

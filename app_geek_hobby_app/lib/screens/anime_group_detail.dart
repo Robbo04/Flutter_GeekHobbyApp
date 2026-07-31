@@ -1,5 +1,6 @@
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/group/anime_group.dart';
+import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/common/error_widget.dart';
@@ -133,7 +134,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                   children: [
                     // Header with collection info
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: AppSpacing.paddingAll16Responsive(context),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -151,7 +152,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                             size: 48,
                             color: colorScheme.onPrimary,
                           ),
-                          const SizedBox(height: 8),
+                          AppSpacing.verticalSmResponsive(context),
                           Text(
                             _group?.name ?? '',
                             style: textTheme.headlineMedium?.copyWith(
@@ -160,14 +161,14 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
+                          AppSpacing.verticalSmResponsive(context),
                           Text(
                             '${_animeList.length} items • ${_group?.getTotalEpisodes(Hive.box<Anime>('anilist_anime')) ?? 0} total episodes',
                             style: textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onPrimary.withOpacity(0.8),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          AppSpacing.verticalXsResponsive(context),
                           Text(
                             '${_group?.studio ?? ''} • ${_group?.yearReleased ?? ''}+',
                             style: textTheme.bodyMedium?.copyWith(
@@ -180,7 +181,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                     
                     // List of anime in the collection
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: AppSpacing.paddingAll16Responsive(context),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -188,7 +189,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                             'Collection Items',
                             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                           ),
-                          const SizedBox(height: 12),
+                          AppSpacing.verticalMdResponsive(context),
                           ..._animeList.map((anime) => _buildAnimeCard(anime)),
                         ],
                       ),
@@ -205,7 +206,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
     final relationIcon = _getRelationIcon(anime.id);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -216,7 +217,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: AppSpacing.paddingAll12Responsive(context),
           child: Row(
             children: [
               // Image
@@ -241,7 +242,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       )
                     : null,
               ),
-              const SizedBox(width: 12),
+              AppSpacing.horizontalMdResponsive(context),
               
               // Details
               Expanded(
@@ -256,7 +257,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                       ),
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalXsResponsive(context),
                     Row(
                       children: [
                         Icon(
@@ -264,7 +265,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                           size: 14,
                           color: colorScheme.secondary,
                         ),
-                        const SizedBox(width: 4),
+                        AppSpacing.horizontalXsResponsive(context),
                         Text(
                           relationLabel,
                           style: textTheme.bodySmall?.copyWith(
@@ -276,7 +277,7 @@ class _AnimeGroupDetailPageState extends State<AnimeGroupDetailPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    AppSpacing.verticalXsResponsive(context),
                     Text(
                       '${anime.episodes} episodes • ${anime.yearReleased}',
                       style: textTheme.bodySmall?.copyWith(
