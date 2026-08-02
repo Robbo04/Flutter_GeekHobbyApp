@@ -7,7 +7,6 @@ import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/utils/text_formatter.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
-import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
 import 'package:app_geek_hobby_app/widgets/anime/franchise_detail_widgets.dart';
 
@@ -22,7 +21,6 @@ class AnimeFranchiseDetailPage extends StatefulWidget {
 }
 
 class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
-  final _aniListService = AniListService.instance;
   late AnimeFranchise _franchise;
   bool _isLoading = true;
   bool _isDescriptionExpanded = false;
@@ -82,41 +80,6 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
   }
 
   Future<void> _loadFullInstallments() async {
-    try {
-      final group = await _aniListService.getOrFetchAnimeGroup(
-        widget.franchise.primaryAnimeId,
-      );
-      if (!mounted) return;
-
-      if (group != null) {
-        final entries = _aniListService.getGroupAnimeList(group.groupId);
-        entries.sort((a, b) {
-          final yearCmp = a.yearReleased.compareTo(b.yearReleased);
-          if (yearCmp != 0) return yearCmp;
-          return a.id.compareTo(b.id);
-        });
-
-        setState(() {
-          _franchise = AnimeFranchise(
-            franchiseId: widget.franchise.franchiseId,
-            primaryAnimeId: widget.franchise.primaryAnimeId,
-            title: widget.franchise.title,
-            heroTitle: widget.franchise.heroTitle,
-            description: widget.franchise.description,
-            imageUrl: widget.franchise.imageUrl,
-            coverColor: widget.franchise.coverColor,
-            entries: entries,
-            fromExplicitRelations: true,
-          );
-          _isLoading = false;
-        });
-        await _loadCollectionStatus();
-        return;
-      }
-    } catch (_) {
-      // Fall back to existing franchise payload.
-    }
-
     if (!mounted) return;
     setState(() => _isLoading = false);
     await _loadCollectionStatus();

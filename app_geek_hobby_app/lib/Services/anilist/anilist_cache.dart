@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/models/item/anime.dart';
-import 'package:app_geek_hobby_app/models/group/anime_group.dart';
 
 /// Manages caching for AniList data using Hive
 class AniListCache {
@@ -10,14 +9,12 @@ class AniListCache {
   Box<Anime> get animeBox => Hive.box<Anime>('anilist_anime');
   Box<List> get searchBox => Hive.box<List>('anilist_search_results');
   Box<int> get metaBox => Hive.box<int>('anilist_cache_meta');
-  Box<AnimeGroup> get groupBox => Hive.box<AnimeGroup>('anilist_groups');
-  Box<int> get animeToGroupBox => Hive.box<int>('anilist_anime_to_group');
   Box<int> get statsBox => Hive.box<int>('anilist_stats');
 
   // ==================== PUBLIC GETTERS ====================
 
-  int get totalGroups => groupBox.length;
-  int get totalGroupedAnime => animeToGroupBox.length;
+  int get totalGroups => 0;
+  int get totalGroupedAnime => 0;
   int get totalCachedAnime => animeBox.length;
 
   // ==================== CACHE METHODS ====================

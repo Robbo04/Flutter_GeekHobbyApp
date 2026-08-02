@@ -13,7 +13,6 @@ import 'package:app_geek_hobby_app/widgets/detail/show_display.dart';
 import 'package:app_geek_hobby_app/screens/item_detail.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/screens/spin_wheel.dart';
-import 'package:app_geek_hobby_app/services/anilist_service.dart';
 
 class CollectionsContentPage extends StatefulWidget {
   final List<int> itemIds;
@@ -51,64 +50,26 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
   }
 
   Future<void> _openAnime(Anime anime) async {
-    final service = AniListService.instance;
-    AnimeFranchise? franchise;
-
-    try {
-      final group = await service.getOrFetchAnimeGroup(anime.id);
-      if (group != null && mounted) {
-        final entries = service.getGroupAnimeList(group.groupId);
-        entries.sort((a, b) {
-          final yearCmp = a.yearReleased.compareTo(b.yearReleased);
-          if (yearCmp != 0) return yearCmp;
-          return a.id.compareTo(b.id);
-        });
-        franchise = AnimeFranchise(
-          franchiseId: anime.id,
-          primaryAnimeId: anime.id,
-          title: anime.name,
-          heroTitle: anime.name,
-          description: anime.description,
-          imageUrl: anime.imageUrl,
-          coverColor: anime.coverColor,
-          entries: entries.isNotEmpty ? entries : [anime],
-          fromExplicitRelations: false,
-        );
-      }
-    } catch (_) {
-      // Fall through to single-anime display
-    }
-
     if (!mounted) return;
 
-    if (franchise != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AnimeFranchiseDetailPage(franchise: franchise!),
-        ),
-      );
-    } else {
-      // Fallback: build a standalone franchise wrapper
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AnimeFranchiseDetailPage(
-            franchise: AnimeFranchise(
-              franchiseId: anime.id,
-              primaryAnimeId: anime.id,
-              title: anime.name,
-              heroTitle: anime.name,
-              description: anime.description,
-              imageUrl: anime.imageUrl,
-              coverColor: anime.coverColor,
-              entries: [anime],
-              fromExplicitRelations: false,
-            ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AnimeFranchiseDetailPage(
+          franchise: AnimeFranchise(
+            franchiseId: anime.id,
+            primaryAnimeId: anime.id,
+            title: anime.name,
+            heroTitle: anime.name,
+            description: anime.description,
+            imageUrl: anime.imageUrl,
+            coverColor: anime.coverColor,
+            entries: [anime],
+            fromExplicitRelations: false,
           ),
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override

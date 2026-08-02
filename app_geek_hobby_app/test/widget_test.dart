@@ -13,7 +13,6 @@ import 'package:app_geek_hobby_app/main.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
-import 'package:app_geek_hobby_app/models/group/anime_group.dart';
 import 'package:http/testing.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,12 +21,9 @@ void main() {
     // Initialize Hive for testing
     Hive.init('./test_hive');
     Hive.registerAdapter(AnimeAdapter());
-    Hive.registerAdapter(AnimeGroupAdapter());
     await Hive.openBox<Anime>('anilist_anime');
     await Hive.openBox<List>('anilist_search_results');
     await Hive.openBox<int>('anilist_cache_meta');
-    await Hive.openBox<AnimeGroup>('anilist_groups');
-    await Hive.openBox<int>('anilist_anime_to_group');
     await Hive.openBox<int>('anilist_stats');
 
     // Build a mock RawgService for tests.

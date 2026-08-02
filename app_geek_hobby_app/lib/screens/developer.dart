@@ -1,6 +1,5 @@
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
 import 'package:app_geek_hobby_app/services/anilist_service.dart';
-import 'package:app_geek_hobby_app/widgets/common/clear_anime_groups_button.dart';
 import 'package:app_geek_hobby_app/widgets/cards/api_stats_card.dart';
 import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/core/utils/dialog_helpers.dart';
@@ -49,29 +48,6 @@ class DeveloperPage extends StatelessWidget {
               ),
             ),
             AppSpacing.verticalXl,
-
-            // Anime Groups Section
-            _buildSection(
-              context: context,
-              title: 'Anime Groups',
-              icon: Icons.collections_bookmark,
-              children: [
-                const AnimeGroupStatsWidget(),
-                AppSpacing.verticalMd,
-                const ClearAnimeGroupsButton(),
-                AppSpacing.verticalSmResponsive(context),
-                Text(
-                  'Use this if anime appear in multiple groups (e.g., Jujutsu Kaisen split across seasons)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ),
-
-            AppSpacing.verticalLg,
 
             // Anime Cache Section
             _buildSection(

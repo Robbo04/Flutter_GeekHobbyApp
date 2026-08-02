@@ -2,18 +2,16 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
-import 'package:app_geek_hobby_app/models/group/anime_group.dart';
 
 import 'anilist/anilist_api.dart';
 import 'anilist/anilist_cache.dart';
-import 'anilist/anilist_grouping_service.dart';
 import 'anilist/anilist_rate_limiter.dart';
 
 export 'anilist/anilist_exceptions.dart';
 
 /// Main service for interacting with AniList API
 ///
-/// This class coordinates API calls, caching, rate limiting, and anime grouping.
+/// This class coordinates API calls, caching, rate limiting, and franchise building.
 /// Use `AniListService.instance` to access the singleton.
 class AniListService {
   static late AniListService instance;
@@ -24,7 +22,6 @@ class AniListService {
   late final AniListCache _cache;
   late final AniListRateLimiter _rateLimiter;
   late final AniListAPI _api;
-  late final AniListGroupingService _grouping;
 
   AniListService() {
     final httpLink = HttpLink('https://graphql.anilist.co');
@@ -33,7 +30,6 @@ class AniListService {
     _cache = AniListCache();
     _rateLimiter = AniListRateLimiter(_cache.statsBox);
     _api = AniListAPI(client, _rateLimiter);
-    _grouping = AniListGroupingService(_cache, _api);
   }
 
   // ==================== PUBLIC TRACKING GETTERS ====================
@@ -67,16 +63,6 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          // If grouping enabled, use smart grouping
-          if (enableGrouping && page == 1) {
-            final potentialDuplicates = _findPotentialDuplicates(cached);
-            if (potentialDuplicates.isNotEmpty) {
-              await _grouping.groupTopResults(
-                potentialDuplicates.take(groupTop).toList(),
-              );
-            }
-            return _deduplicateByGroup(cached);
-          }
           return cached;
         }
       }
@@ -93,17 +79,6 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
-
-    // If grouping enabled and first page, use smart grouping
-    if (enableGrouping && page == 1) {
-      final potentialDuplicates = _findPotentialDuplicates(animeList);
-      if (potentialDuplicates.isNotEmpty) {
-        await _grouping.groupTopResults(
-          potentialDuplicates.take(groupTop).toList(),
-        );
-      }
-      return _deduplicateByGroup(animeList);
-    }
 
     return animeList;
   }
@@ -124,15 +99,6 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          if (enableGrouping && page == 1) {
-            final potentialDuplicates = _findPotentialDuplicates(cached);
-            if (potentialDuplicates.isNotEmpty) {
-              await _grouping.groupTopResults(
-                potentialDuplicates.take(groupTop).toList(),
-              );
-            }
-            return _deduplicateByGroup(cached);
-          }
           return cached;
         }
       }
@@ -145,16 +111,6 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
-
-    if (enableGrouping && page == 1) {
-      final potentialDuplicates = _findPotentialDuplicates(animeList);
-      if (potentialDuplicates.isNotEmpty) {
-        await _grouping.groupTopResults(
-          potentialDuplicates.take(groupTop).toList(),
-        );
-      }
-      return _deduplicateByGroup(animeList);
-    }
 
     return animeList;
   }
@@ -175,15 +131,6 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          if (enableGrouping && page == 1) {
-            final potentialDuplicates = _findPotentialDuplicates(cached);
-            if (potentialDuplicates.isNotEmpty) {
-              await _grouping.groupTopResults(
-                potentialDuplicates.take(groupTop).toList(),
-              );
-            }
-            return _deduplicateByGroup(cached);
-          }
           return cached;
         }
       }
@@ -196,16 +143,6 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
-
-    if (enableGrouping && page == 1) {
-      final potentialDuplicates = _findPotentialDuplicates(animeList);
-      if (potentialDuplicates.isNotEmpty) {
-        await _grouping.groupTopResults(
-          potentialDuplicates.take(groupTop).toList(),
-        );
-      }
-      return _deduplicateByGroup(animeList);
-    }
 
     return animeList;
   }
@@ -226,15 +163,6 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          if (enableGrouping && page == 1) {
-            final potentialDuplicates = _findPotentialDuplicates(cached);
-            if (potentialDuplicates.isNotEmpty) {
-              await _grouping.groupTopResults(
-                potentialDuplicates.take(groupTop).toList(),
-              );
-            }
-            return _deduplicateByGroup(cached);
-          }
           return cached;
         }
       }
@@ -247,16 +175,6 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
-
-    if (enableGrouping && page == 1) {
-      final potentialDuplicates = _findPotentialDuplicates(animeList);
-      if (potentialDuplicates.isNotEmpty) {
-        await _grouping.groupTopResults(
-          potentialDuplicates.take(groupTop).toList(),
-        );
-      }
-      return _deduplicateByGroup(animeList);
-    }
 
     return animeList;
   }
@@ -278,15 +196,6 @@ class AniListService {
       if (_cache.isFresh(cacheKey, cacheTTL)) {
         final cached = _cache.getCachedAnimeList(cachedIds);
         if (cached.length == cachedIds.length) {
-          if (enableGrouping && page == 1) {
-            final potentialDuplicates = _findPotentialDuplicates(cached);
-            if (potentialDuplicates.isNotEmpty) {
-              await _grouping.groupTopResults(
-                potentialDuplicates.take(groupTop).toList(),
-              );
-            }
-            return _deduplicateByGroup(cached);
-          }
           return cached;
         }
       }
@@ -303,16 +212,6 @@ class AniListService {
     // Cache the results
     final ids = await _cache.cacheAnimeList(animeList);
     await _cache.cacheSearchResults(cacheKey, ids);
-
-    if (enableGrouping && page == 1) {
-      final potentialDuplicates = _findPotentialDuplicates(animeList);
-      if (potentialDuplicates.isNotEmpty) {
-        await _grouping.groupTopResults(
-          potentialDuplicates.take(groupTop).toList(),
-        );
-      }
-      return _deduplicateByGroup(animeList);
-    }
 
     return animeList;
   }
@@ -465,29 +364,7 @@ class AniListService {
   }) {
     final clusters = <String, List<Anime>>{};
     final explicitByKey = <String, bool>{};
-    final ungrouped = <Anime>[];
-
-    for (final anime in animeList) {
-      final group = _grouping.getAnimeGroup(anime.id);
-      if (group != null) {
-        final key = 'group_${group.groupId}';
-        clusters.putIfAbsent(
-          key,
-          () => _applyQualityGate(_grouping.getGroupAnimeList(group.groupId)),
-        );
-        explicitByKey[key] = true;
-      } else {
-        ungrouped.add(anime);
-      }
-    }
-
-    if (ungrouped.isEmpty) {
-      return _finalizeFranchisesFromClusters(
-        animeList: animeList,
-        mergedEntries: clusters,
-        mergedExplicit: explicitByKey,
-      );
-    }
+    final ungrouped = List<Anime>.from(animeList);
 
     final byId = <int, Anime>{for (final anime in ungrouped) anime.id: anime};
     final ids = byId.keys.toList();
@@ -820,112 +697,6 @@ class AniListService {
       default:
         return 10;
     }
-  }
-
-  /// Find anime that likely need grouping based on title similarity
-  List<Anime> _findPotentialDuplicates(List<Anime> animeList) {
-    final potentialDuplicates = <Anime>[];
-    final normalizedTitles = <String>[];
-
-    // Normalize all titles first
-    for (final anime in animeList) {
-      normalizedTitles.add(_normalizeTitle(anime.name));
-    }
-
-    // Find anime that share a common base title
-    for (int i = 0; i < animeList.length; i++) {
-      final titleA = normalizedTitles[i];
-      final wordsA = titleA.split(' ').where((w) => w.isNotEmpty).toList();
-      if (wordsA.length < 2) continue; // Need at least 2 words
-
-      for (int j = i + 1; j < animeList.length; j++) {
-        final titleB = normalizedTitles[j];
-        final wordsB = titleB.split(' ').where((w) => w.isNotEmpty).toList();
-        if (wordsB.length < 2) continue;
-
-        // Check if they share the first 2-3 significant words
-        final minWords = wordsA.length < wordsB.length
-            ? wordsA.length
-            : wordsB.length;
-        final checkWords = minWords >= 3 ? 3 : 2;
-
-        bool matches = true;
-        for (int k = 0; k < checkWords; k++) {
-          if (wordsA[k] != wordsB[k]) {
-            matches = false;
-            break;
-          }
-        }
-
-        if (matches) {
-          if (!potentialDuplicates.contains(animeList[i])) {
-            potentialDuplicates.add(animeList[i]);
-          }
-          if (!potentialDuplicates.contains(animeList[j])) {
-            potentialDuplicates.add(animeList[j]);
-          }
-        }
-      }
-    }
-
-    return potentialDuplicates;
-  }
-
-  /// Deduplicate anime list by keeping only one representative per group
-  List<Anime> _deduplicateByGroup(List<Anime> animeList) {
-    final deduplicated = <Anime>[];
-    final seenGroups = <int>{};
-
-    for (final anime in animeList) {
-      // Check if anime belongs to a group
-      final group = _grouping.getAnimeGroup(anime.id);
-      final groupId = group?.groupId ?? anime.id;
-
-      // Keep only first anime from each group
-      if (!seenGroups.contains(groupId)) {
-        deduplicated.add(anime);
-        seenGroups.add(groupId);
-      }
-    }
-
-    return deduplicated;
-  }
-
-  // ==================== GROUPING METHODS ====================
-
-  /// Fetch anime relations and build a group
-  Future<AnimeGroup?> fetchAnimeRelations(int animeId, {Set<int>? visited}) {
-    return _grouping.fetchAnimeRelations(animeId, visited: visited);
-  }
-
-  /// Get the group for a specific anime, if it exists
-  AnimeGroup? getAnimeGroup(int animeId) {
-    return _grouping.getAnimeGroup(animeId);
-  }
-
-  /// Check if an anime belongs to a group
-  bool isInGroup(int animeId) {
-    return _grouping.isInGroup(animeId);
-  }
-
-  /// Get or create a group for an anime
-  Future<AnimeGroup?> getOrFetchAnimeGroup(int animeId) {
-    return _grouping.getOrFetchAnimeGroup(animeId);
-  }
-
-  /// Get all anime in a group, with detailed info
-  List<Anime> getGroupAnimeList(int groupId) {
-    return _grouping.getGroupAnimeList(groupId);
-  }
-
-  /// Get summary info about an anime's group (for display in lists)
-  Map<String, dynamic>? getGroupSummary(int animeId) {
-    return _grouping.getGroupSummary(animeId);
-  }
-
-  /// Clear all anime groups (useful for testing/debugging)
-  Future<void> clearAllGroups() {
-    return _grouping.clearAllGroups();
   }
 
   /// Clear search cache (useful after search algorithm changes)
