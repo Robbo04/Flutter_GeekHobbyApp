@@ -379,7 +379,7 @@ class _GameDisplayState extends State<GameDisplay> {
                               icon: owned
                                   ? Icons.check_circle
                                   : Icons.radio_button_unchecked,
-                              label: owned ? 'Owned' : 'Mark Owned',
+                              label: owned ? 'Owned' : 'Own',
                               onPressed: () => updateOwned(!owned),
                             ),
                           ),
@@ -393,7 +393,7 @@ class _GameDisplayState extends State<GameDisplay> {
                                     : Icons.bookmark_add_outlined,
                                 label: wishlisted
                                     ? 'Wishlisted'
-                                    : 'Add to List',
+                                    : 'Wishlist',
                                 onPressed: owned
                                     ? null
                                     : () => updateWishlist(!wishlisted),
@@ -427,7 +427,7 @@ class _GameDisplayState extends State<GameDisplay> {
                           icon: completed
                               ? Icons.verified
                               : Icons.hourglass_bottom,
-                          label: completed ? 'Completed' : 'Mark Completed',
+                          label: completed ? 'Completed' : 'Incomplete',
                           onPressed: () => updateCompleted(!completed),
                         ),
                       ],
@@ -597,14 +597,18 @@ class _ActionPillButton extends StatelessWidget {
             children: [
               Icon(icon, color: iconColor ?? const Color(0xFF0F172A), size: 20),
               AppSpacing.horizontalSm,
-              Flexible(
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF0F172A),
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
