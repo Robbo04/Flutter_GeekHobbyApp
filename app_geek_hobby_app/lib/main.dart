@@ -3,13 +3,10 @@ import 'package:app_geek_hobby_app/core/themes/app_theme.dart';
 import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:app_geek_hobby_app/models/user/user.dart';
+import 'package:app_geek_hobby_app/local_database/local_hive_service.dart';
 
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
-import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
-import 'package:app_geek_hobby_app/enums/age_ratings/game_age.dart';
-import 'package:app_geek_hobby_app/enums/genres/game_genre.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -33,73 +30,7 @@ Future<AniListService> initializeAniListService() async {
 Future<void> initializeHive() async {
   await Hive.initFlutter();
 
-  // Register adapters
-  Hive.registerAdapter(UserAdapter());
-
-  Hive.registerAdapter(GameAdapter());
-  Hive.registerAdapter(AnimeAdapter());
-  Hive.registerAdapter(GamePlatformAdapter());
-  Hive.registerAdapter(GameAgeAdapter());
-  Hive.registerAdapter(GameGenreAdapter());
-  Hive.registerAdapter(ItemAdapter());
-
-  // Open necessary boxes
-  await Hive.openBox<User>('users');
-
-  try {
-    await Hive.openBox<Game>('rawg_games');
-  } catch (e, st) {
-    print('Error opening rawg_games box: $e\n$st');
-    await Hive.deleteBoxFromDisk('rawg_games');
-    await Hive.openBox<Game>('rawg_games');
-  }
-
-  try {
-    await Hive.openBox<int>('rawg_cache_meta');
-  } catch (e, st) {
-    print('Error opening rawg_cache_meta box: $e\n$st');
-    await Hive.deleteBoxFromDisk('rawg_cache_meta');
-    await Hive.openBox<int>('rawg_cache_meta');
-  }
-
-  await Hive.openBox<Item>('items');
-  await Hive.openBox<List>('rawg_search_results');
-  // If you actually have a GameDetails type, keep this; otherwise remove
-  await Hive.openBox<GameDetails>('rawg_game_details');
-  await Hive.openBox<int>('rawg_stats'); // Track RAWG API usage
-  await Hive.openBox<int>('anilist_stats'); // Track AniList API usage
-
-  // Anime cache boxes
-  try {
-    await Hive.openBox<Anime>('anilist_anime');
-  } catch (e, st) {
-    print('Error opening anilist_anime box: $e\n$st');
-    await Hive.deleteBoxFromDisk('anilist_anime');
-    await Hive.openBox<Anime>('anilist_anime');
-  }
-
-  try {
-    await Hive.openBox<int>('anilist_cache_meta');
-  } catch (e, st) {
-    print('Error opening anilist_cache_meta box: $e\n$st');
-    await Hive.deleteBoxFromDisk('anilist_cache_meta');
-    await Hive.openBox<int>('anilist_cache_meta');
-  }
-
-  await Hive.openBox<List>('anilist_search_results');
-
-  // Collection boxes GAMES
-  await Hive.openBox<int>('games_wishlist_collection_id');
-  await Hive.openBox<int>('games_owned_collection_id');
-  await Hive.openBox<int>('games_backlog_collection_id');
-  await Hive.openBox<int>('games_completed_collection_id');
-
-  // Collection boxes ANIME
-  await Hive.openBox<int>('anime_wishlist_collection_id');
-  await Hive.openBox<int>('anime_watched_collection_id');
-
-  // App preferences
-  await Hive.openBox<String>('app_preferences');
+  await LocalHiveService.initialize();
 }
 
 void main() async {

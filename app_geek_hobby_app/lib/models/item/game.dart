@@ -62,7 +62,7 @@ class Game extends Item {
         .toSet() // Remove duplicates
         .toList() ??
           [],
-      ageRating: GameAge.pegi3, // RAWG doesn't always provide age, set default or parse if available
+      ageRating: GameAgeParsing.fromRawgValue(data['esrb_rating']),
       metacriticRating: data['metacritic'] != null ? data['metacritic'] as int : -1,
       ratingCount: data['ratings_count'] ?? 0,
       imageUrl: data['background_image'] ?? '',

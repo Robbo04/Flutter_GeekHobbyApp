@@ -17,24 +17,24 @@ class AnimeAdapter extends TypeAdapter<Anime> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Anime(
-        id: fields[7] as int,
-        name: fields[0] as String,
-        studio: fields[1] as String,
-        yearReleased: fields[5] as int,
-        imageUrl: fields[2] as String?,
-        isMovie: fields[8] as bool,
-        seasons: fields[9] as int,
-        episodes: fields[10] as int,
-        runtime: fields[11] as int,
-        format: fields[12] as String,
-        mediumImageUrl: fields[13] as String?,
-        coverColor: fields[14] as String?,
-        description: fields[15] as String?,
-        duration: fields[16] as int?,
-        relationEdges: (fields[17] as List?)
-            ?.map((e) => (e as Map).cast<String, dynamic>())
-            .toList(),
-      )
+      id: fields[7] as int,
+      name: fields[0] as String,
+      studio: fields[1] as String,
+      yearReleased: fields[5] as int,
+      imageUrl: fields[2] as String?,
+      isMovie: fields[8] as bool,
+      seasons: fields[9] as int,
+      episodes: fields[10] as int,
+      runtime: fields[11] as int,
+      format: fields[12] as String,
+      mediumImageUrl: fields[13] as String?,
+      coverColor: fields[14] as String?,
+      description: fields[15] as String?,
+      duration: fields[16] as int?,
+      relationEdges: (fields[17] as List?)
+          ?.map((dynamic e) => (e as Map).cast<String, dynamic>())
+          ?.toList(),
+    )
       ..owned = fields[3] as bool
       ..wishlist = fields[4] as bool
       ..userRating = fields[6] as int;

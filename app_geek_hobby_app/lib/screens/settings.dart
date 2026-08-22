@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:app_geek_hobby_app/screens/developer.dart';
+import 'package:app_geek_hobby_app/screens/local_database_debug.dart';
 import 'package:app_geek_hobby_app/screens/credits.dart';
 import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -214,6 +217,21 @@ class SettingsPage extends StatelessWidget {
                   trailing: Icon(
                     Icons.developer_mode,
                     color: colorScheme.tertiary,
+                  ),
+                ),
+                buttonRow(
+                  label: 'Local Database Debug',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LocalDatabaseDebugPage(),
+                      ),
+                    );
+                  },
+                  trailing: Icon(
+                    Icons.storage,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
