@@ -111,6 +111,7 @@ class CollectionsPage extends StatelessWidget {
             builder: (context) => CollectionsContentPage(
               itemIds: ids,
               title: title,
+              collectionBoxName: hiveBoxName,
             ),
           ),
         );

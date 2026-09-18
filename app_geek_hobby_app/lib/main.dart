@@ -1,123 +1,38 @@
-import 'package:app_geek_hobby_app/widgets/common/navigation_bar.dart';
-import 'package:app_geek_hobby_app/core/themes/app_theme.dart';
-import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:app_geek_hobby_app/models/user/user.dart';
 
-import 'package:app_geek_hobby_app/models/item/game.dart';
-import 'package:app_geek_hobby_app/models/item/anime.dart';
-import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
-import 'package:app_geek_hobby_app/enums/age_ratings/game_age.dart';
-import 'package:app_geek_hobby_app/enums/genres/game_genre.dart';
-import 'package:app_geek_hobby_app/models/item/item.dart';
-
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:app_geek_hobby_app/core/errors/app_error.dart';
+import 'package:app_geek_hobby_app/core/services/app_init.dart';
+import 'package:app_geek_hobby_app/core/themes/app_theme.dart';
+import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:app_geek_hobby_app/services/rawg_service.dart';
-import 'package:app_geek_hobby_app/services/anilist_service.dart';
-import 'package:http/http.dart' as http;
+import 'package:app_geek_hobby_app/widgets/common/navigation_bar.dart';
 
-Future<RawgService> initializeRawgService() async {
-  // Load environment variables from the .env file (only once at startup)
-  await dotenv.load();
-  final rawgApiKey = dotenv.env['RAWG_API_KEY'] ?? '';
-  final rawgService = RawgService(apiKey: rawgApiKey, httpClient: http.Client());
-  return rawgService;
-}
-
-Future<AniListService> initializeAniListService() async {
-  final aniListService = AniListService();
-  return aniListService;
-}
-
-Future<void> initializeHive() async {
-  await Hive.initFlutter();
-
-  // Register adapters
-  Hive.registerAdapter(UserAdapter());
-
-  Hive.registerAdapter(GameAdapter());
-  Hive.registerAdapter(AnimeAdapter());
-  Hive.registerAdapter(GamePlatformAdapter());
-  Hive.registerAdapter(GameAgeAdapter());
-  Hive.registerAdapter(GameGenreAdapter());
-  Hive.registerAdapter(ItemAdapter());
-
-  // Open necessary boxes
-  await Hive.openBox<User>('users');
-
-  try {
-    await Hive.openBox<Game>('rawg_games');
-  } catch (e, st) {
-    print('Error opening rawg_games box: $e\n$st');
-    await Hive.deleteBoxFromDisk('rawg_games');
-    await Hive.openBox<Game>('rawg_games');
-  }
-
-  try {
-    await Hive.openBox<int>('rawg_cache_meta');
-  } catch (e, st) {
-    print('Error opening rawg_cache_meta box: $e\n$st');
-    await Hive.deleteBoxFromDisk('rawg_cache_meta');
-    await Hive.openBox<int>('rawg_cache_meta');
-  }
-
-  await Hive.openBox<Item>('items');
-  await Hive.openBox<List>('rawg_search_results');
-  // If you actually have a GameDetails type, keep this; otherwise remove
-  await Hive.openBox<GameDetails>('rawg_game_details');
-  await Hive.openBox<int>('rawg_stats'); // Track RAWG API usage
-  await Hive.openBox<int>('anilist_stats'); // Track AniList API usage
-
-  // Anime cache boxes
-  try {
-    await Hive.openBox<Anime>('anilist_anime');
-  } catch (e, st) {
-    print('Error opening anilist_anime box: $e\n$st');
-    await Hive.deleteBoxFromDisk('anilist_anime');
-    await Hive.openBox<Anime>('anilist_anime');
-  }
-
-  try {
-    await Hive.openBox<int>('anilist_cache_meta');
-  } catch (e, st) {
-    print('Error opening anilist_cache_meta box: $e\n$st');
-    await Hive.deleteBoxFromDisk('anilist_cache_meta');
-    await Hive.openBox<int>('anilist_cache_meta');
-  }
-
-  await Hive.openBox<List>('anilist_search_results');
-
-  // Collection boxes GAMES
-  await Hive.openBox<int>('games_wishlist_collection_id');
-  await Hive.openBox<int>('games_owned_collection_id');
-  await Hive.openBox<int>('games_backlog_collection_id');
-  await Hive.openBox<int>('games_completed_collection_id');
-
-  // Collection boxes ANIME
-  await Hive.openBox<int>('anime_wishlist_collection_id');
-  await Hive.openBox<int>('anime_watched_collection_id');
-
-  // App preferences
-  await Hive.openBox<String>('app_preferences');
-}
-
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive FIRST so boxes are available
-  await initializeHive();
+  try {
+    final boot = await AppBootstrap.initialize();
+    await ThemeController.initialize(Hive.box<String>('app_preferences'));
 
-  final rawgService = await initializeRawgService();
-  final aniListService = await initializeAniListService();
-
-  // Register the singleton instances
-  RawgService.instance = rawgService;
-  AniListService.instance = aniListService;
-
-  await ThemeController.initialize(Hive.box<String>('app_preferences'));
-
-  runApp(MyApp(rawgService: rawgService));
+    runApp(MyApp(rawgService: boot.rawgService));
+  } on AppError catch (error) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                error.message,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -132,7 +47,7 @@ class MyApp extends StatelessWidget {
       builder: (context, mode, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'Geek Hobby App',
           theme: AppTheme.lightTheme(),
           darkTheme: AppTheme.darkTheme(),
           themeMode: mode,

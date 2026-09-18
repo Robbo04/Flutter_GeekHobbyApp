@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:app_geek_hobby_app/screens/collections.dart';
 import 'package:app_geek_hobby_app/screens/developer.dart';
 import 'package:app_geek_hobby_app/screens/credits.dart';
+import 'package:app_geek_hobby_app/screens/explore.dart';
+import 'package:app_geek_hobby_app/screens/suggestions.dart';
 import 'package:app_geek_hobby_app/core/themes/theme_controller.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -137,24 +142,60 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           children: [
             section(
-              title: 'Account Details',
+              title: 'Profile',
               children: [
-                readOnlyRow(label: 'Name', value: 'Your Name'),
-                readOnlyRow(label: 'Date', value: '01/01/2025'),
-                readOnlyRow(label: 'Email', value: 'you@email.com'),
-                Row(
-                  children: [
-                    Expanded(child: Text('Password: *****')),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        shape: const StadiumBorder(),
-                        backgroundColor: colorScheme.secondaryContainer,
-                        foregroundColor: colorScheme.onSecondaryContainer,
+                Text(
+                  'This project is currently running in local mode. Profile syncing and account management can be added later when you connect a backend.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                AppSpacing.verticalMdResponsive(context),
+                buttonRow(
+                  label: 'Profile settings (coming soon)',
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Profile settings are not available yet.'),
                       ),
-                      child: const Text('Change'),
-                    ),
-                  ],
+                    );
+                  },
+                  trailing: const Icon(Icons.lock_outline),
+                ),
+              ],
+            ),
+            section(
+              title: 'Quick Actions',
+              children: [
+                buttonRow(
+                  label: 'Explore Games and Anime',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ExplorePage()),
+                    );
+                  },
+                  trailing: const Icon(Icons.explore),
+                ),
+                buttonRow(
+                  label: 'Open Suggestions',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SuggestionsPage()),
+                    );
+                  },
+                  trailing: const Icon(Icons.swipe),
+                ),
+                buttonRow(
+                  label: 'View Collections',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CollectionsPage()),
+                    );
+                  },
+                  trailing: const Icon(Icons.collections_bookmark),
                 ),
               ],
             ),
@@ -165,28 +206,28 @@ class SettingsPage extends StatelessWidget {
                 buttonRow(
                   label: 'Font size',
                   onTap: () {},
-                  trailing: Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
                 buttonRow(
                   label: 'Language',
                   onTap: () {},
-                  trailing: Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
               ],
             ),
             section(
               title: 'About',
               children: [
-                readOnlyRow(label: 'App Version:', value: '1.0.0'),
+                readOnlyRow(label: 'App Version:', value: '1.0.0+1'),
                 buttonRow(
                   label: 'Privacy Policy',
                   onTap: () {},
-                  trailing: Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
                 buttonRow(
                   label: 'Terms and conditions',
                   onTap: () {},
-                  trailing: Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
                 buttonRow(
                   label: 'Credits',
@@ -196,7 +237,7 @@ class SettingsPage extends StatelessWidget {
                       MaterialPageRoute(builder: (_) => const CreditsPage()),
                     );
                   },
-                  trailing: Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
               ],
             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
@@ -17,11 +17,13 @@ import 'package:app_geek_hobby_app/screens/spin_wheel.dart';
 class CollectionsContentPage extends StatefulWidget {
   final List<int> itemIds;
   final String title;
+  final String collectionBoxName;
 
   const CollectionsContentPage({
     super.key,
     required this.itemIds,
     required this.title,
+    required this.collectionBoxName,
   });
 
   @override
@@ -30,21 +32,18 @@ class CollectionsContentPage extends StatefulWidget {
 
 class _CollectionsContentPageState extends State<CollectionsContentPage> {
   int crossAxisCount = 3;
-  late List<Item> items;
 
-  @override
-  void initState() {
-    super.initState();
+  List<Item> _resolveItemsFromIds(List<int> ids) {
     final gamesBox = Hive.box<Game>('rawg_games');
     final animeBox = Hive.box<Anime>('anilist_anime');
-    
-    items = widget.itemIds.map((id) {
+
+    return ids.map((id) {
       final game = gamesBox.get(id);
       if (game != null) return game;
-      
+
       final anime = animeBox.get(id);
       if (anime != null) return anime;
-      
+
       return null;
     }).whereType<Item>().toList();
   }
@@ -69,6 +68,42 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _openItemDetail(Item item) async {
+    if (item is Game) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => GameDisplay(game: item)),
+      );
+      return;
+    }
+
+    if (item is Movie) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => MovieDisplay(movie: item)),
+      );
+      return;
+    }
+
+    if (item is Anime) {
+      await _openAnime(item);
+      return;
+    }
+
+    if (item is Show) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ShowDisplay(show: item)),
+      );
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
     );
   }
 
@@ -100,56 +135,44 @@ class _CollectionsContentPageState extends State<CollectionsContentPage> {
     ),
         ],
       ),
-      body: GridView.builder(
-        padding: AppSpacing.paddingAll12,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
-          childAspectRatio: 135 / 190, // width / height ≈ 0.71 for DVD/game box
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return GestureDetector(
-            onTap: () {
-              if (item is Game) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => GameDisplay(game: item)),
-                );
-              } else if (item is Movie) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => MovieDisplay(movie: item)),
-                );
-              } else if (item is Anime) {
-                _openAnime(item);
-              } else if (item is Show) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => ShowDisplay(show: item)),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
-                );
-              }
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
-                  ? Image.network(item.imageUrl!, fit: BoxFit.cover)
-                  : Container(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: Icon(
-                        Icons.image,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+      body: ValueListenableBuilder<Box<int>>(
+        valueListenable: Hive.box<int>(widget.collectionBoxName).listenable(),
+        builder: (context, collectionBox, _) {
+          final ids = collectionBox.values.toList();
+          final items = _resolveItemsFromIds(ids);
+
+          return GridView.builder(
+            padding: AppSpacing.paddingAll12,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 135 / 190, // width / height ≈ 0.71 for DVD/game box
             ),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return GestureDetector(
+                  onTap: () async {
+                    await _openItemDetail(item);
+                    if (!mounted) return;
+                    setState(() {});
+                  },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: (item.imageUrl != null && item.imageUrl!.isNotEmpty)
+                      ? Image.network(item.imageUrl!, fit: BoxFit.cover)
+                      : Container(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          child: Icon(
+                            Icons.image,
+                            size: 40,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                ),
+              );
+            },
           );
         },
       ),

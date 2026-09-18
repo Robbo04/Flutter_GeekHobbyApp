@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/widgets/common/empty_state_widget.dart';
+import 'package:app_geek_hobby_app/widgets/common/error_widget.dart';
 import 'package:app_geek_hobby_app/widgets/common/loading_widget.dart';
+import 'package:app_geek_hobby_app/widgets/common/offline_retry_banner.dart';
+import 'package:app_geek_hobby_app/widgets/common/skeleton_placeholders.dart';
 import 'package:app_geek_hobby_app/widgets/common/app_title_text.dart';
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
@@ -15,13 +19,18 @@ import 'package:app_geek_hobby_app/services/collections_service.dart';
 enum ContentType { games, anime }
 
 class SuggestionsPage extends StatefulWidget {
-  const SuggestionsPage({super.key});
+  const SuggestionsPage({super.key, this.autoFetchOnInit = true});
+
+  final bool autoFetchOnInit;
 
   @override
   State<SuggestionsPage> createState() => _SuggestionsPageState();
 }
 
 class _SuggestionsPageState extends State<SuggestionsPage> {
+  static const String _prefsBoxName = 'app_preferences';
+  static const String _contentTypeKey = 'suggestions_content_type';
+
   final List<Game> _gameItems = [];
   final List<AnimeFranchise> _animeItems = [];
   final RawgService _rawg = RawgService.instance;
@@ -34,35 +43,54 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
   bool _isLoading = false;
   bool _gamesHasMore = true;
   bool _animeHasMore = true;
+  String? _loadErrorMessage;
   final int _prefetchThreshold = 6;
 
   Offset _cardOffset = Offset.zero;
   ContentType _contentType = ContentType.games;
-  String? _selectedGenre; // For games only
-
-  // RAWG genre slugs
-  static const Map<String, String> _gameGenres = {
-    'all': 'All Genres',
-    'action': 'Action',
-    'indie': 'Indie',
-    'adventure': 'Adventure',
-    'rpg': 'RPG',
-    'strategy': 'Strategy',
-    'shooter': 'Shooter',
-    'casual': 'Casual',
-    'simulation': 'Simulation',
-    'puzzle': 'Puzzle',
-    'arcade': 'Arcade',
-    'platformer': 'Platformer',
-    'racing': 'Racing',
-    'sports': 'Sports',
-    'fighting': 'Fighting',
-  };
 
   @override
   void initState() {
     super.initState();
-    _fetchNextPage();
+    _restorePreferences();
+    if (widget.autoFetchOnInit) {
+      _fetchNextPage();
+    }
+  }
+
+  Future<void> _restorePreferences() async {
+    if (Hive.isBoxOpen(_prefsBoxName)) {
+      final box = Hive.box<String>(_prefsBoxName);
+      final savedType = box.get(_contentTypeKey);
+
+      if (savedType == ContentType.anime.name) {
+        _contentType = ContentType.anime;
+      }
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+  }
+
+  Future<void> _savePreference(String key, String value) async {
+    if (!Hive.isBoxOpen(_prefsBoxName)) return;
+    await Hive.box<String>(_prefsBoxName).put(key, value);
+  }
+
+  Future<void> _retryCurrentFeed() async {
+    setState(() {
+      _loadErrorMessage = null;
+      if (_contentType == ContentType.games) {
+        _gamesHasMore = true;
+      } else {
+        _animeHasMore = true;
+      }
+    });
+    if (widget.autoFetchOnInit) {
+      await _fetchNextPage();
+    }
   }
 
   void _onContentTypeChanged(ContentType newType) {
@@ -71,10 +99,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     setState(() {
       _contentType = newType;
       _cardOffset = Offset.zero;
-      if (newType == ContentType.anime) {
-        _selectedGenre = null; // Clear genre filter for anime
-      }
     });
+
+    _savePreference(_contentTypeKey, newType.name);
+
+    if (!widget.autoFetchOnInit) return;
 
     // Only fetch if the new content type has no items yet
     if (newType == ContentType.games && _gameItems.isEmpty) {
@@ -84,18 +113,15 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     }
   }
 
-  void _onGenreChanged(String? newGenre) {
-    if (newGenre == _selectedGenre || _contentType != ContentType.games) return;
-
-    setState(() {
-      _selectedGenre = newGenre == 'all' ? null : newGenre;
-      _gameItems.clear();
-      _gamePage = 1;
-      _gamesHasMore = true;
-      _cardOffset = Offset.zero;
-    });
-
-    _fetchNextPage();
+  String _friendlyErrorMessage(Object error) {
+    final raw = error.toString();
+    if (raw.contains('status: 502')) {
+      return 'RAWG is temporarily unavailable (502). Please retry in a moment.';
+    }
+    if (raw.contains('SocketException') || raw.contains('TimeoutException')) {
+      return 'Network connection issue. Check your internet and retry.';
+    }
+    return 'Could not load suggestions right now.';
   }
 
   Future<void> _fetchNextPage() async {
@@ -103,7 +129,10 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         ? _gamesHasMore
         : _animeHasMore;
     if (_isLoading || !hasMore) return;
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadErrorMessage = null;
+    });
 
     try {
       if (_contentType == ContentType.games) {
@@ -112,9 +141,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         await _fetchAnime();
       }
     } catch (e) {
-      print('Error fetching suggestions: $e');
+      debugPrint('Error fetching suggestions: $e');
+      final message = _friendlyErrorMessage(e);
       if (mounted) {
-        _showSnackBar('Error fetching suggestions: $e');
+        _showSnackBar(message);
+        setState(() => _loadErrorMessage = message);
       }
       if (_contentType == ContentType.games) {
         _gamesHasMore = false;
@@ -130,7 +161,6 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     final fetched = await _rawg.fetchGames(
       page: _gamePage,
       pageSize: _pageSize,
-      genre: _selectedGenre,
     );
 
     final existingIds = _gameItems.map((item) => item.id).toSet();
@@ -353,7 +383,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       appBar: AppBar(title: const Text('Suggestions')),
       body: Column(
         children: [
-          // Filter bar with content type and genre selectors
+          // Content type selector
           Container(
             padding: AppSpacing.paddingAll12,
             decoration: BoxDecoration(
@@ -389,45 +419,14 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     ),
                   ],
                 ),
-
-                // Genre filter (only for games)
-                if (_contentType == ContentType.games) ...[
-                  AppSpacing.verticalSm,
-                  Row(
-                    children: [
-                      const Icon(Icons.filter_list, size: 18),
-                      AppSpacing.horizontalSm,
-                      const Text(
-                        'Genre:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      AppSpacing.horizontalSm,
-                      Expanded(
-                        child: DropdownButton<String>(
-                          value: _selectedGenre ?? 'all',
-                          isExpanded: true,
-                          underline: Container(),
-                          isDense: true,
-                          items: _gameGenres.entries.map((entry) {
-                            return DropdownMenuItem<String>(
-                              value: entry.key,
-                              child: Text(
-                                entry.value,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: _onGenreChanged,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ],
             ),
+          ),
+
+          OfflineRetryBanner(
+            isVisible: _loadErrorMessage != null,
+            message: _loadErrorMessage ?? '',
+            onRetry: _retryCurrentFeed,
           ),
 
           // Main content area
@@ -437,7 +436,21 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     .isEmpty
                 ? Center(
                     child: _isLoading
-                        ? const LoadingWidget.inline()
+                    ? const SuggestionCardSkeleton()
+                        : _loadErrorMessage != null
+                        ? AppErrorWidget.withRetry(
+                            message: _loadErrorMessage!,
+                            onRetry: () {
+                              setState(() {
+                                if (_contentType == ContentType.games) {
+                                  _gamesHasMore = true;
+                                } else {
+                                  _animeHasMore = true;
+                                }
+                              });
+                              _fetchNextPage();
+                            },
+                          )
                         : EmptyStateWidget.withAction(
                             message: 'No suggestions available',
                             actionLabel: 'Fetch More Suggestions',
