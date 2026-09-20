@@ -197,22 +197,92 @@ class _ExplorePageState extends State<ExplorePage>
   }
 
   // Helper method to fetch anime based on carousel category
-  Future<List<AnimeFranchise>> _fetchAnimeCarousel(CarouselCategory category) {
+  Future<List<AnimeFranchise>> _fetchAnimeCarousel(CarouselCategory category) async {
+    List<AnimeFranchise> franchises;
+
     switch (category.type) {
       case CarouselType.trending:
-        return _aniListService.fetchTrendingFranchises(perPage: 20);
+        franchises = await _aniListService.fetchTrendingFranchises(perPage: 20);
+        break;
       case CarouselType.comingSoon:
-        return _aniListService.fetchComingSoonFranchises(perPage: 20);
+        franchises = await _aniListService.fetchComingSoonFranchises(perPage: 20);
+        break;
       case CarouselType.mostPlayed:
-        return _aniListService.fetchMostPopularFranchises(perPage: 20);
+        franchises = await _aniListService.fetchMostPopularFranchises(perPage: 20);
+        break;
       case CarouselType.genre:
-        return _aniListService.fetchByGenreFranchises(
+        franchises = await _aniListService.fetchByGenreFranchises(
           genre: category.value!,
           perPage: 20,
         );
+        break;
       default:
-        return _aniListService.searchAnimeFranchises();
+        franchises = await _aniListService.searchAnimeFranchises();
     }
+
+    return _hydrateSingleEntryFranchises(franchises);
+  }
+
+  Future<List<AnimeFranchise>> _hydrateSingleEntryFranchises(
+    List<AnimeFranchise> franchises,
+  ) async {
+    final hydrated = <AnimeFranchise>[];
+
+    for (final franchise in franchises) {
+      if (franchise.entries.length > 1) {
+        hydrated.add(franchise);
+        continue;
+      }
+
+      final query = (franchise.heroTitle.isNotEmpty
+              ? franchise.heroTitle
+              : franchise.title)
+          .trim();
+      if (query.isEmpty) {
+        hydrated.add(franchise);
+        continue;
+      }
+
+      try {
+        final matches = await _aniListService.searchAnimeFranchises(
+          search: query,
+          perPage: 20,
+        );
+
+        AnimeFranchise? bestMatch;
+        for (final match in matches) {
+          final sameRoot = _normalizeFranchiseKey(match.title) ==
+              _normalizeFranchiseKey(franchise.title);
+          final sameHero = _normalizeFranchiseKey(match.heroTitle) ==
+              _normalizeFranchiseKey(franchise.heroTitle);
+          final sameTitle = _normalizeFranchiseKey(match.title) ==
+              _normalizeFranchiseKey(query) ||
+              _normalizeFranchiseKey(match.heroTitle) ==
+                  _normalizeFranchiseKey(query);
+
+          if (!sameRoot && !sameHero && !sameTitle) {
+            continue;
+          }
+
+          if (bestMatch == null || match.entries.length > bestMatch.entries.length) {
+            bestMatch = match;
+          }
+        }
+
+        hydrated.add(bestMatch ?? franchise);
+      } catch (_) {
+        hydrated.add(franchise);
+      }
+    }
+
+    return hydrated;
+  }
+
+  String _normalizeFranchiseKey(String value) {
+    return value
+        .replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ')
+        .trim()
+        .toLowerCase();
   }
 
   Widget _buildGameTab() {

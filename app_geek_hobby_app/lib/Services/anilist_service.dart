@@ -444,15 +444,20 @@ class AniListService {
     for (int i = 0; i < fallbackKeys.length; i++) {
       final keyA = fallbackKeys[i];
       final a = clusterByKey[keyA]!;
-      final titleA = _normalizeTitle(_pickPrimaryAnime(a).name);
+      final primaryA = _pickPrimaryAnime(a);
+      final titleA = _normalizeTitle(_sanitizeMasterTitle(primaryA.name));
+      final rootA = _franchiseRootTitle(primaryA.name);
 
       for (int j = i + 1; j < fallbackKeys.length; j++) {
         final keyB = fallbackKeys[j];
         final b = clusterByKey[keyB]!;
-        final titleB = _normalizeTitle(_pickPrimaryAnime(b).name);
+        final primaryB = _pickPrimaryAnime(b);
+        final titleB = _normalizeTitle(_sanitizeMasterTitle(primaryB.name));
+        final rootB = _franchiseRootTitle(primaryB.name);
 
+        final sameRoot = rootA == rootB;
         final similarity = _titleSimilarity(titleA, titleB);
-        if (similarity >= fallbackSimilarityThreshold) {
+        if (sameRoot || similarity >= fallbackSimilarityThreshold) {
           unionCluster(keyA, keyB);
         }
       }
@@ -607,6 +612,25 @@ class AniListService {
 
     if (sanitized.isEmpty) return title;
     return sanitized;
+  }
+
+  String _franchiseRootTitle(String title) {
+    final candidate = _sanitizeMasterTitle(title);
+    if (candidate.isEmpty) return candidate;
+
+    final parts = candidate.split(
+      RegExp(
+        r'\s*(?:[:\-–—|]|\b(?:season|part|cour|arc|chapter)\b)\s*',
+        caseSensitive: false,
+      ),
+    );
+
+    final root = parts.first.trim();
+    if (root.isNotEmpty) {
+      return _normalizeTitle(root);
+    }
+
+    return _normalizeTitle(candidate);
   }
 
   double _titleSimilarity(String a, String b) {

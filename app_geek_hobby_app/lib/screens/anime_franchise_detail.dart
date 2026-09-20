@@ -7,6 +7,7 @@ import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
 import 'package:app_geek_hobby_app/core/utils/text_formatter.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
+import 'package:app_geek_hobby_app/services/anilist_service.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
 import 'package:app_geek_hobby_app/widgets/anime/franchise_detail_widgets.dart';
 
@@ -81,8 +82,55 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
 
   Future<void> _loadFullInstallments() async {
     if (!mounted) return;
+
+    try {
+      if (_franchise.entries.length <= 1) {
+        final query = (_franchise.heroTitle.isNotEmpty
+                ? _franchise.heroTitle
+                : _franchise.title)
+            .trim();
+        if (query.isNotEmpty) {
+          final matches = await AniListService.instance.searchAnimeFranchises(
+            search: query,
+            perPage: 20,
+          );
+          final expanded = matches.where((candidate) {
+            final candidateKey = _franchiseMatchKey(candidate.title);
+            final currentKey = _franchiseMatchKey(_franchise.title);
+            final heroKey = _franchiseMatchKey(_franchise.heroTitle);
+            return candidateKey == currentKey ||
+                candidateKey == heroKey ||
+                _franchiseMatchKey(candidate.heroTitle) == currentKey ||
+                _franchiseMatchKey(candidate.heroTitle) == heroKey;
+          }).toList();
+
+          if (expanded.isNotEmpty && mounted) {
+            setState(() {
+              _franchise = expanded.first;
+            });
+          }
+        }
+      }
+    } catch (_) {
+      // Ignore enrichment failures and keep the original franchise data.
+    }
+
+    if (!mounted) return;
     setState(() => _isLoading = false);
     await _loadCollectionStatus();
+  }
+
+  String _franchiseMatchKey(String value) {
+    final normalized = value
+        .replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ')
+        .trim()
+        .toLowerCase();
+    if (normalized.isEmpty) return normalized;
+
+    final beforeSeparator = normalized.split(RegExp(r'\s*(?:[:\-–—|]|\bseason\b|\bpart\b|\bcour\b|\barc\b|\bchapter\b)\s*'))
+        .first
+        .trim();
+    return beforeSeparator.isNotEmpty ? beforeSeparator : normalized;
   }
 
   Anime? get _primaryAnimeEntry {
@@ -185,6 +233,7 @@ class _AnimeFranchiseDetailPageState extends State<AnimeFranchiseDetailPage> {
       sections.add(
         FranchiseCarousel(
           entries: items,
+          franchiseTitle: _franchise.title,
           onWatchedChanged: _loadCollectionStatus,
         ),
       );

@@ -229,7 +229,7 @@ class _AnimeFranchiseHeaderState extends State<AnimeFranchiseHeader> {
                     ),
                     const Spacer(),
                     Text(
-                      '${widget.watchedCount} of ${widget.franchise.entries.length} episodes',
+                      '${widget.watchedCount} of ${widget.franchise.entries.length} installments',
                       style: TextStyle(
                         color: const Color(0xFFFFFFFF).withOpacity(0.88),
                         fontSize: 14,
@@ -406,13 +406,80 @@ class _ActionPillButton extends StatelessWidget {
   }
 }
 
+String stripFranchiseTitlePrefix(String title, String franchiseTitle) {
+  final originalTitle = title.trim();
+  final originalFranchise = franchiseTitle.trim();
+
+  if (originalTitle.isEmpty || originalFranchise.isEmpty) {
+    return originalTitle;
+  }
+
+  final titleWords = _titleWords(originalTitle);
+  final franchiseWords = _titleWords(originalFranchise);
+
+  if (titleWords.isEmpty || franchiseWords.isEmpty) {
+    return originalTitle;
+  }
+
+  if (_wordsEqualIgnoreCase(titleWords, franchiseWords)) {
+    return originalTitle;
+  }
+
+  if (_startsWithWords(titleWords, franchiseWords)) {
+    final remainder = titleWords.sublist(franchiseWords.length).join(' ');
+    final cleaned = remainder
+        .replaceFirst(
+          RegExp(r'^(season|part|cour|arc|chapter|movie|special)\s+', caseSensitive: false),
+          '',
+        )
+        .trim();
+
+    if (cleaned.isNotEmpty) {
+      return cleaned;
+    }
+  }
+
+  return originalTitle;
+}
+
+List<String> _titleWords(String input) {
+  return input
+      .replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ')
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList();
+}
+
+bool _wordsEqualIgnoreCase(List<String> a, List<String> b) {
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i].toLowerCase() != b[i].toLowerCase()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool _startsWithWords(List<String> source, List<String> prefix) {
+  if (prefix.length > source.length) return false;
+  for (int i = 0; i < prefix.length; i++) {
+    if (source[i].toLowerCase() != prefix[i].toLowerCase()) {
+      return false;
+    }
+  }
+  return true;
+}
+
 class FranchiseCarousel extends StatelessWidget {
   final List<Anime> entries;
+  final String franchiseTitle;
   final Future<void> Function()? onWatchedChanged;
 
   const FranchiseCarousel({
     super.key,
     required this.entries,
+    required this.franchiseTitle,
     this.onWatchedChanged,
   });
 
@@ -426,6 +493,7 @@ class FranchiseCarousel extends StatelessWidget {
         itemBuilder: (context, index) {
           return FranchiseCarouselCard(
             anime: entries[index],
+            franchiseTitle: franchiseTitle,
             onWatchedChanged: onWatchedChanged,
           );
         },
@@ -436,11 +504,13 @@ class FranchiseCarousel extends StatelessWidget {
 
 class FranchiseCarouselCard extends StatefulWidget {
   final Anime anime;
+  final String franchiseTitle;
   final Future<void> Function()? onWatchedChanged;
 
   const FranchiseCarouselCard({
     super.key,
     required this.anime,
+    required this.franchiseTitle,
     this.onWatchedChanged,
   });
 
@@ -493,6 +563,15 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
         ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
       }
     }
+  }
+
+  String _displayName() {
+    final animeTitle = widget.anime.name.trim();
+    final cleaned = stripFranchiseTitlePrefix(
+      animeTitle,
+      widget.franchiseTitle,
+    );
+    return cleaned.isEmpty ? animeTitle : cleaned;
   }
 
   @override
@@ -572,7 +651,7 @@ class _FranchiseCarouselCardState extends State<FranchiseCarouselCard> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.anime.name,
+                            _displayName(),
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
