@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
 import 'package:app_geek_hobby_app/models/item/game.dart';
 import 'package:app_geek_hobby_app/models/item/item.dart';
+import 'package:app_geek_hobby_app/enums/platforms/game_platform.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/widgets/detail/anime_display.dart';
 import 'package:app_geek_hobby_app/widgets/detail/game_display.dart';
@@ -126,6 +128,16 @@ class ItemCarouselCard extends StatelessWidget {
                                 )
                               : null,
                         ),
+                        if (item is Game)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: _buildPlatformFooterStrip(
+                              context,
+                              item as Game,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -162,5 +174,132 @@ class ItemCarouselCard extends StatelessWidget {
       }
     }
     return null;
+  }
+
+  Widget _buildPlatformFooterStrip(BuildContext context, Game game) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final opacity = 0.65;
+    final uniquePlatforms = game.platforms.toSet().toList();
+
+    if (uniquePlatforms.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final visible = uniquePlatforms.take(2).toList();
+    final hiddenCount = uniquePlatforms.length - visible.length;
+    final iconSize = (cardWidth * 0.11).clamp(9.0, 13.0);
+    final bubbleSize = (cardWidth * 0.18).clamp(15.0, 20.0);
+    final stripHeight = bubbleSize + 8;
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(12),
+        bottomRight: Radius.circular(12),
+      ),
+      child: Container(
+        height: stripHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colorScheme.scrim.withOpacity(0.10),
+              colorScheme.scrim.withOpacity(0.62),
+            ],
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            for (var i = 0; i < visible.length; i++) ...[
+              if (i > 0) const SizedBox(width: 4),
+              Container(
+                width: bubbleSize,
+                height: bubbleSize,
+                decoration: BoxDecoration(
+                  color: colorScheme.surface.withOpacity(opacity),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: colorScheme.outlineVariant,
+                    width: 0.7,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: _platformLogoWidget(
+                    platform: visible[i],
+                    size: iconSize,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+            if (hiddenCount > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                height: bubbleSize,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant,
+                    width: 0.7,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '+$hiddenCount',
+                  style: TextStyle(
+                    fontSize: (cardWidth * 0.09).clamp(9.0, 11.0),
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _platformLogoWidget({
+    required GamePlatform platform,
+    required double size,
+    required Color color,
+  }) {
+    final logoPath = _platformLogoPath(platform);
+    if (logoPath == null) {
+      return Icon(Icons.devices_other, size: size, color: color);
+    }
+
+    return SvgPicture.asset(
+      logoPath,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+    );
+  }
+
+  String? _platformLogoPath(GamePlatform platform) {
+    switch (platform) {
+      case GamePlatform.pc:
+        return 'assets/logos/platforms/Logo_Windows.svg';
+      case GamePlatform.playstation:
+        return 'assets/logos/platforms/Logo_Playstation.svg';
+      case GamePlatform.xbox:
+        return 'assets/logos/platforms/Logo_Xbox.svg';
+      case GamePlatform.nintendo:
+        return 'assets/logos/platforms/Logo_Nintendo.svg';
+      case GamePlatform.mobile:
+        return null;
+      case GamePlatform.vr:
+        return 'assets/logos/platforms/Logo_Meta.svg';
+      case GamePlatform.other:
+        return null;
+    }
   }
 }
