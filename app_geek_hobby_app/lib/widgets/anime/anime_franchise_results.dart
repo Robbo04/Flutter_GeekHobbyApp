@@ -35,7 +35,21 @@ class AnimeFranchiseResults extends StatelessWidget {
           maxLines: 2,
         ),
         AppSpacing.verticalResponsive(context, AppSpacing.sm + 2),
-        ...franchises.map((franchise) => _FranchiseCard(franchise: franchise)),
+        SizedBox(
+          height: 206,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: franchises.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              return SizedBox(
+                width: 150,
+                child: _FranchiseCard(franchise: franchises[index]),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -161,7 +175,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
         : _watchedCount / widget.franchise.entries.length;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
@@ -173,95 +187,115 @@ class _FranchiseCardState extends State<_FranchiseCard> {
           );
         },
         child: Container(
-          padding: AppSpacing.paddingSymmetricResponsive(
-            context,
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm + 2,
-          ),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                tint.withOpacity(0.2),
+                tint.withOpacity(0.14),
                 colorScheme.surface,
               ],
             ),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _HeroImage(url: widget.franchise.imageUrl),
-                  AppSpacing.horizontalMdResponsive(context),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppTitleText(
-                          cleanedTitle,
-                          style: textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            height: 1.2,
+              SizedBox(
+                width: 134,
+                child: Stack(
+                  children: [
+                    _HeroImage(url: widget.franchise.imageUrl),
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: IconButton(
+                          icon: Icon(
+                            _isFranchiseWishlisted
+                                ? Icons.bookmark
+                                : Icons.bookmark_outline,
+                            color: _isFranchiseWishlisted
+                                ? semantic.info
+                                : colorScheme.onSurfaceVariant,
+                            size: 14,
                           ),
-                          maxLines: 2,
+                          onPressed: _toggleFranchiseWishlist,
+                          tooltip: _isFranchiseWishlisted
+                              ? 'Remove from wishlist'
+                              : 'Add to wishlist',
+                          constraints: const BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
                         ),
-                        AppSpacing.verticalXsResponsive(context),
-                        Text(
-                          widget.franchise.entries.length > 1
-                              ? '${widget.franchise.entries.length} entries • ${widget.franchise.totalEpisodes} total eps'
-                              : 'Standalone',
-                          style: textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: AppTitleText(
+                        cleanedTitle,
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                          fontSize: 15,
                         ),
-                      ],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          _isFranchiseWatched
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          color: _isFranchiseWatched
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: IconButton(
+                      icon: Icon(
+                        _isFranchiseWatched
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        color: _isFranchiseWatched
                             ? semantic.success
-                              : colorScheme.onSurfaceVariant,
-                        ),
-                        onPressed: _toggleFranchiseWatched,
-                        tooltip: _isFranchiseWatched
-                            ? 'Mark all as unwatched'
-                            : 'Mark all as watched',
-                        constraints: const BoxConstraints(),
-                        padding: AppSpacing.paddingAll8,
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _isFranchiseWishlisted
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline,
-                          color: _isFranchiseWishlisted
-                            ? semantic.info
                             : colorScheme.onSurfaceVariant,
-                        ),
-                        onPressed: _toggleFranchiseWishlist,
-                        tooltip: _isFranchiseWishlisted
-                            ? 'Remove from wishlist'
-                            : 'Add to wishlist',
-                        constraints: const BoxConstraints(),
-                        padding: AppSpacing.paddingAll8,
+                        size: 16,
                       ),
-                    ],
+                      onPressed: _toggleFranchiseWatched,
+                      tooltip: _isFranchiseWatched
+                          ? 'Mark all as unwatched'
+                          : 'Mark all as watched',
+                      constraints: const BoxConstraints(),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                    ),
                   ),
                 ],
               ),
-              AppSpacing.verticalSmResponsive(context),
+              const SizedBox(height: 4),
+              Text(
+                widget.franchise.entries.length > 1
+                    ? '${widget.franchise.entries.length} installments • ${widget.franchise.totalEpisodes} eps'
+                    : 'Standalone',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 10.5,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
               ClipRRect(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(999),
                 child: SizedBox(
-                  height: 6,
+                  height: 4,
                   child: LinearProgressIndicator(
                     value: progressPercent,
                     backgroundColor: colorScheme.surfaceContainerHighest,
@@ -271,12 +305,13 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                   ),
                 ),
               ),
-              AppSpacing.verticalXsResponsive(context),
+              const SizedBox(height: 4),
               Text(
                 '$_watchedCount/${widget.franchise.entries.length} watched',
                 style: textTheme.labelSmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
+                  fontSize: 9,
                 ),
               ),
             ],
@@ -316,16 +351,18 @@ class _HeroImage extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: 48,
-        height: 70,
-        color: colorScheme.surfaceContainerHighest,
-        child: (url != null && url!.isNotEmpty)
-            ? Image.network(url!, fit: BoxFit.cover)
-            : Icon(
-                Icons.movie_creation_outlined,
-                color: colorScheme.onSurfaceVariant,
-              ),
+      child: SizedBox(
+        width: 134,
+        height: 96,
+        child: Container(
+          color: colorScheme.surfaceContainerHighest,
+          child: (url != null && url!.isNotEmpty)
+              ? Image.network(url!, fit: BoxFit.cover)
+              : Icon(
+                  Icons.movie_creation_outlined,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+        ),
       ),
     );
   }
