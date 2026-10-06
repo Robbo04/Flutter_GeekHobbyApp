@@ -210,26 +210,39 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                     Positioned(
                       top: 6,
                       right: 6,
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: IconButton(
-                          icon: Icon(
-                            _isFranchiseWishlisted
-                                ? Icons.bookmark
-                                : Icons.bookmark_outline,
-                            color: _isFranchiseWishlisted
-                                ? semantic.info
-                                : colorScheme.onSurfaceVariant,
-                            size: 14,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(999),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.shadow.withOpacity(0.18),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: IconButton(
+                            icon: Icon(
+                              _isFranchiseWishlisted
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_outline,
+                              color: _isFranchiseWishlisted
+                                  ? semantic.info
+                                  : colorScheme.onSurfaceVariant,
+                              size: 14,
+                            ),
+                            onPressed: _toggleFranchiseWishlist,
+                            tooltip: _isFranchiseWishlisted
+                                ? 'Remove from wishlist'
+                                : 'Add to wishlist',
+                            constraints: const BoxConstraints(),
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
                           ),
-                          onPressed: _toggleFranchiseWishlist,
-                          tooltip: _isFranchiseWishlisted
-                              ? 'Remove from wishlist'
-                              : 'Add to wishlist',
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
-                          visualDensity: VisualDensity.compact,
                         ),
                       ),
                     ),
