@@ -44,7 +44,7 @@ class AnimeFranchiseResults extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               return SizedBox(
-                width: 150,
+                width: 120,
                 child: _FranchiseCard(franchise: franchises[index]),
               );
             },
@@ -203,7 +203,7 @@ class _FranchiseCardState extends State<_FranchiseCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 134,
+                width: 104,
                 child: Stack(
                   children: [
                     _HeroImage(url: widget.franchise.imageUrl),
@@ -378,7 +378,7 @@ class _HeroImage extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
-        width: 134,
+        width: 104,
         height: 96,
         child: Container(
           color: colorScheme.surfaceContainerHighest,
