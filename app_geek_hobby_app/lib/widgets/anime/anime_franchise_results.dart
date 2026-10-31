@@ -268,26 +268,39 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: IconButton(
-                      icon: Icon(
-                        _isFranchiseWatched
-                            ? Icons.check_circle
-                            : Icons.circle_outlined,
-                        color: _isFranchiseWatched
-                            ? semantic.success
-                            : colorScheme.onSurfaceVariant,
-                        size: 16,
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(999),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withOpacity(0.18),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: IconButton(
+                        icon: Icon(
+                          _isFranchiseWatched
+                              ? Icons.check_circle
+                              : Icons.circle_outlined,
+                          color: _isFranchiseWatched
+                              ? semantic.success
+                              : colorScheme.onSurfaceVariant,
+                          size: 16,
+                        ),
+                        onPressed: _toggleFranchiseWatched,
+                        tooltip: _isFranchiseWatched
+                            ? 'Mark all as unwatched'
+                            : 'Mark all as watched',
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
                       ),
-                      onPressed: _toggleFranchiseWatched,
-                      tooltip: _isFranchiseWatched
-                          ? 'Mark all as unwatched'
-                          : 'Mark all as watched',
-                      constraints: const BoxConstraints(),
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
                     ),
                   ),
                 ],
