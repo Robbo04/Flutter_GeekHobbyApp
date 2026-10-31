@@ -83,6 +83,13 @@ class _SearchPageState extends State<SearchPage> {
           title: 'Games — results for "$_lastQuery"',
           items: games,
           getName: (item) => (item as Game).name,
+          titlePadding: EdgeInsets.zero,
+          carouselHeight: 206,
+          itemWidth: 104,
+          itemImageHeight: 130,
+          itemHorizontalMargin: 8,
+          itemTitleMaxLines: 2,
+          showGameProgress: true,
         );
       },
     );

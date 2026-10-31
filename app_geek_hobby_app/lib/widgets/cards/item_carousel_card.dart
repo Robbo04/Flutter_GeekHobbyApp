@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/models/item/anime.dart';
@@ -20,6 +21,8 @@ class ItemCarouselCard extends StatelessWidget {
   final double cardWidth;
   final double imageHeight;
   final double horizontalMargin;
+  final int titleMaxLines;
+  final bool showGameProgress;
 
   const ItemCarouselCard({
     super.key,
@@ -28,6 +31,8 @@ class ItemCarouselCard extends StatelessWidget {
     this.cardWidth = 90,
     this.imageHeight = 140,
     this.horizontalMargin = 8,
+    this.titleMaxLines = 3,
+    this.showGameProgress = false,
   });
 
   @override
@@ -36,6 +41,9 @@ class ItemCarouselCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final title = getName(item);
     final nameFontSize = (cardWidth * 0.13).clamp(11.0, 13.0);
+    final isGameCompleted = showGameProgress &&
+      item is Game &&
+      Hive.box<int>('games_completed_collection_id').containsKey(item.id);
 
     return InkWell(
       onTap: () async {
@@ -152,9 +160,36 @@ class ItemCarouselCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 height: 1.18,
               ),
-              maxLines: 3,
+              maxLines: titleMaxLines,
               textAlign: TextAlign.center,
             ),
+            if (showGameProgress && item is Game) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: SizedBox(
+                        height: 4,
+                        child: LinearProgressIndicator(
+                          value: isGameCompleted ? 1 : 0,
+                          backgroundColor: colorScheme.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    isGameCompleted ? '1/1' : '0/1',
+                    style: textTheme.labelSmall?.copyWith(fontSize: 9),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

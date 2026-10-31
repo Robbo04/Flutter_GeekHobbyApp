@@ -12,6 +12,8 @@ class ItemCarousel extends StatelessWidget {
   final double itemWidth;
   final double itemImageHeight;
   final double itemHorizontalMargin;
+  final int itemTitleMaxLines;
+  final bool showGameProgress;
 
   const ItemCarousel({
     super.key,
@@ -23,6 +25,8 @@ class ItemCarousel extends StatelessWidget {
     this.itemWidth = 104,
     this.itemImageHeight = 150,
     this.itemHorizontalMargin = 8,
+    this.itemTitleMaxLines = 3,
+    this.showGameProgress = false,
   });
 
   @override
@@ -58,6 +62,8 @@ class ItemCarousel extends StatelessWidget {
                 cardWidth: itemWidth,
                 imageHeight: itemImageHeight,
                 horizontalMargin: itemHorizontalMargin,
+                titleMaxLines: itemTitleMaxLines,
+                showGameProgress: showGameProgress,
               );
             },
           ),

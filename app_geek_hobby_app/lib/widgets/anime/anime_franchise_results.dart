@@ -1,8 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import 'package:app_geek_hobby_app/core/constants/app_spacing.dart';
-import 'package:app_geek_hobby_app/core/themes/app_semantic_colors.dart';
 import 'package:app_geek_hobby_app/models/group/anime_franchise.dart';
 import 'package:app_geek_hobby_app/screens/anime_franchise_detail.dart';
 import 'package:app_geek_hobby_app/services/collections_service.dart';
@@ -65,6 +66,7 @@ class _FranchiseCard extends StatefulWidget {
 }
 
 class _FranchiseCardState extends State<_FranchiseCard> {
+  final GlobalKey _cardKey = GlobalKey();
   late bool _isFranchiseWatched;
   late bool _isFranchiseWishlisted;
   int _watchedCount = 0;
@@ -162,10 +164,76 @@ class _FranchiseCardState extends State<_FranchiseCard> {
     }
   }
 
+  Future<void> _showCollectionMenu() async {
+    final cardRenderObject = _cardKey.currentContext?.findRenderObject();
+    final overlayRenderObject = Overlay.of(context).context.findRenderObject();
+    if (cardRenderObject is! RenderBox || overlayRenderObject is! RenderBox) {
+      return;
+    }
+
+    final globalPosition = cardRenderObject.localToGlobal(
+      cardRenderObject.size.center(Offset.zero),
+    );
+    final overlaySize = overlayRenderObject.size;
+    final colorScheme = Theme.of(context).colorScheme;
+    final selection = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        globalPosition.dx,
+        globalPosition.dy,
+        overlaySize.width - globalPosition.dx,
+        overlaySize.height - globalPosition.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'watched',
+          child: Row(
+            children: [
+              Icon(
+                _isFranchiseWatched
+                    ? Icons.remove_circle_outline
+                    : Icons.add_circle_outline,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Text(_isFranchiseWatched
+                  ? 'Remove from watched'
+                  : 'Add to watched'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'wishlist',
+          child: Row(
+            children: [
+              Icon(
+                _isFranchiseWishlisted
+                    ? Icons.bookmark_remove_outlined
+                    : Icons.bookmark_add_outlined,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Text(_isFranchiseWishlisted
+                  ? 'Remove from wishlist'
+                  : 'Add to wishlist'),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    if (!mounted) return;
+    switch (selection) {
+      case 'watched':
+        await _toggleFranchiseWatched();
+      case 'wishlist':
+        await _toggleFranchiseWishlist();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final semantic = context.semanticColors;
     final textTheme = Theme.of(context).textTheme;
     final tint =
         _parseAniListColor(widget.franchise.coverColor) ?? const Color(0xFF1F7A8C);
@@ -175,9 +243,11 @@ class _FranchiseCardState extends State<_FranchiseCard> {
         : _watchedCount / widget.franchise.entries.length;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      key: _cardKey,
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        onLongPress: _showCollectionMenu,
         onTap: () {
           Navigator.push(
             context,
@@ -208,40 +278,38 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                   children: [
                     _HeroImage(url: widget.franchise.imageUrl),
                     Positioned(
-                      top: 6,
-                      right: 6,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(999),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.shadow.withOpacity(0.18),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      left: 0,
+                      top: 0,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(8),
                         ),
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: IconButton(
-                            icon: Icon(
-                              _isFranchiseWishlisted
-                                  ? Icons.bookmark
-                                  : Icons.bookmark_outline,
-                              color: _isFranchiseWishlisted
-                                  ? semantic.info
-                                  : colorScheme.onSurfaceVariant,
-                              size: 14,
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 5,
                             ),
-                            onPressed: _toggleFranchiseWishlist,
-                            tooltip: _isFranchiseWishlisted
-                                ? 'Remove from wishlist'
-                                : 'Add to wishlist',
-                            constraints: const BoxConstraints(),
-                            padding: EdgeInsets.zero,
-                            visualDensity: VisualDensity.compact,
+                            decoration: BoxDecoration(
+                              color: colorScheme.scrim.withValues(alpha: 0.56),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.18),
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                bottomRight: Radius.circular(8),
+                              ),
+                            ),
+                            child: Text(
+                              '$_watchedCount / ${widget.franchise.entries.length}',
+                              style: textTheme.labelSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ),
@@ -250,71 +318,14 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: AppTitleText(
-                        cleanedTitle,
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          height: 1.15,
-                          fontSize: 15,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(999),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.shadow.withOpacity(0.18),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: IconButton(
-                        icon: Icon(
-                          _isFranchiseWatched
-                              ? Icons.check_circle
-                              : Icons.circle_outlined,
-                          color: _isFranchiseWatched
-                              ? semantic.success
-                              : colorScheme.onSurfaceVariant,
-                          size: 16,
-                        ),
-                        onPressed: _toggleFranchiseWatched,
-                        tooltip: _isFranchiseWatched
-                            ? 'Mark all as unwatched'
-                            : 'Mark all as watched',
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.franchise.entries.length > 1
-                    ? '${widget.franchise.entries.length} installments • ${widget.franchise.totalEpisodes} eps'
-                    : 'Standalone',
-                style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontSize: 10.5,
+              AppTitleText(
+                cleanedTitle,
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1.15,
+                  fontSize: 15,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 6),
@@ -329,15 +340,6 @@ class _FranchiseCardState extends State<_FranchiseCard> {
                       tint.withOpacity(0.7),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$_watchedCount/${widget.franchise.entries.length} watched',
-                style: textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 9,
                 ),
               ),
             ],
@@ -379,7 +381,7 @@ class _HeroImage extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
         width: 104,
-        height: 96,
+        height: 130,
         child: Container(
           color: colorScheme.surfaceContainerHighest,
           child: (url != null && url!.isNotEmpty)
